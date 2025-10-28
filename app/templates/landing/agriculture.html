@@ -1,0 +1,95 @@
+{% extends "base/landingBase.html" %}
+{% block content %}
+
+
+    <!-- Page Title -->
+    <div class="page-title">
+      <div class="container d-lg-flex justify-content-between align-items-center">
+        <h1 class="mb-2 mb-lg-0">Agriculture Support</h1>
+        <nav class="breadcrumbs">
+          <ol>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li class="current">Agriculture Support</li>
+          </ol>
+        </nav>
+      </div>
+    </div><!-- End Page Title -->
+
+    <!-- Service Details Section -->
+    <section id="service-details" class="service-details section">
+
+      <div class="container">
+
+        <div class="row gy-5">
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="service-box">
+                <h4>Agriculture Support Services</h4>
+                <div class="services-list">
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Assistance for Crop Production</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Livestock and Poultry Support</span></a>
+                  <a href="#"><i class="bbi bi-check-circle"></i><span>Agri-Technology Training</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Seedling and Fertilizer Distribution</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Farmer Cooperative Assistance</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Farm Machinery Loan Program</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Organic Farming Support</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Financial Assistance for Farmers</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Market Linkage and Promotion</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Agri-Insurance Programs</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Farmers' Health and Safety Training</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Pest and Disease Control Assistance</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Agriculture Business Consultation</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Agri-Equipment and Tools Provision</span></a>
+                </div>
+              </div>
+                      
+
+            <!-- <div class="service-box">
+              <h4>Download Catalog</h4>
+              <div class="download-catalog">
+                <a href="#"><i class="bi bi-filetype-pdf"></i><span>Catalog PDF</span></a>
+                <a href="#"><i class="bi bi-file-earmark-word"></i><span>Catalog DOC</span></a>
+              </div>
+            </div>End Services List -->
+
+            <div class="help-box d-flex flex-column justify-content-center align-items-center">
+              <i class="bi bi-headset help-icon"></i>
+              <h4>Have a Question?</h4>
+              <p class="d-flex align-items-center mt-2 mb-0"><i class="bi bi-telephone me-2"></i> <span>+1 5589 55488 55</span></p>
+              <p class="d-flex align-items-center mt-1 mb-0"><i class="bi bi-envelope me-2"></i> <a href="mailto:contact@example.com">contact@example.com</a></p>
+            </div>
+
+          </div>
+
+          <div class="col-lg-8 ps-lg-5" data-aos="fade-up" data-aos-delay="200">
+            <img src="{{ url_for('static', filename='img/landing/agri.JPG') }}" alt="Agriculture Support Services - Victoria Laguna" class="img-fluid services-img">
+
+            <h3>Supporting Sustainable Agriculture for the Farmers of Victoria, Laguna</h3>
+            <p>
+              The Municipality of Victoria is dedicated to enhancing the lives of local farmers through comprehensive Agriculture Support Services. Whether you're a small-scale farmer, a cooperatively-run operation, or a new agricultural entrepreneur, we provide various programs and resources to ensure your agricultural activities are successful, sustainable, and profitable.
+            </p>
+            <p>
+              Our Agriculture Support Services focus on improving productivity, offering technical training, providing necessary inputs like seeds and fertilizers, and offering financial support to foster growth in the farming sector. We work closely with farmers to ensure they have the tools and knowledge to succeed in an evolving agricultural landscape.
+            </p>
+            <ul>
+              <li><i class="bi bi-check-circle"></i> <span>Financial assistance and loans for agricultural development.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Technical training in modern farming techniques and technologies.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Distribution of quality seeds, fertilizers, and farm equipment.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Market linkage programs to connect local farmers with buyers.</span></li>
+            </ul>
+            <p>
+              With our support, we aim to ensure that every farmer in Victoria, Laguna can thrive by boosting productivity, adopting sustainable farming practices, and accessing new markets. Our goal is to create a resilient and prosperous agricultural community that will continue to contribute to the region’s economic growth and food security.
+            </p>
+          </div>
+          
+          
+          
+
+        </div>
+
+      </div>
+
+    </section><!-- /Service Details Section -->
+
+    {% endblock content %}

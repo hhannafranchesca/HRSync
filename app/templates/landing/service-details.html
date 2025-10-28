@@ -1,0 +1,97 @@
+{% extends "base/landingBase.html" %}
+{% block content %}
+
+    <!-- Page Title -->
+    <div class="page-title">
+      <div class="container d-lg-flex justify-content-between align-items-center">
+        <h1 class="mb-2 mb-lg-0">Health Services</h1>
+        <nav class="breadcrumbs">
+          <ol>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li class="current">Health Services</li>
+          </ol>
+        </nav>
+      </div>
+    </div><!-- End Page Title -->
+
+    <!-- Service Details Section -->
+    <section id="service-details" class="service-details section">
+
+      <div class="container">
+
+        <div class="row gy-5">
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="service-box">
+              <h4>Health Services</h4>
+              <div class="services-list">
+                <a href="#"><i class="bi bi-check-circle"></i><span>General Consultation</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>Maternal and Child Health Care</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>Family Planning Services</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>Immunization Services</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>Nutrition Program</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>Dental Services</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>Laboratory Services</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>TB DOTS Program</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>Animal Bite Treatment Center</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>Adolescent Health Services</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>Mental Health Services</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>Pre-Marriage Counseling</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>Medico-Legal Services</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>Health and Sanitation Certificates</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>Ambulance Transport Services</span></a>
+                <a href="#"><i class="bi bi-check-circle"></i><span>COVID-19 Vaccination</span></a>
+              </div>
+            </div>            
+
+            <!-- <div class="service-box">
+              <h4>Download Catalog</h4>
+              <div class="download-catalog">
+                <a href="#"><i class="bi bi-filetype-pdf"></i><span>Catalog PDF</span></a>
+                <a href="#"><i class="bi bi-file-earmark-word"></i><span>Catalog DOC</span></a>
+              </div>
+            </div>End Services List -->
+
+            <div class="help-box d-flex flex-column justify-content-center align-items-center">
+              <i class="bi bi-headset help-icon"></i>
+              <h4>Have a Question?</h4>
+              <p class="d-flex align-items-center mt-2 mb-0"><i class="bi bi-telephone me-2"></i> <span>+1 5589 55488 55</span></p>
+              <p class="d-flex align-items-center mt-1 mb-0"><i class="bi bi-envelope me-2"></i> <a href="mailto:contact@example.com">contact@example.com</a></p>
+            </div>
+
+          </div>
+
+          <div class="col-lg-8 ps-lg-5" data-aos="fade-up" data-aos-delay="200">
+            <img src="{{ url_for('static', filename='img/landing/center.jpg') }}" alt="Victoria Laguna Health Center" class="img-fluid services-img">
+
+            <h3>Providing Quality and Accessible Healthcare Services for the Community of Victoria, Laguna</h3>
+            <p>
+              The Victoria Laguna Health Center is dedicated to providing top-notch healthcare services to the residents of Victoria, Laguna. Our goal is to ensure that every individual in the community receives the best possible care, whether it be through general medical consultations, preventive health programs, or more specialized health services.
+            </p>
+            <p>
+              We offer a wide range of services aimed at promoting health and wellness in the community. From regular check-ups to support for maternal and child health, our team of healthcare professionals is committed to delivering care that is both accessible and affordable to all.
+            </p>
+            <ul>
+              <li><i class="bi bi-check-circle"></i> <span>Accessible and affordable medical services for all residents of Victoria.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Skilled and compassionate healthcare professionals dedicated to your well-being.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Comprehensive maternal and child health services, including immunization programs.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Regular health education sessions to promote wellness within the community.</span></li>
+            </ul>
+            <p>
+              At the Victoria Laguna Health Center, we also focus on preventive care, offering regular screenings and health assessments to catch any potential health issues early. We believe that health education is key to creating a healthier community, so we offer various programs that provide information on healthy living, disease prevention, and the importance of regular check-ups.
+            </p>
+            <p>
+              Our mission is to make sure that every family in Victoria, Laguna has access to quality healthcare services. With the support of the local government, the hard work of our healthcare staff, and a strong commitment to community wellness, we strive to build a healthier, stronger, and more resilient community.
+            </p>
+          </div>
+          
+          
+
+        </div>
+
+      </div>
+
+    </section><!-- /Service Details Section -->
+
+    {% endblock content %}

@@ -1,0 +1,106 @@
+{% extends "base/landingBase.html" %}
+{% block content %}
+    <!-- Page Title -->
+    <!-- Replace this section of your HTML -->
+
+<!-- Page Title -->
+  <div class="page-title">
+      <div class="container d-lg-flex justify-content-between align-items-center">
+        <h1 class="mb-2 mb-lg-0">Community</h1>
+        <nav class="breadcrumbs">
+          <ol>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li class="current">Community</li>
+          </ol>
+        </nav>
+      </div>
+    </div><!-- End Page Title -->
+<!-- Community Details Section -->
+<section id="service-details" class="service-details section">
+    <div class="container">
+      <div class="row gy-5">
+        <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="service-box">
+            <h4>Community Highlights</h4>
+            <div class="services-list">
+              <a href="#"><i class="bi bi-check-circle"></i><span>Duck Raising Capital of the Philippines</span></a>
+              <a href="#"><i class="bi bi-check-circle"></i><span>Strong Agricultural Roots</span></a>
+              <a href="#"><i class="bi bi-check-circle"></i><span>Cultural Festivals (Itik Festival)</span></a>
+              <a href="#"><i class="bi bi-check-circle"></i><span>Peaceful and Resilient People</span></a>
+              <a href="#"><i class="bi bi-check-circle"></i><span>Growing Local Economy</span></a>
+            </div>
+          </div>
+  
+          <!-- <div class="service-box">
+            <h4>Download Resources</h4>
+            <div class="download-catalog">
+              <a href="#"><i class="bi bi-filetype-pdf"></i><span>Community Profile PDF</span></a>
+              <a href="#"><i class="bi bi-file-earmark-word"></i><span>Development Programs DOC</span></a>
+            </div>
+          </div> -->
+  
+          <div class="help-box d-flex flex-column justify-content-center align-items-center">
+            <i class="bi bi-headset help-icon"></i>
+            <h4>Need Assistance?</h4>
+            <p class="d-flex align-items-center mt-2 mb-0"><i class="bi bi-telephone me-2"></i> <span>+1 5589 55488 55</span></p>
+            <p class="d-flex align-items-center mt-1 mb-0"><i class="bi bi-envelope me-2"></i> <a href="mailto:contact@example.com">contact@example.com</a></p>
+          </div>
+        </div>
+  
+        <div class="col-lg-8 ps-lg-5" data-aos="fade-up" data-aos-delay="200">
+          <style>
+            .image-box {
+              height: 300px;
+              overflow: hidden;
+            }
+            .image-box img {
+              height: 100%;
+              width: 100%;
+              object-fit: cover;
+              border-radius: 8px;
+            }
+          </style>
+  
+          <div class="row mb-4">
+            <div class="col-md-4" data-aos="fade-up">
+              <div class="image-box">
+                <img src="{{ url_for('static', filename='img/landing/_com1.JPG') }}" alt="Itik Festival" class="img-fluid shadow-sm">
+              </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+              <div class="image-box">
+                <img src="{{ url_for('static', filename='img/landing/_com3.png') }}" alt="Agriculture" class="img-fluid shadow-sm">
+
+              </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+              <div class="image-box">
+                <img src="{{ url_for('static', filename='img/landing/_com7.PNG') }}" alt="Fishing Livelihood" class="img-fluid shadow-sm">
+
+              </div>
+            </div>
+          </div>
+  
+          <h3>About the Community in Victoria, Laguna</h3>
+          <p>
+            Victoria is a 2nd class municipality in the province of Laguna, known for its rich agricultural lands, vibrant culture, and warm-hearted people. It proudly holds the title "Duck Raising Capital of the Philippines" due to its widespread and successful itik farming industry.
+          </p>
+          <p>
+            The community thrives through a blend of traditional practices and modern opportunities. Farming, fishing, and small enterprises serve as the backbone of the local economy, while local festivals like the famous Itik Festival showcase the town’s cultural pride and unity.
+          </p>
+          <ul>
+            <li><i class="bi bi-check-circle"></i> <span>Peaceful and closely-knit neighborhoods.</span></li>
+            <li><i class="bi bi-check-circle"></i> <span>Locally grown food and products supporting sustainability.</span></li>
+            <li><i class="bi bi-check-circle"></i> <span>Accessible livelihood and training programs for all ages.</span></li>
+            <li><i class="bi bi-check-circle"></i> <span>Vibrant culture celebrated through events and artistry.</span></li>
+          </ul>
+          <p>
+            Victoria continues to grow while embracing its roots. The people are known for their resilience, hospitality, and unwavering dedication to improving their lives and their community.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section><!-- /Service Details Section -->
+  
+
+  {% endblock content %}

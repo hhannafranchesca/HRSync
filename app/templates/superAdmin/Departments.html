@@ -1,0 +1,871 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+
+<div class="col-xl-12">
+
+  <div class="nav-align-top mb-4">
+     
+      <div class="tab-content h-100 min-vh-100">
+
+      
+    
+        <!-- PERMANENT EMPLOYEE -->
+        <div class="tab-pane fade show active" id="navs-pills-travel-order" role="tabpanel" aria-labelledby="travel-order-tab">
+    
+          <div class="card-datable">
+           <div class="row mx-1 my-2 align-items-center justify-content-between border-bottom pb-4 mb-4">
+  
+  <!-- Left: Search -->
+  <div class="col-12 col-md-4 mb-3 mb-md-0 ps-0">
+    <h5 class="card-title mb-0">Manage Departments</h5>
+
+  </div>
+
+  <!-- Right: Export + Add -->
+  <div class="col-12 col-md d-flex flex-wrap gap-2 justify-content-end align-items-center">
+
+    <!-- Export Button -->
+    <!-- <div class="btn-group">
+      <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+              type="button"
+              id="exportDropdown"
+              data-bs-toggle="dropdown"
+              aria-expanded="false">
+        <i class="bi bi-box-arrow-up me-1"></i>
+        <span>Export</span>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+        <li>
+          <a class="dropdown-item" href="{{ url_for('generate_pdf') }}">
+            <i class="bi bi-file-pdf me-2"></i>Export as PDF
+          </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <a class="dropdown-item" href="{{ url_for('print_jo') }}" target="_blank">
+            <i class="bi bi-printer me-2"></i>Print
+          </a>
+        </li>
+      </ul>
+    </div> -->
+
+    <!-- Add Button -->
+    <a href="{{ url_for('AddingDepartments') }}" class="btn btn-primary d-flex align-items-center">
+      <i class="bi bi-plus me-1"></i>
+      <span>Add Department</span>
+    </a>
+
+  </div>
+</div>
+
+    
+    
+            <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                    <table class="datatables-users table border-top dataTable dtr-column collapsed table-bordered" 
+                    id="departmentTable" 
+                    aria-describedby="DataTables_Table_0_info" 
+                    style="width: 100%; height: 100%;">
+                    
+             
+                    <thead class="table-dark align-middle text-center">
+                        <tr>
+                    
+                        <th data-dt-column="1" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">DEPARTMENT NAME</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="2" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">EMPLOYEES</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="3" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">POSITIONS</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+
+                        <th data-dt-column="3" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                          <span class="dt-column-title" role="button">SERVICES</span>
+                          <span class="dt-column-order"></span>
+                      </th>
+                    
+                        <th data-dt-column="7" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">ACTIONS</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+    
+                        </tr>
+                    </thead>
+                  
+                
+                    <tbody class="text-center align-middle">
+                        {% for department in departments %}
+                          <tr>
+                            <td class="fs-6 fw-semibold">{{ department.name }}</td>
+                            <td>{{ department.employees|length if department.employees else 0 }}</td>
+                            <td>{{ department.positions|length if department.positions else 0 }}</td>
+                            <td>{{ department.service_count  }}</td> 
+                            <td>
+
+                              <a href="{{ url_for('edit_department', department_id=department.id) }}" class="btn btn-sm btn-warning w-100">Edit</a>
+
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                  
+              </table>
+            </div>
+        
+        </div>
+          </div>
+        </div>
+        
+       
+        
+      </div>
+    </div>
+    
+
+</div>
+  
+
+
+
+<!-- Modal -->
+
+
+<div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form method="POST" action="/add_employee" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Employment Details -->
+          <div class="row align-items-center">
+            <div class="col-auto">
+                <h6 class="fw-bold mb-3">Employment Details</h6>
+            </div>
+   
+        </div>
+                  <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Organizational Unit(1)</label>
+              <select class="form-select" id="organizationalUnitSelect"  name="organizational_unit" required>
+                <option value="" disabled selected>Select Organizational Unit</option>
+                <option value="Office of the Municipal Mayor">Office of the Municipal Mayor</option>
+                <option value="Office of the Municipal Human Resource Management Officer">Office of the Municipal Human Resource Management Officer</option>
+                <option value="Office of the Sangguniang Bayan">Office of the Sangguniang Bayan</option>
+                <option value="Office of the Municipal Planning and Development Coordinator">Office of the Municipal Planning and Development Coordinator</option>
+                <option value="Office of the Municipal Civil Registrar">Office of the Municipal Civil Registrar</option>
+                <option value="Office of the Municipal Budget Officer">Office of the Municipal Budget Officer</option>
+                <option value="Office of the Municipal Assessor">Office of the Municipal Assessor</option>
+                <option value="Office of the Municipal Accountant">Office of the Municipal Accountant</option>
+                <option value="Office of the Municipal Treasurer">Office of the Municipal Treasurer</option>
+                <option value="Office of the Municipal Health Officer">Office of the Municipal Health Officer</option>
+                <option value="Office of the Municipal Social Welfare Development Officer">Office of the Municipal Social Welfare Development Officer</option>
+                <option value="Office of the Municipal Agriculturist">Office of the Municipal Agriculturist</option>
+                <option value="Office of the Municipal Engineer">Office of the Municipal Engineer</option>
+                <option value="Office of the Municipal Disaster Risk Reduction Management Officer">Office of the Municipal Disaster Risk Reduction Management Officer</option>
+                <option value="Office of the BPLO">Office of the BPLO</option>
+                <option value="Office of the Municipal Environment and Natural Resources Officer">Office of the Municipal Environment and Natural Resources Officer</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Item Number(2)</label>
+              <input type="text" class="form-control" name="item_number" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Position Title(3)</label>
+              <select class="form-select" id="positionTitleSelect" name="position_title" required>
+                <option value="" disabled selected>Select Position Title</option>
+                <!-- Dynamic Options -->
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Salary Grade(4)</label>
+              <input type="number" class="form-control" name="salary_grade">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Authorized Salary(5)</label>
+              <input type="text" class="form-control" name="authorized_salary">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Actual Salary(6)</label>
+              <input type="text" class="form-control" name="actual_salary">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Step(7)</label>
+              <input type="number" class="form-control" name="step">
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Area Details -->
+          <h6 class="fw-bold mb-3 mt-4">Area Details</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Area Code(8)</label>
+              <input type="text" class="form-control" name="area_code">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="areaType">Area Type (9)</label>
+              <select class="form-select" id="areaType" name="area_type">
+                <option value="">Select Area Type</option>
+                <option value="R">R - Region</option>
+                <option value="P">P - Province</option>
+                <option value="D">D - District</option>
+                <option value="M">M - Municipality</option>
+                <option value="F">F - Foreign Post</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="level">Level (10)</label>
+              <select class="form-select" id="level" name="level">
+                <option value="">Select Level</option>
+                <option value="K">K - Key Positions</option>
+                <option value="A">A - Administrative Positions</option>
+                <option value="S">S - Support to Key Positions</option>
+                <option value="T">T - Technical Positions</option>
+              </select>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Personal Information -->
+          <h6 class="fw-bold mb-3 mt-4">Personal Information</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Last Name(11)</label>
+              <input type="text" class="form-control" name="last_name" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">First Name(12)</label>
+              <input type="text" class="form-control" name="first_name" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Middle Name(13)</label>
+              <input type="text" class="form-control" name="middle_name">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Sex(14)</label>
+              <select class="form-select" name="sex">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date of Birth(15)</label>
+              <input type="date" class="form-control" name="date_of_birth">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">TIN(16) / UMID No.(17)</label>
+              <input type="text" class="form-control" name="tin">
+            </div>
+
+         
+            
+          </div>
+
+          <hr>
+
+          <!-- Appointment Info -->
+          <h6 class="fw-bold mb-3 mt-4">Appointment Info</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Date of Original Appointment(18)</label>
+              <input type="date" class="form-control" name="date_original_appointment">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date of Last Promotion(19)</label>
+              <input type="date" class="form-control" name="date_last_promotion">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="status">Status (20)</label>
+              <select class="form-select" id="status" name="status">
+                <option value="">Select Status</option>
+                <option value="P">P - Permanent</option>
+                <option value="E">E - Electives</option>
+                <option value="T">T - Temporary</option>
+                <option value="CT">CT - Co-Terminous</option>
+                <option value="PA">PA - Presidential Appointee</option>
+              </select>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Other Info -->
+          <h6 class="fw-bold mb-3 mt-4">Other Information</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Civil Service Eligibility(21)</label>
+              <input type="text" class="form-control" name="eligibility">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Comments/Annotation(22)</label>
+              <input type="text" class="form-control" name="comments">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+  
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="addCasualEmployeeModal" tabindex="-1" aria-labelledby="addCasualEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form method="POST" action="/add_Casual_employee" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Employee Details -->
+          <div class="row g-3">
+        
+
+            <div class="col-md-6">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-control" name="last_name" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-control" name="first_name" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Name Extension</label>
+              <input type="text" class="form-control" name="name_extension">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" name="middle_name">
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label">Position Title</label>
+              <input type="text" class="form-control" name="position_title" required>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-3">
+            <div class="col-md-6">
+              <label class="form-label">Salary Grade</label>
+              <input type="text" class="form-control" name="salary_grade">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Daily Wage</label>
+              <input type="text" class="form-control" name="daily_wage">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">From</label>
+              <input type="date" class="form-control" name="employment_from">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">To</label>
+              <input type="date" class="form-control" name="employment_to">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="addJOEmployeeModal" tabindex="-1" aria-labelledby="addJOEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="POST" action="/add_JO_employee" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="addEmployeeModalLabel">Add JO Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Employee Details -->
+          <div class="row g-3">
+        
+            <div class="col-md-12">
+              <label class="form-label">Organizational Unit</label>
+              <select id="UserRole" name="organizational_unit" class="form-select text-capitalize" required>
+                <option value="" disabled selected>Select Organizational Unit</option>
+                <option value="Office of the Municipal Mayor">Office of the Municipal Mayor</option>
+                <option value="Office of the Municipal Assessor">Office of the Municipal Assessor</option>
+                <option value="Office of the Municipal Treasurer">Office of the Municipal Treasurer</option>
+                <option value="Office of the BPLO">Office of the BPLO</option>
+                <option value="Office of the Municipal Engineer">Office of the Municipal Engineer</option>
+                <option value="Office of the Municipal Planning and Development Coordinator">Office of the Municipal Planning and Development Coordinator</option>
+                <option value="Office of the Municipal Disaster Risk Reduction Management Officer">Office of the Municipal Disaster Risk Reduction Management Officer</option>
+                <option value="Office of the Municipal Agriculturist">Office of the Municipal Agriculturist</option>
+                <option value="Office of the Municipal Social Welfare Development Officer">Office of the Municipal Social Welfare Development Officer</option>
+                <option value="Office of the Municipal Health Officer">Office of the Municipal Health Officer</option>
+                <option value="Office of the Municipal Civil Registrar">Office of the Municipal Civil Registrar</option>
+                <option value="Office of the Municipal Human Resource Management Officer">Office of the Municipal Human Resource Management Officer</option>
+                <option value="Office of the Municipal Budget Officer">Office of the Municipal Budget Officer</option>
+                <option value="Office of the Municipal Accountant">Office of the Municipal Accountant</option>
+                <option value="General Services Office">General Services Office</option>
+                <option value="Public Employment Services Office">Public Employment Services Office</option>
+                <option value="Municipal Tourism Office">Municipal Tourism Office</option>
+                <option value="Office of the Sangguniang Bayan">Office of the Sangguniang Bayan</option>
+                <option value="Feedback and Complaints Mechanism">Feedback and Complaints Mechanism</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-control" name="last_name" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-control" name="first_name" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" name="middle_name">
+            </div>
+           
+          </div>
+
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add JO Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+  <!-- Edit Permanent Employee Modal -->
+<div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form method="POST" action="/edit_employee" id="editEmployeeForm" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="editEmployeeModalLabel">Edit Employee Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+  
+        <div class="modal-body">
+          <!-- Employment Details -->
+          <h6 class="fw-bold mb-3">Employment Details</h6>
+          <div class="row g-3">
+            <input type="hidden" name="employee_id" id="edit-employee-id">
+            <div class="col-md-4">
+              <label class="form-label">Organizational Unit</label>
+              <select class="form-select" id="edit-organizational-unit" name="organizational_unit" required>
+                <!-- Options will be dynamically filled based on selected employee -->
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Item Number</label>
+              <input type="text" class="form-control" name="item_number" id="edit-item-number" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Position Title</label>
+              <select class="form-select" id="edit-position-title" name="position_title" required>
+                <!-- Options will be dynamically filled -->
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Salary Grade</label>
+              <input type="number" class="form-control" name="salary_grade" id="edit-salary-grade">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Authorized Salary</label>
+              <input type="text" class="form-control" name="authorized_salary" id="edit-authorized-salary">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Actual Salary</label>
+              <input type="text" class="form-control" name="actual_salary" id="edit-actual-salary">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Step</label>
+              <input type="number" class="form-control" name="step" id="edit-step">
+            </div>
+          </div>
+  
+          <!-- Area Details -->
+          <h6 class="fw-bold mb-3 mt-4">Area Details</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Area Code</label>
+              <input type="text" class="form-control" name="area_code" id="edit-area-code">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="areaType">Area Type (9)</label>
+              <select class="form-select" id="edit-area-type" name="area_type">
+                <option value="">Select Area Type</option>
+                <option value="R">R - Region</option>
+                <option value="P">P - Province</option>
+                <option value="D">D - District</option>
+                <option value="M">M - Municipality</option>
+                <option value="F">F - Foreign Post</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="level">Level (10)</label>
+              <select class="form-select" id="edit-level" name="level">
+                <option value="">Select Level</option>
+                <option value="K">K - Key Positions</option>
+                <option value="A">A - Administrative Positions</option>
+                <option value="S">S - Support to Key Positions</option>
+                <option value="T">T - Technical Positions</option>
+              </select>
+            </div>
+          </div>
+  
+          <!-- Personal Information -->
+          <h6 class="fw-bold mb-3 mt-4">Personal Information</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-control" name="last_name" id="edit-last-name" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-control" name="first_name" id="edit-first-name" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" name="middle_name" id="edit-middle-name">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Sex</label>
+              <select class="form-select" name="sex" id="edit-sex">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Date of Birth</label>
+              <input type="date" class="form-control" name="date_of_birth" id="edit-dob">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">TIN</label>
+              <input type="text" class="form-control" name="tin" id="edit-tin">
+            </div>
+           
+          </div>
+  
+          <!-- Appointment Info -->
+          <h6 class="fw-bold mb-3 mt-4">Appointment Info</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Date of Original Appointment</label>
+              <input type="date" class="form-control" name="date_original_appointment" id="edit-date-original-appointment">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date of Last Promotion</label>
+              <input type="date" class="form-control" name="date_last_promotion" id="edit-date-last-promotion">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="status">Status (20)</label>
+              <select class="form-select" id="edit-status" name="status">
+                <option value="">Select Status</option>
+                <option value="P">P - Permanent</option>
+                <option value="E">E - Electives</option>
+                <option value="T">T - Temporary</option>
+                <option value="CT">CT - Co-Terminous</option>
+                <option value="PA">PA - Presidential Appointee</option>
+              </select>
+            </div>
+          </div>
+  
+          <!-- Other Info -->
+          <h6 class="fw-bold mb-3 mt-4">Other Information</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Civil Service Eligibility</label>
+              <input type="text" class="form-control" name="eligibility" id="edit-eligibility">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Comments/Annotation</label>
+              <input type="text" class="form-control" name="comments" id="edit-comments">
+            </div>
+          </div>
+        </div>
+  
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="editCasualEmployeeModal" tabindex="-1" aria-labelledby="editCasualEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form method="POST" action="/edit_Casual_employee" id="editCasualEmployeeForm" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="editCasualEmployeeModalLabel">Edit Casual Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Hidden ID -->
+          <input type="hidden" name="employee_id" id="edit-casual-employee-id">
+
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-control" name="last_name" id="edit-casual-last-name" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-control" name="first_name" id="edit-casual-first-name" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" name="middle_name" id="edit-casual-middle-name">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Name Extension</label>
+              <input type="text" class="form-control" name="name_extension" id="edit-casual-name-extension">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Status</label>
+              <select class="form-select" name="status" id="edit-casual-status" required>
+                <option value="" disabled selected>Select Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="On Leave">On Leave</option>
+                <option value="Terminated">Terminated</option>
+                <!-- You can add more options as needed -->
+              </select>
+            </div>
+            
+
+            <div class="col-md-6">
+              <label class="form-label">Position Title</label>
+              <input type="text" class="form-control" name="position_title" id="edit-casual-position-title" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Salary Grade</label>
+              <input type="number" class="form-control" name="salary_grade" id="edit-casual-salary-grade">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Daily Wage</label>
+              <input type="text" class="form-control" name="daily_wage" id="edit-casual-daily-wage">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contract From</label>
+              <input type="date" class="form-control" name="date_from" id="edit-casual-date-from">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contract To</label>
+              <input type="date" class="form-control" name="date_to" id="edit-casual-date-to">
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Casual Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="editJOEmployeeModal" tabindex="-1" aria-labelledby="editJOEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <form method="POST" action="/edit_JO_employee" novalidate>
+              <div class="modal-header">
+                  <h5 class="modal-title" id="editEmployeeModalLabel">Edit JO Employee</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+
+              <div class="modal-body">
+                  <!-- Employee Details -->
+                  <div class="row g-3">
+                      <div class="col-md-12">
+                          <label class="form-label">Organizational Unit</label>
+                          <select id="editOrganizationalUnit" name="organizational_unit" class="form-select text-capitalize" required>
+                              <option value="" disabled>Select Organizational Unit</option>
+                              <option value="Office of the Municipal Mayor">Office of the Municipal Mayor</option>
+                              <option value="Office of the Municipal Assessor">Office of the Municipal Assessor</option>
+                              <option value="Office of the Municipal Treasurer">Office of the Municipal Treasurer</option>
+                              <option value="Office of the BPLO">Office of the BPLO</option>
+                              <option value="Office of the Municipal Engineer">Office of the Municipal Engineer</option>
+                              <!-- Add other options as needed -->
+                          </select>
+                      </div>
+
+                      <div class="col-md-4">
+                          <label class="form-label">First Name</label>
+                          <input type="text" class="form-control" name="first_name" id="editFirstName" required>
+                      </div>
+
+                      <div class="col-md-4">
+                          <label class="form-label">Middle Name</label>
+                          <input type="text" class="form-control" name="middle_name" id="editMiddleName">
+                      </div>
+
+                      <div class="col-md-4">
+                          <label class="form-label">Last Name</label>
+                          <input type="text" class="form-control" name="last_name" id="editLastName" required>
+                      </div>
+
+                 
+
+                      <input type="hidden" id="editEmployeeId" name="employee_id">
+
+                  </div>
+              </div>
+
+              <div class="modal-footer mt-3">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Save Changes</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+
+
+
+
+<script>
+
+  function enableTableSearch(inputId, tableId) {
+    const searchInput = document.getElementById(inputId);
+    const table = document.getElementById(tableId);
+
+    if (!searchInput || !table) {
+      console.warn(`Search input or table not found: #${inputId}, #${tableId}`);
+      return;
+    }
+
+    const tbody = table.querySelector("tbody");
+    const rows = tbody.getElementsByTagName("tr");
+
+    searchInput.addEventListener("input", function () {
+      const filter = searchInput.value.toLowerCase();
+      Array.from(rows).forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
+    });
+  }
+
+  // Example usage after DOM is loaded
+  document.addEventListener("DOMContentLoaded", function () {
+    enableTableSearch("searchdepartment", "departmentTable");
+
+  });
+</script>
+
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+    // Force table layout fixed
+    $('#departmentTable').css({
+        'table-layout': 'fixed',
+        'width': '100%'
+    });
+
+    // Initialize DataTable
+    var departmentTable = $('#departmentTable').DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        responsive: true,
+        autoWidth: false,
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50, 100],
+        columnDefs: [
+            { targets: 0, width: "25%", className: "text-start" }, // Department Name
+            { targets: 1, width: "15%", className: "text-center" }, // Employees
+            { targets: 2, width: "15%", className: "text-center" }, // Positions
+            { targets: 3, width: "15%", className: "text-center" }, // Services
+            { targets: 4, width: "20%", orderable: false, className: "text-center" } // Actions
+        ],
+        dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>' +
+             't' +
+             '<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search departments..."
+        }
+    });
+
+    // Style search input
+    $(".dataTables_filter input")
+        .addClass("form-control form-control-lg w-auto")
+        .css("margin-left", "0");
+
+    // Style entries dropdown
+    $(".dataTables_length select")
+        .addClass("form-select form-select-lg")
+        .css("min-width", "80px");
+});
+</script>
+{% endblock %}
+
+    
+{% endblock content %}

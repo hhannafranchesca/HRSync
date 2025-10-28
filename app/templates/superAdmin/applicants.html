@@ -1,0 +1,449 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+
+<style>
+
+ 
+
+  .position-header {
+      background-color: #f8f9fa;
+      border-left: 4px solid #4154f1;
+      padding: 12px;
+  }
+ 
+
+  .insight-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 2px;
+  }
+
+  .insight-value {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .insight-box {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .insight-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+  }
+
+  .insight-panel {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 25px;
+  }
+
+  .insight-action {
+    background: #e6f4ea;
+    padding: 10px 15px;
+    border-left: 4px solid #28a745;
+    font-weight: 500;
+    color: #155724;
+    border-radius: 6px;
+  }
+
+  .applicant-active {
+    background: #e6f4ea;
+    padding: 10px 15px;
+    border-left: 4px solid #28a745;
+    font-weight: 500;
+    color: #155724;
+    border-radius: 6px;
+  }
+</style>
+
+
+  <!-- Position Overview -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card position-header">
+          <div class="card-body row">
+            <div class="col-md-8">
+                <h4>{{ job.title }} ({{ job.number_of_openings }} openings)</h4>
+                <p class="mb-1">
+                    <strong>Department:</strong> {{ job.department.name }} | 
+                    <strong>Date Created:</strong> {{ job.created_at }} 
+                        <br>
+                    <strong>Description:</strong> {{ job.description }} 
+
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                {% if job.status == 'Open' %}
+                    <span class="badge bg-success">Active</span>
+                {% else %}
+                    <span class="badge bg-secondary">Closed</span>
+                {% endif %}
+                
+                {% if job.is_diversity_focus %}
+                    <span class="badge bg-info">Diversity Focus</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-3">
+  <div class="col-md-4">
+    <div class="card text-white bg-primary h-100 shadow-sm">
+      <div class="card-body">
+        <p class="text-heading mb-1 fs-6 fw-bold ">Total Applicants</p>
+        <h4 class="card-title fw-bold text-white">{{ total_applicants }}</h4>
+        <span class="fs-6 ">Total number of applicants</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-white bg-success h-100 shadow-sm">
+      <div class="card-body">
+        <p class="text-heading mb-1 fs-6 fw-bold ">Qualified Applicant</p>
+        <h4 class="card-title fw-bold text-white">{{ total_qualified or 0}}</h4>
+        <span class="fs-6 ">Number of Qualified applicants</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card text-white bg-warning h-100 shadow-sm">
+      <div class="card-body">
+        <p class="text-heading mb-1 fs-6 fw-bold ">Avg. Score</p>
+        <h4 class="card-title fw-bold text-white">{{ average_score }}%</h4>
+        <span class="fs-6 ">Overall average of all applicants</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Applicant Smart Insights</h2>
+    <p>Review the evaluation summary of each applicant for this position.</p>
+  </div>
+
+    <div class="card shadow-sm rounded-4">
+      <div class="card-body">
+        <div class="row">
+          <!-- Sidebar: Applicants List -->
+          <div class="col-md-4 border-end">
+            <div class="list-group list-group-flush ">
+              {% if applicants  %}
+                {% for applicant in applicants  %}
+                <a id="link-applicant{{ loop.index }}" href="javascript:void(0);" onclick="showApplicant('applicant{{ loop.index }}')" class="list-group-item rounded list-group-item-action {% if loop.first %}active{% endif %}">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ applicant.first_name }} {{ applicant.last_name }} </h5>
+                    <small class="badge {{ 'text-bg-success' if applicant.application_score >= qualified_threshold else 'text-bg-danger' }}">Score: {{ applicant.application_score }}%</small>
+                  </div>
+                  <p class="mb-1">Email: {{ applicant.email }}</p>
+                  <small>{{ applicant.applied_at.strftime('%b %d, %Y') }}  | {% if applicant.status == 'Received' %}
+                    <span class="badge bg-warning text-dark">{{ applicant.status }}</span>
+                  {% elif applicant.status == 'Under Review' %}
+                    <span class="badge bg-info">{{ applicant.status }}</span>
+                  {% elif applicant.status == 'Qualified' %}
+                    <span class="badge bg-success">{{ applicant.status }}</span>
+                  {% elif applicant.status == 'Not Qualified' %}
+                    <span class="badge bg-danger">{{ applicant.status }}</span>
+                  {% elif applicant.status == 'Hired' %}
+                    <span class="badge bg-success">{{ applicant.status }}</span>
+                  {% elif applicant.status == 'Rejected' %}
+                    <span class="badge bg-danger">{{ applicant.status }}</span>
+                  {% else %}
+                    <span class="badge bg-secondary">{{ applicant.status }}</span>
+                  {% endif %}</small>
+
+                </a>
+                {% endfor %}
+              {% else %}
+              <div class="text-center p-5">
+                <h3 class="text-muted">No applicants yet.</h3>
+              </div>
+            {% endif %}
+                
+            </div>
+          </div>
+
+
+          <!-- Right Panel: Smart Insights -->
+          <div class="col-md-8">
+  {% if applicants %}
+    {% for applicant in applicants %}
+    <div id="applicant{{ loop.index }}" class="applicant-details insight-panel {% if not loop.first %}d-none{% endif %}">
+
+      <!-- Header: Name, Resume Link, Status -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <div class="d-flex gap-3 align-items-center mb-1">
+            <h4 class="fw-bold mb-0">{{ applicant.first_name }} {{ applicant.last_name }}</h4>
+            {% if applicant.pds_path %}
+              <a href="{{ url_for('static', filename='uploads/resumes/' ~ applicant.pds_path) }}"
+                 target="_blank" class="btn btn-sm btn-outline-primary">
+                View Resume
+              </a>
+            {% endif %}
+          </div>
+          <div class="text-muted">
+            Applied on: {{ applicant.applied_at.strftime('%b %d, %Y') }} • {{ applicant.email or "" }} • {{ applicant.phone or "" }}
+          </div>
+        </div>
+        <div class="text-end">
+          {% set status_badges = {
+            'Received': 'bg-warning text-dark',
+            'Under Review': 'bg-info',
+            'Qualified': 'bg-success',
+            'Not Qualified': 'bg-danger',
+            'Hired': 'bg-success',
+            'Rejected': 'bg-danger'
+          } %}
+          <span class="badge {{ status_badges.get(applicant.status, 'bg-secondary') }}">{{ applicant.status }}</span>
+        </div>
+      </div>
+
+      <!-- Applicant Insights -->
+      <div class="insight-grid mb-4">
+        <div class="row g-3 mb-4">
+
+          <!-- Application Score -->
+          <div class="col-md-12">
+            <div class="card shadow-none bg-transparent border border-secondary text-primary p-3">
+              <div class="fw-bold fs-6 text-uppercase small">Application Score</div>
+              <div class="h5 fs-3 fw-bold mb-1 {{ 'text-success' if applicant.application_score >= qualified_threshold else 'text-danger' }}">
+                {{ applicant.application_score or 0 }}%
+              </div>
+              <small class="text-secondary">Reflects how well the candidate meets job requirements</small>
+            </div>
+          </div>
+
+          <!-- Resume Match -->
+          <div class="col-md-12">
+            <div class="card shadow-none bg-transparent border border-secondary text-primary p-3">
+              <div class="fw-bold fs-6 text-uppercase small">Resume Match</div>
+              <div class="h5 fw-bold mb-1">{{ (applicant.pds_match or '').replace('*', '') }}</div>
+              <small class="text-secondary">Highlights alignment with key job qualifications</small>
+            </div>
+          </div>
+
+          <!-- Education -->
+          <div class="col-md-6">
+            <div class="card shadow-none bg-transparent border border-secondary text-black p-3">
+              <div class="fw-bold fs-6 text-uppercase text-primary">Education</div>
+              <ul class="mb-1">
+                {% for edu in applicant.education_list %}
+                  <li class="fw-semibold">{{ edu }}</li>
+                {% endfor %}
+              </ul>
+              <small class="text-secondary">Degrees, certifications, and formal training</small>
+            </div>
+          </div>
+
+               <!-- Eligibility -->
+          {% if applicant.eligibility_list %}
+          <div class="col-md-6">
+            <div class="card shadow-none bg-transparent border border-secondary text-black p-3 h-100">
+              <div class="fw-bold text-uppercase text-primary">Eligibility / Licenses</div>
+              <ul class="fw-semibold mb-1">
+                {% for elig in applicant.eligibility_list %}
+                  <li>{{ elig }}</li>
+                {% endfor %}
+              </ul>
+              <small class="text-secondary">Professional eligibility, licenses, or certifications</small>
+            </div>
+          </div>
+          {% endif %}
+
+              <!-- Experience -->
+          <div class="col-md-12">
+            <div class="card shadow-none bg-transparent border border-secondary text-black p-3">
+              <div class="fw-bold text-uppercase text-primary">Work Experience</div>
+              <ul class="mb-1">
+                {% for exp in applicant.experience_list %}
+                  <li class="fw-semibold">{{ exp }}</li>
+                {% endfor %}
+              </ul>
+              <small class="text-secondary">Key roles, responsibilities, and accomplishments</small>
+            </div>
+          </div>
+
+                    <!-- Trainings -->
+          {% if applicant.trainings_list %}
+          <div class="col-md-6">
+            <div class="card shadow-none bg-transparent border border-secondary text-black p-3">
+              <div class="fw-bold text-uppercase text-primary">Trainings & Workshops</div>
+              <ul class="fw-semibold mb-1">
+                {% for training in applicant.trainings_list %}
+                  <li>{{ training }}</li>
+                {% endfor %}
+              </ul>
+              <small class="text-secondary">Professional development initiatives</small>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Skills -->
+          <div class="col-md-6">
+            <div class="card shadow-none bg-transparent border border-secondary text-black p-3">
+              <div class="fw-bold fs-6 text-uppercase text-primary">Skills & Hobbies</div>
+              <ul class="mb-1">
+                {% for skill in applicant.skills_list %}
+                  <li class="fw-semibold">{{ skill }}</li>
+                {% endfor %}
+              </ul>
+              <small class="text-secondary">Relevant proficiencies and expertise</small>
+            </div>
+          </div>
+
+          <!-- Voluntary Work -->
+          {% if applicant.voluntary_work_list %}
+          <div class="col-md-12">
+            <div class="card shadow-none bg-transparent border border-secondary text-black p-3">
+              <div class="fw-bold text-uppercase text-primary">Voluntary Work</div>
+              <ul class="fw-semibold mb-1">
+                {% for work in applicant.voluntary_work_list %}
+                  <li>{{ work }}</li>
+                {% endfor %}
+              </ul>
+              <small class="text-secondary">Community service and extra-curricular contributions</small>
+            </div>
+          </div>
+          {% endif %}
+
+
+
+          <!-- Recognitions -->
+          {% if applicant.recognitions_list %}
+          <div class="col-md-12">
+            <div class="card shadow-none bg-transparent border border-secondary text-black p-3">
+              <div class="fw-bold text-uppercase text-primary">Recognitions & Awards</div>
+              <ul class="fw-semibold mb-1">
+                {% for recog in applicant.recognitions_list %}
+                  <li>{{ recog }}</li>
+                {% endfor %}
+              </ul>
+              <small class="text-secondary">Achievements and honors</small>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Memberships -->
+          {% if applicant.memberships_list %}
+          <div class="col-md-12">
+            <div class="card shadow-none bg-transparent border border-secondary text-black p-3">
+              <div class="fw-bold text-uppercase text-primary">Non-Acedemic Distinctions / Recognition</div>
+              <ul class="fw-semibold mb-1">
+                {% for member in applicant.memberships_list %}
+                  <li>{{ member }}</li>
+                {% endfor %}
+              </ul>
+              <small class="text-secondary">Industry or organizational affiliations</small>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Strengths -->
+          <div class="col-md-12">
+            <div class="card shadow-none bg-transparent border border-secondary text-black p-3">
+              <div class="fw-bold text-uppercase text-primary">Key Strengths</div>
+              <ul class="fw-semibold mb-1">
+                {% for strength in applicant.strengths_list %}
+                  <li>{{ strength }}</li>
+                {% endfor %}
+              </ul>
+              <small class="text-secondary">Highlighted competencies and positive traits</small>
+            </div>
+          </div>
+
+          <!-- Weaknesses -->
+          <div class="col-md-12">
+            <div class="card shadow-none bg-transparent border border-secondary text-black p-3">
+              <div class="fw-bold text-uppercase text-primary">Weaknesses</div>
+              <ul class="fw-semibold mb-1">
+                {% for weakness in applicant.weaknesses_list %}
+                  <li>{{ weakness }}</li>
+                {% endfor %}
+              </ul>
+              <small class="text-secondary">Opportunities to improve or gain experience</small>
+            </div>
+          </div>
+
+          <!-- Conclusion -->
+          <div class="col-12">
+            <div class="card shadow-none bg-transparent border border-secondary text-black p-3">
+              <div class="fw-bold text-uppercase text-primary">Summary & Recommendation</div>
+              <p class="fw-semibold mb-1">{{ applicant.summary }}</p>
+              <small class="text-secondary">Overall evaluation based on AI-assisted analysis</small>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      {% if current_user.has_permission('write_hiring') and applicant.status == 'Received' %}
+      <div class="d-flex justify-content-end align-items-center mb-3 px-2">
+        <form action="{{ url_for('reject_applicant', applicant_id=applicant.id) }}" method="POST" class="me-2">
+          <button type="submit" class="btn btn-danger">Reject</button>
+        </form>
+        <form action="{{ url_for('approve_applicant', applicant_id=applicant.id) }}" method="POST">
+          <button type="submit" class="btn btn-success">Approve</button>
+        </form>
+      </div>
+      {% endif %}
+
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="text-center p-5">
+      <h3 class="text-muted">No applicants have applied yet.</h3>
+    </div>
+  {% endif %}
+</div>
+
+
+
+
+          
+        </div>
+      </div>
+    </div>
+
+  <script>
+    function showApplicant(applicantId) {
+      // Hide all applicant detail sections
+      const details = document.querySelectorAll('.applicant-details');
+      details.forEach(app => app.classList.add('d-none'));
+  
+      // Show the selected applicant detail section
+      const selectedDetail = document.getElementById(applicantId);
+      if (selectedDetail) selectedDetail.classList.remove('d-none');
+  
+      // Remove 'active' class from all list items
+      const items = document.querySelectorAll('.list-group-item');
+      items.forEach(item => item.classList.remove('active'));
+  
+      // Add 'active' class to the selected sidebar item
+      const selectedItem = document.getElementById('link-' + applicantId);
+      if (selectedItem) selectedItem.classList.add('active');
+    }
+  </script>
+  
+  
+
+
+
+
+
+</div>
+
+{% endblock content %}

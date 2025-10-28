@@ -1,0 +1,233 @@
+{% extends "base/AdminDashboard.html" %}
+
+{% block content %}
+
+
+<div class="col-xl-12 ">
+
+    <div class="nav-align-top mb-4 ">
+        <div class="tab-content">
+          <div class="tab-pane fade show active h-100 vh-100" id="navs-pills-Leave-Credits" role="tabpanel" aria-labelledby="Leave-Credits-tab">
+
+    
+              <div class="card-datable ">
+                <div class="row mx-1 my-2 align-items-center justify-content-between border-bottom pb-3 mb-3">
+                    <!-- Left: Length selector / search -->
+                    <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+                      <h5 class="card-title mb-0">Employee Travel History</h5>
+
+                    </div>
+
+                    <!-- Right: Export buttons and Create button -->
+                   <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end align-items-center">
+                      <div class="btn-group">
+                        <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                                type="button"
+                                id="exportDropdownLeave"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                          <i class="bi bi-box-arrow-up me-1"></i>
+                          <span>Export</span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="exportDropdownLeave">
+                          <li>
+                            <a class="dropdown-item" href="{{ url_for('head_travel_logs_pdf') }}">
+                              <i class="bi bi-file-pdf me-2"></i>Export as PDF
+                            </a>
+                          </li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li>
+                            <a class="dropdown-item" href="{{ url_for('head_travel_logs_print') }}" target="_blank">
+                              <i class="bi bi-printer me-2"></i>Print
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                  </div>
+                <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                    <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                        <table class="table table-bordered align-middle border-top dataTable dtr-column collapsed" 
+                            id="travelLogsTable" 
+                            style="width: 100%; height: 100%;">
+                          
+                          <thead class="table-dark align-middle text-center">
+                              <tr>
+                                  <th>Employee Name</th>
+                                  <th>Destination</th>
+                                  <th>Purpose</th>
+                                  <th>Date of Departure</th>
+                                  <th>Tracking ID</th>
+                                  <th>Log Date</th>
+                                  <th>Status</th>
+                              </tr>
+                          </thead>
+                          
+                          <tbody class="text-center">
+                              {% for log in logs %}
+                              <tr>
+                                  <td>{{ log.travel_order.permit.employee.last_name }} {{ log.travel_order.permit.employee.first_name }} {{ log.travel_order.permit.employee.middle_name }}</td>
+                                  <td>{{ log.travel_order.destination }}</td>
+                                  <td>{{ log.travel_order.purpose }}</td>
+                                  <td>{{ log.travel_order.date_departure.strftime('%B %d, %Y %I:%M %p') if log.travel_order.date_departure else '—' }}</td>
+                                  <td>{{ log.tracking_id }}</td>
+                                  <td>{{ log.log_date|ph_time_exact if log.log_date else '—' }}</td>
+                                  <td>
+                                      <span class="badge 
+                                          {% if log.status == 'Approved' %}bg-success
+                                          {% elif log.status == 'Pending' %}bg-warning text-dark
+                                          {% else %}bg-secondary{% endif %}">
+                                          {{ log.status }}
+                                      </span>
+                                  </td>
+                              </tr>
+                         
+                              {% endfor %}
+                          </tbody>
+                      </table>
+
+                </div>
+               
+
+
+            </div>
+              </div>
+          </div>
+        </div>
+      </div>
+</div>
+
+
+<!-- Approve Confirmation Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="approveForm" method="POST" action="{{ url_for('approve_travel_leave') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="approveModalLabel">Confirm Approval</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to approve this travel log for <strong id="employeeName"></strong>?
+          <input type="hidden" name="permit_id" id="permitIdInput" value="">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Approve</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+<script>
+  var approveModal = document.getElementById('approveModal')
+  approveModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var permitId = button.getAttribute('data-permit-id');
+    var employeeName = button.getAttribute('data-employee-name');
+
+    var inputPermitId = approveModal.querySelector('#permitIdInput');
+    var spanEmployeeName = approveModal.querySelector('#employeeName');
+
+    inputPermitId.value = permitId;
+    spanEmployeeName.textContent = employeeName;
+  })
+</script>
+
+
+<!-- <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("searchLeave");
+    const table = document.querySelector("#DataTables_Table_0 tbody");
+
+    searchInput.addEventListener("keyup", function () {
+      const filter = searchInput.value.toLowerCase();
+      const rows = table.querySelectorAll("tr");
+
+      rows.forEach((row) => {
+        const cells = Array.from(row.getElementsByTagName("td"));
+        const rowText = cells.map(cell => cell.textContent.toLowerCase()).join(" ");
+        
+        if (rowText.includes(filter)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    });
+  });
+</script> -->
+
+
+<script>
+  const searchInput = document.getElementById('liveSearchTravel');
+  let searchTimer;
+
+  searchInput.addEventListener('input', function () {
+    clearTimeout(searchTimer);
+
+    searchTimer = setTimeout(function () {
+      const query = searchInput.value.trim();
+      const url = new URL(window.location.href);
+      url.searchParams.set('search', query);  // Set new search
+      url.searchParams.set('page', 1);        // Reset to first page
+      window.location.href = url.toString();
+    }, 300); // debounce
+  });
+
+  window.addEventListener('DOMContentLoaded', function () {
+    if (searchInput && searchInput.value) {
+      searchInput.focus();
+      searchInput.selectionStart = searchInput.value.length;
+    }
+  });
+</script>
+
+
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+    const table = $('#travelLogsTable').DataTable({
+        paging: true,           // Enable client-side pagination
+        searching: true,        // Enable search box
+        ordering: true,         // Enable column sorting
+        responsive: true,       // Make table responsive
+        autoWidth: false,
+        pageLength: 10,         // Default rows per page
+        lengthMenu: [5, 10, 25, 50, 100], // Options for rows per page
+        dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>' +
+             't' +
+             '<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search..."
+        },
+        columnDefs: [
+            { targets: 0, width: "20%", className: "text-start" },  // Employee Name
+            { targets: 1, width: "15%", className: "text-center" }, // Destination
+            { targets: 2, width: "20%", className: "text-center" }, // Purpose
+            { targets: 3, width: "15%", className: "text-center" }, // Date of Departure
+            { targets: 4, width: "10%", className: "text-center" }, // Tracking ID
+            { targets: 5, width: "10%", className: "text-center" }, // Log Date
+            { targets: 6, width: "10%", className: "text-center" }  // Status
+        ]
+    });
+
+    // Style the search and length inputs
+    const tableContainer = $('#travelLogsTable').closest('.dataTables_wrapper');
+    $(".dataTables_filter input", tableContainer)
+        .addClass("form-control form-control-lg w-auto").css("margin-left", "0");
+    $(".dataTables_length select", tableContainer)
+        .addClass("form-select form-select-lg").css("min-width", "80px");
+});
+</script>
+{% endblock %}
+
+
+{% endblock content %}

@@ -1,0 +1,293 @@
+{% extends "base/SuperAdmin.html" %}
+
+{% block content %}
+
+<div class="col-xl-12">
+  <div class="nav-align-top mb-4">
+    <div class="tab-content h-100 min-vh-100">
+
+       <div class="card-datable">
+        <div class="row mx-1 my-2 align-items-center justify-content-between border-bottom pb-3 mb-3">
+
+          <!-- Search -->
+          <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+            <h5 class="card-title mb-0">Report Issue</h5>
+
+          </div>
+          <!-- Report Button -->
+         <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end">
+            <div class="btn-group">
+              <button type="button"
+                      class="btn btn-primary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#reportIssueModal"
+                      id="reportIssueBtn">
+                <i class="bi bi-exclamation-circle me-1"></i>
+                <span class="d-inline-block">Report Issue</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dt-layout-table table-responsive">
+          <table id="issue-report-table" class="table table-bordered bg-light">
+            <thead class="table-dark text-center">
+              <tr>
+                <th>Reported By</th>
+                <th>Reported Employee</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Reported At</th>
+              </tr>
+            </thead>
+            <tbody class="text-center">
+              {% for issue in issues %}
+              <tr>
+                <td>{{ issue.reporter.name }}</td>
+                <td>
+                  {% if issue.reported.employee %}
+                    {{ issue.reported.employee.first_name }} {{ issue.reported.employee.last_name }}
+                  {% else %}
+                    No employee info
+                  {% endif %}
+                </td>
+                <td>{{ issue.title }}</td>
+                <td>{{ issue.description }}</td>
+                <td>
+                  {% if issue.status == 'Open' %}
+                    <span class="badge bg-primary">{{ issue.status }}</span>
+                  {% elif issue.status == 'In Progress' %}
+                    <span class="badge bg-warning text-dark">{{ issue.status }}</span>
+                  {% elif issue.status == 'Resolved' %}
+                    <span class="badge bg-success">{{ issue.status }}</span>
+                  {% elif issue.status == 'Closed' %}
+                    <span class="badge bg-secondary">{{ issue.status }}</span>
+                  {% else %}
+                    <span class="badge bg-info">{{ issue.status }}</span>
+                  {% endif %}
+                </td>
+                <td>{{ issue.created_at.strftime('%B %d, %Y') }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="6" class="text-center">No issue reports found.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="reportIssueModal" tabindex="-1" aria-labelledby="reportIssueModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reportIssueModalLabel">Report an Issue</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="reportIssueForm" method="POST" action="{{ url_for('HRreport_issue') }}">
+
+          <!-- Department -->
+          <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="departmentSelect" class="form-label">Department</label>
+                <select class="form-select" id="departmentSelect" name="department" required>
+                <option selected disabled value="">Select Department</option>
+                <!-- Departments loaded dynamically -->
+                </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="employeeSelect" class="form-label">Employee</label>
+                <select class="form-select" id="employeeSelect" name="employee" required disabled>
+                <option selected disabled value="">Select Employee</option>
+                <!-- Employees loaded dynamically -->
+                </select>
+            </div>
+            </div>
+
+          <!-- Title -->
+        <div class="mb-3">
+            <label for="issueTitle" class="form-label">Title</label>
+           <select class="form-select" id="issueTitle" name="title" required>
+            <option selected disabled value="">Select Issue Title</option>
+            <option value="Conflict with a Colleague">Conflict with a Colleague</option>
+            <option value="Harassment or Discrimination">Harassment or Discrimination</option>
+            <option value="Unprofessional Behavior">Unprofessional Behavior</option>
+            <option value="Violation of Company Policy">Violation of Company Policy</option>
+            <option value="Poor Team Communication">Poor Team Communication</option>
+            <option value="Workplace Safety Concern">Workplace Safety Concern</option>
+            <option value="Insubordination or Disrespect">Insubordination or Disrespect</option>
+            <option value="Absenteeism or Tardiness">Absenteeism or Tardiness</option>
+            <option value="Other">Other</option>
+            </select>
+            </div>
+
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label for="issueDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="issueDescription" name="description" rows="4" placeholder="Describe the issue in detail" required></textarea>
+          </div>
+
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" form="reportIssueForm" class="btn btn-primary">Submit Report</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+    const table = $('#issue-report-table').DataTable({
+        paging: true,           // ✅ Enable pagination
+        searching: true,        // ✅ Keep search
+        ordering: true,         // ✅ Enable column sorting
+        responsive: true,       
+        autoWidth: false,
+        pageLength: 10,         // ✅ Default rows per page
+        lengthMenu: [5, 10, 25, 50, 100], // ✅ Entries dropdown options
+        order: [[5, 'desc']],   // ✅ Latest report first
+        columnDefs: [
+            { targets: [0,1,4], className: 'text-center' }, 
+            { targets: 3, className: 'text-wrap' },          
+            { targets: 5, width: '15%' }                     
+        ],
+        dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>' +
+             't' +
+             '<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search..."
+        }
+    });
+
+    // Style search + length inputs
+    const tableContainer = $('#issue-report-table').closest('.dataTables_wrapper');
+    $(".dataTables_filter input", tableContainer)
+        .addClass("form-control form-control-lg w-auto")
+        .css("margin-left", "0");
+    $(".dataTables_length select", tableContainer)
+        .addClass("form-select form-select-lg")
+        .css("min-width", "80px");
+});
+
+</script>
+{% endblock %}
+
+<!-- Search trigger -->
+<script>
+  const searchInput = document.getElementById("dt-search-0");
+  let debounce;
+
+  searchInput.addEventListener("input", function () {
+    clearTimeout(debounce);
+    debounce = setTimeout(function () {
+      const value = searchInput.value.trim();
+      const url = new URL(window.location.href);
+      url.searchParams.set("search", value);
+      url.searchParams.set("page", 1);
+      window.location.href = url.toString();
+    }, 300);
+  });
+
+  // Auto-focus and place cursor at end of search input
+  window.addEventListener('DOMContentLoaded', () => {
+    if (searchInput && searchInput.value) {
+      searchInput.focus();
+      searchInput.selectionStart = searchInput.value.length;
+    }
+  });
+</script>
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+  const departmentSelect = document.getElementById('departmentSelect');
+  const employeeSelect = document.getElementById('employeeSelect');
+
+  // Fetch departments on page load
+  fetch('/api/departments')
+    .then(response => response.json())
+    .then(departments => {
+      departments.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept.id;
+        option.textContent = dept.name;
+        departmentSelect.appendChild(option);
+      });
+    });
+
+  departmentSelect.addEventListener('change', () => {
+    const deptId = departmentSelect.value;
+
+    // Reset and disable employee select
+    employeeSelect.innerHTML = '<option selected disabled value="">Select Employee</option>';
+    employeeSelect.disabled = true;
+
+    if (!deptId) return;
+
+    // Fetch employees for selected department
+    fetch(`/api/employees/${deptId}`)
+      .then(response => response.json())
+      .then(employees => {
+        employees.forEach(emp => {
+          const option = document.createElement('option');
+          option.value = emp.id;
+          option.textContent = emp.name;
+          employeeSelect.appendChild(option);
+        });
+        employeeSelect.disabled = false;
+      })
+      .catch(() => {
+        // handle error or keep disabled
+        employeeSelect.disabled = true;
+      });
+  });
+});
+
+</script>
+
+<!-- SEARCH FILTER
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const searchInput = document.getElementById("dt-search-0");
+  const table = document.getElementById("issue-report-table");
+  const tbody = table.querySelector("tbody");
+
+  searchInput.addEventListener("input", function () {
+    const filter = searchInput.value.toLowerCase();
+    const rows = tbody.getElementsByTagName("tr");
+
+    Array.from(rows).forEach(row => {
+      const cells = row.getElementsByTagName("td");
+      let found = false;
+
+      Array.from(cells).forEach(cell => {
+        if (cell.textContent.toLowerCase().includes(filter)) {
+          found = true;
+        }
+      });
+
+      row.style.display = found ? "" : "none";
+    });
+  });
+});
+</script> -->
+
+
+{% endblock content %}

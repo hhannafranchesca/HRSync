@@ -1,0 +1,118 @@
+{% extends "base/landingBase.html" %}
+{% block content %}
+
+
+    <!-- Page Title -->
+    <!-- Replace this section of your HTML -->
+
+<!-- Page Title -->
+<div class="page-title">
+    <div class="container d-lg-flex justify-content-between align-items-center">
+      <h1 class="mb-2 mb-lg-0">Livelihood in Victoria, Laguna</h1>
+      <nav class="breadcrumbs">
+        <ol>
+          <li><a href="{{ url_for('home') }}">Home</a></li>
+          <li class="current">Livelihood</li>
+        </ol>
+      </nav>
+    </div>
+  </div><!-- End Page Title -->
+  
+  <!-- Service Details Section -->
+  <section id="service-details" class="service-details section">
+    <div class="container">
+      <div class="row gy-5">
+        <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="service-box">
+            <h4>Available Livelihood</h4>
+            <div class="services-list">
+              <a href="#"><i class="bi bi-check-circle"></i><span>Duck Raising and Balut Production</span></a>
+              <a href="#"><i class="bi bi-check-circle"></i><span>Salted Egg Making</span></a>
+              <a href="#"><i class="bi bi-check-circle"></i><span>Rice Farming</span></a>
+              <a href="#"><i class="bi bi-check-circle"></i><span>Freshwater Fishing</span></a>
+              <a href="#"><i class="bi bi-check-circle"></i><span>Native Delicacy Production (Puto, Kutsinta, etc.)</span></a>
+              <a href="#"><i class="bi bi-check-circle"></i><span>Handicrafts and Local Products</span></a>
+              <a href="#"><i class="bi bi-check-circle"></i><span>Tricycle Driving and Transport Services</span></a>
+              <a href="#"><i class="bi bi-check-circle"></i><span>Home-based Sari-Sari Stores</span></a>
+              <a href="#"><i class="bi bi-check-circle"></i><span>Livelihood Training Programs</span></a>
+            </div>
+
+            
+          </div>
+  
+          <!-- <div class="service-box">
+            <h4>Download Catalog</h4>
+            <div class="download-catalog">
+              <a href="#"><i class="bi bi-filetype-pdf"></i><span>Culture Booklet PDF</span></a>
+              <a href="#"><i class="bi bi-file-earmark-word"></i><span>Heritage Programs DOC</span></a>
+            </div>
+          </div> -->
+  
+          <div class="help-box d-flex flex-column justify-content-center align-items-center">
+            <i class="bi bi-headset help-icon"></i>
+            <h4>Need Assistance?</h4>
+            <p class="d-flex align-items-center mt-2 mb-0"><i class="bi bi-telephone me-2"></i> <span>+1 5589 55488 55</span></p>
+            <p class="d-flex align-items-center mt-1 mb-0"><i class="bi bi-envelope me-2"></i> <a href="mailto:contact@example.com">contact@example.com</a></p>
+          </div>
+        </div>
+  
+        <div class="col-lg-8 ps-lg-5" data-aos="fade-up" data-aos-delay="200">
+            <style>
+                .image-box {
+                  height: 300px; /* adjust as needed */
+                  overflow: hidden;
+                }
+              
+                .image-box img {
+                  height: 100%;
+                  width: 100%;
+                  object-fit: cover;
+                  border-radius: 8px;
+                }
+              </style>
+              
+              <div class="row mb-4">
+                <div class="col-md-4" data-aos="fade-up">
+                  <div class="image-box">
+                    <img src="{{ url_for('static', filename='img/landing/du1.JPG') }}" alt="Itik Festival" class="img-fluid shadow-sm">
+
+                  </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                  <div class="image-box">
+                    <img src="{{ url_for('static', filename='img/landing/plant.JPG') }}" alt="Traditional Dance" class="img-fluid shadow-sm">
+
+                  </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                  <div class="image-box">
+                    <img src="{{ url_for('static', filename='img/landing/fish.PNG') }}" alt="Local Crafts" class="img-fluid shadow-sm">
+
+                  </div>
+                </div>
+              </div>
+              
+                        
+            <h3>Livelihood in Victoria, Laguna</h3>
+        <p>
+          Victoria, Laguna is known as the "Duck Raising Capital of the Philippines" — a title that reflects its most iconic livelihood: itik (duck) farming. The town’s economy is deeply rooted in agriculture and animal husbandry, supporting many families through traditional and modern farming practices.
+        </p>
+        <p>
+          Beyond duck raising, residents also engage in rice farming, vegetable cultivation, and small-scale fishing. Cottage industries, such as weaving, native delicacies production, and handcrafted products, are also a vital part of Victoria’s thriving local economy.
+        </p>
+        <ul>
+          <li><i class="bi bi-check-circle"></i> <span>Itik farming as a main source of income for many households.</span></li>
+          <li><i class="bi bi-check-circle"></i> <span>Locally grown rice and vegetables supply nearby markets.</span></li>
+          <li><i class="bi bi-check-circle"></i> <span>Handcrafted goods and local food products support small businesses.</span></li>
+          <li><i class="bi bi-check-circle"></i> <span>Livelihood programs that empower women and youth through entrepreneurship.</span></li>
+        </ul>
+        <p>
+          The spirit of hard work and innovation keeps Victoria’s economy alive. With a strong sense of community and tradition, the people continue to evolve while holding on to the roots that define their way of life.
+        </p>
+        </div>
+      </div>
+    </div>
+  </section><!-- /Service Details Section -->
+  
+
+  {% endblock content %}

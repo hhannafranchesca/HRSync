@@ -1,0 +1,356 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+<div class="col-xl-12">
+
+  <div class="nav-align-top mb-4">
+    <div class="tab-content h-100 min-vh-100">
+
+      <h2 class="mb-4">Editing Department</h2>
+      
+      <form method="POST" action="{{ url_for('edit_department', department_id=department.id) }}" enctype="multipart/form-data" class="needs-validation" novalidate>
+
+      
+        <!-- Department Name -->
+        <div class="mb-3">
+            <label for="name" class="form-label">Department Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ department.name }}" required>
+            <div class="invalid-feedback">
+                Please provide a department name.
+              </div>
+
+        </div>
+        
+        <!-- Department Description -->
+        <div class="mb-4">
+            <label for="description" class="form-label">Department Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3">{{ department.description }}</textarea>
+
+        </div>
+
+        <!-- Position Titles, Number of Positions, and Position Type -->
+        <!-- Position Titles, Number of Positions, and Position Type -->
+<div class="mb-3">
+    <label class="form-label">Position Titles and Number of Positions</label>
+    <div class="d-flex align-items-center mb-2">
+        <input type="text" class="form-control" id="positionInput" placeholder="Type position title">
+        <input type="number" class="form-control ms-2" id="numberOfPositionsInput" placeholder="Number of positions" min="1">
+        
+        <!-- Position Type Dropdown -->
+        <select class="form-select ms-2" id="positionTypeInput">
+            <option value="Head">Head</option>
+            <option value="Employee">Employee</option>
+        </select>
+        
+        <button class="btn btn-outline-secondary ms-2" type="button" onclick="addPositionRow()">Add</button>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle border shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Position Title</th>
+                    <th>Number of Positions</th>
+                    <th>Position Type</th>
+                    <th style="width: 20%;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="positionTableBody">
+                {% if positions %}
+                    {% for pos in positions %}
+                        {% set row_id = "row-" ~ loop.index %}
+                        {% set input_id = "input-" ~ row_id %}
+                        <tr id="{{ row_id }}">
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <input type="text" class="form-control" name="position_title_{{ pos.id }}" value="{{ pos.title }}" required>
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" name="number_of_positions_{{ pos.id }}" value="{{ pos.number_of_positions }}" required>
+                            </td>
+                            <td>
+                                <select class="form-select" name="position_type_{{ pos.id }}">
+                                    <option value="Head" {% if pos.type == 'Head' %}selected{% endif %}>Head</option>
+                                    <option value="Employee" {% if pos.type == 'Employee' %}selected{% endif %}>Employee</option>
+                                </select>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="removePositionRow('{{ row_id }}')">Remove</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr id="noPositionRow">
+                        <td colspan="5" class="text-center">No Position</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+        <hr>
+
+        <!-- Hidden inputs for position submission -->
+        <div id="positionHiddenInputs"></div>
+
+        <!-- Services Section -->
+        <!-- Services Section -->
+<div class="mb-3">
+    <label class="form-label">Services</label>
+    <div class="d-flex mb-2">
+        <input type="text" class="form-control" id="serviceInput" placeholder="Type service and press Enter">
+        <button class="btn btn-outline-secondary ms-2" type="button" onclick="addServiceRow(serviceInput.value)">Add</button>
+
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle border shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Service Name</th>
+                    <th style="width: 20%;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="serviceTableBody">
+                {% if department.service %}
+                    {% set services = department.service.split(',') %}
+                    {% for service in services %}
+                        <tr id="row-{{ loop.index }}">
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <input type="text" class="form-control" name="service_{{ loop.index }}" value="{{ service.strip() }}" required>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="removeServiceRow('row-{{ loop.index }}')">Remove</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr id="noServiceRow">
+                        <td colspan="3" class="text-center">No Service</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+        <!-- Hidden inputs for service submission -->
+        <div id="serviceHiddenInputs"></div>
+
+        <!-- Submit Button -->
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">Update Department</button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+</div>
+
+
+<script>
+    let serviceCount = document.querySelectorAll('#serviceTableBody tr:not(#noServiceRow)').length || 0;
+    const serviceInput = document.getElementById('serviceInput');
+    const serviceTableBody = document.getElementById('serviceTableBody');
+
+    serviceInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            const value = serviceInput.value.trim();
+            if (value) {
+                addServiceRow(value);
+                serviceInput.value = '';
+            }
+        }
+    });
+
+    function addServiceRow(value) {
+        serviceCount++;
+        const rowId = 'row-' + Date.now();
+
+        const row = document.createElement('tr');
+        row.id = rowId;
+        row.innerHTML = `
+            <td>${serviceCount}</td>
+            <td>
+                <input type="text" class="form-control" name="service[]" value="${value}" required>
+            </td>
+            <td>
+                <button type="button" class="btn btn-sm btn-danger" onclick="removeServiceRow('${rowId}')">Remove</button>
+            </td>
+        `;
+        serviceTableBody.appendChild(row);
+
+        serviceInput.value = '';
+
+        updateServiceTable();
+    }
+
+    function removeServiceRow(rowId) {
+        document.getElementById(rowId)?.remove();
+        updateServiceTable();
+    }
+
+    function updateServiceTable() {
+        const rows = serviceTableBody.querySelectorAll('tr');
+        const noServiceRow = document.getElementById('noServiceRow');
+        if (rows.length > 0) {
+            noServiceRow?.remove();
+        } else {
+            if (!noServiceRow) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.id = 'noServiceRow';
+                emptyRow.innerHTML = `<td colspan="3" class="text-center">No Service</td>`;
+                serviceTableBody.appendChild(emptyRow);
+            }
+        }
+    }
+
+    let positionCount = document.querySelectorAll('#positionTableBody tr:not(#noPositionRow)').length || 0;
+    const positionInput = document.getElementById('positionInput');
+    const numberOfPositionsInput = document.getElementById('numberOfPositionsInput');
+    const positionTypeInput = document.getElementById('positionTypeInput');
+    const positionTableBody = document.getElementById('positionTableBody');
+
+    function addPositionRow() {
+        const positionTitle = positionInput.value.trim();
+        const numberOfPositions = numberOfPositionsInput.value.trim();
+        const positionType = positionTypeInput.value;
+
+        if (positionTitle && numberOfPositions) {
+            positionCount++;
+            const rowId = 'row-' + Date.now();
+
+            const row = document.createElement('tr');
+            row.id = rowId;
+            row.innerHTML = `
+                <td>${positionCount}</td>
+                <td>
+                    <input type="text" class="form-control" name="new_position_title[]" value="${positionTitle}" required>
+                </td>
+                <td>
+                    <input type="number" class="form-control" name="new_number_of_positions[]" value="${numberOfPositions}" min="1" required>
+                </td>
+                <td>
+                    <select class="form-select" name="new_position_type[]">
+                        <option value="Head" ${positionType === 'Head' ? 'selected' : ''}>Head</option>
+                        <option value="Employee" ${positionType === 'Employee' ? 'selected' : ''}>Employee</option>
+                    </select>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removePositionRow('${rowId}')">Remove</button>
+                </td>
+            `;
+            positionTableBody.appendChild(row);
+
+            // Clear input fields
+            positionInput.value = '';
+            numberOfPositionsInput.value = '';
+
+            updatePositionTable();
+        }
+    }
+
+    function removePositionRow(rowId) {
+        document.getElementById(rowId)?.remove();
+        updatePositionTable();
+    }
+
+    function updatePositionTable() {
+        const rows = positionTableBody.querySelectorAll('tr');
+        const noPositionRow = document.getElementById('noPositionRow');
+        if (rows.length > 0) {
+            noPositionRow?.remove();
+        } else {
+            if (!noPositionRow) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.id = 'noPositionRow';
+                emptyRow.innerHTML = `<td colspan="5" class="text-center">No Position</td>`;
+                positionTableBody.appendChild(emptyRow);
+            }
+        }
+    }
+</script>
+
+
+<script>
+    (function() {
+      'use strict';
+    
+      document.addEventListener('DOMContentLoaded', function () {
+    
+        function showError(inputElement, message) {
+          // Check if error message already exists
+          let errorMessage = inputElement.parentElement.querySelector('.invalid-feedback');
+          if (!errorMessage) {
+            errorMessage = document.createElement('div');
+            errorMessage.classList.add('invalid-feedback');
+            errorMessage.textContent = message;
+            inputElement.parentElement.appendChild(errorMessage);
+          }
+          inputElement.classList.add('is-invalid');
+        }
+    
+        function clearErrors(form) {
+          form.querySelectorAll('.invalid-feedback').forEach(e => e.remove());
+          form.querySelectorAll('.is-invalid').forEach(e => e.classList.remove('is-invalid'));
+        }
+    
+        function addRealTimeValidation(inputElement, message) {
+          inputElement.addEventListener('input', function () {
+            const existingError = inputElement.parentElement.querySelector('.invalid-feedback');
+            if (!inputElement.checkValidity()) {
+              if (!existingError) {
+                showError(inputElement, message);
+              }
+            } else {
+              inputElement.classList.remove('is-invalid');
+              if (existingError) existingError.remove();
+            }
+          });
+        }
+    
+        // Apply to all forms with class 'needs-validation'
+        const forms = document.querySelectorAll('.needs-validation');
+    
+        forms.forEach(function(form) {
+          const inputs = form.querySelectorAll('input, textarea, select');
+    
+          inputs.forEach(function(input) {
+            // Attach real-time validation
+            const fieldName = input.getAttribute('name') || input.id || 'this field';
+            addRealTimeValidation(input, `Please enter/select a valid ${fieldName.replace('_', ' ')}.`);
+          });
+    
+          form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            clearErrors(form);
+            let isValid = true;
+    
+            inputs.forEach(function(input) {
+              if (!input.checkValidity()) {
+                showError(input, `Please enter/select a valid ${input.getAttribute('name') || input.id || 'this field'}.`);
+                isValid = false;
+              }
+            });
+    
+            if (isValid) {
+              form.submit(); // Submit if no validation errors
+            }
+          });
+        });
+    
+      });
+    })();
+    </script>
+    
+
+{% endblock content %}

@@ -1,0 +1,94 @@
+
+{% extends "base/landingBase.html" %}
+{% block content %}
+    <!-- Page Title -->
+    <div class="page-title">
+      <div class="container d-lg-flex justify-content-between align-items-center">
+        <h1 class="mb-2 mb-lg-0">Social Welfare</h1>
+        <nav class="breadcrumbs">
+          <ol>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li class="current">Social Welfare</li>
+          </ol>
+        </nav>
+      </div>
+    </div><!-- End Page Title -->
+
+    <!-- Service Details Section -->
+    <section id="service-details" class="service-details section">
+
+      <div class="container">
+
+        <div class="row gy-5">
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="service-box">
+                <h4>Social Welfare Services</h4>
+                <div class="services-list">
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Day Care Services</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Supplementary Feeding Program</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Registration and Issuance of PWD ID and Purchase Booklet</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Registration and Issuance of Senior Citizen ID and Purchase Booklet</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Application for Social Pension for Indigent Senior Citizens</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Pre-Marriage Orientation and Counseling (PMOC)</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Marriage and Family Counseling</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Registration and Issuance of Solo Parent ID</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>ERPAT Membership Services</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Issuance of Certificate of Indigency</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Assistance to Children in Conflict with the Law</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Emergency Shelter Assistance</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Medical, Financial, and Burial Assistance</span></a>
+                </div>
+
+              </div>                 
+
+            <!-- <div class="service-box">
+              <h4>Download Catalog</h4>
+              <div class="download-catalog">
+                <a href="#"><i class="bi bi-filetype-pdf"></i><span>Catalog PDF</span></a>
+                <a href="#"><i class="bi bi-file-earmark-word"></i><span>Catalog DOC</span></a>
+              </div>
+            </div>End Services List -->
+
+            <div class="help-box d-flex flex-column justify-content-center align-items-center">
+              <i class="bi bi-headset help-icon"></i>
+              <h4>Have a Question?</h4>
+              <p class="d-flex align-items-center mt-2 mb-0"><i class="bi bi-telephone me-2"></i> <span>+1 5589 55488 55</span></p>
+              <p class="d-flex align-items-center mt-1 mb-0"><i class="bi bi-envelope me-2"></i> <a href="mailto:contact@example.com">contact@example.com</a></p>
+            </div>
+
+          </div>
+
+          <div class="col-lg-8 ps-lg-5" data-aos="fade-up" data-aos-delay="200">
+            <img src="{{ url_for('static', filename='img/landing/so.JPG') }}" alt="Social Welfare Services in Victoria, Laguna" class="img-fluid services-img">
+
+            <h3>Helping Hands for Every Family in Victoria, Laguna</h3>
+            <p>
+              At the heart of Victoria, Laguna, the Municipal Social Welfare and Development Office (MSWDO) works every day to support and uplift our community. Whether you're a child, a senior citizen, a solo parent, or someone going through a difficult time, we're here to help.
+            </p>
+            <p>
+              Our programs are made with the people of Victoria in mind—real help for real needs. From free day care services and feeding programs for children to financial and medical assistance for families in crisis, we do our best to make sure no one gets left behind.
+            </p>
+            <ul>
+              <li><i class="bi bi-check-circle"></i> <span>Day care and feeding programs to give our little ones a healthy start.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Support for senior citizens, persons with disabilities (PWDs), and solo parents through IDs, discounts, and social benefits.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Counseling and guidance for families, couples, and individuals in need of support.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Emergency help—like burial, medical, or transportation assistance—for those going through tough times.</span></li>
+            </ul>
+            <p>
+              We also step in when disasters strike, offering shelter, food, and emotional support to help families recover and rebuild. We believe in building strong, caring communities where every person feels seen, heard, and valued.
+            </p>
+            <p>
+              Our mission is simple: to be there for you. With the support of our local government and the dedication of our staff and volunteers, we’ll keep working hand-in-hand with you to make Victoria, Laguna a kinder, more compassionate place to live.
+            </p>
+          </div>          
+          
+
+        </div>
+
+      </div>
+
+    </section><!-- /Service Details Section -->
+
+    {% endblock content %}

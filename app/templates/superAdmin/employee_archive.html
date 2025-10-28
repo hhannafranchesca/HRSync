@@ -1,0 +1,1223 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+
+<div class="row g-4 mb-4">
+  
+    <div class="col-12 col-sm-6 col-xl-6">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div class="content-left">
+              <span class="text-heading">Total Department</span>
+              <div class="d-flex align-items-center my-1">
+                <h4 class="mb-0 me-2 fs-3 fw-semibold">{{ total_departments or 0 }}</h4>
+              </div>
+            </div>
+            <div class="avatar">
+              <span class="avatar-initial rounded bg-label-primary">
+                <i class="bi bi-building fs-3"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-12 col-sm-6 col-xl-6">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div class="content-left">
+              <span class="text-heading">Inactive Employees</span>
+              <div class="d-flex align-items-center my-1">
+                <h4 class="mb-0 me-2 fs-3 fw-semibold">{{ total_employee or 0 }}</h4>
+                <!-- <p class="text-success mb-0">(+29%)</p> -->
+              </div>
+            </div>
+            <div class="avatar">
+              <span class="avatar-initial rounded bg-label-primary">
+                <i class="bi bi-people fs-3"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+ 
+  
+</div>
+
+<div class="col-xl-12">
+
+  <div class="nav-align-top mb-4">
+     <ul class="nav nav-pills mb-3 flex-nowrap overflow-auto" role="tablist" style="white-space: nowrap;">
+
+
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                  data-bs-target="#navs-pills-travel-order" id="travel-order-tab" 
+                  aria-controls="navs-pills-travel-order" aria-selected="true">
+                  Permanent, Co-Term and Elective
+          </button>
+        </li>
+
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                  data-bs-target="#navs-pills-Leave-Credits" id="Leave-Credits-tab" 
+                  aria-controls="navs-pills-Leave-Credits" aria-selected="false">
+                  Casual appointments
+          </button>
+        </li>
+    
+      
+
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                  data-bs-target="#navs-pills-JO" id="JO-tab" 
+                  aria-controls="navs-pills-JO" aria-selected="false">
+                  Job Order
+          </button>
+        </li>
+    
+     
+      </ul>
+    
+      <div class="tab-content h-100 min-vh-100">
+
+        <!-- CASUAL EMPLOYEE -->
+        <div class="tab-pane fade " id="navs-pills-Leave-Credits" role="tabpanel" aria-labelledby="Leave-Credits-tab">
+
+        <div class="card-header border-bottom p-0 pb-4 mb-4">
+          <h5 class="card-title mb-0">Archive Casual Employees</h5>
+          <div class="d-flex justify-content-between align-items-center row pt-4 gap-md-0 g-6 ">
+            
+             <div class="col-md-6 user_role">
+              <select id="casualtOrg" class="form-select text-capitalize">
+                <option value="" selected>All Departments</option>
+                {% for dept in departments %}
+                  <option value="{{ dept.name }}">{{ dept.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+             
+            <div class="col-md-6 d-flex justify-content-end gap-2">
+                  <!-- Export Button -->
+              <div class="btn-group">
+                <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                        type="button"
+                        id="exportDropdown"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                  <i class="bi bi-box-arrow-up me-1"></i>
+                  <span>Export</span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                  <li>
+                    <a class="dropdown-item" href="{{ url_for('generate_terminated_casualjob_pdf') }}">
+                      <i class="bi bi-file-pdf me-2"></i>Export as PDF
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" href="{{ url_for('print_terminated_casualjob') }}" target="_blank">
+                      <i class="bi bi-printer me-2"></i>Print
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+        <div class="card-datable">
+          
+          <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+              <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                 <table class="datatables-users table border-top dataTable dtr-column table-bordered" 
+                      id="casualtbl" 
+                      style="width: 100%; height: 100%;">
+                  <thead class="table-dark align-middle text-center">
+                    <tr>
+                      <th colspan="3" class="border">Name of Appointees</th>
+                      <th rowspan="2" class="border">Position Title (Do not abbreviate)</th>
+                      <th rowspan="2" class="border">Equivalent Salary/Job/Pay Grade</th>
+                      <th rowspan="2" class="border">Daily Wage</th>
+                      <th colspan="2" class="border">Period of Employment</th>
+                      <th rowspan="2" class="border">Assigned Department</th>
+                      <th rowspan="2" class="border">Latest Termination</th>
+                      <th rowspan="2" class="border">Action</th>
+                    </tr>
+                    <tr>
+                      <th class="border">#</th>
+                      <th class="border">Full Name</th>
+                      <th class="border">Name Extension (Jr./III)</th>
+                      <th class="border">From (mm/dd/yyyy)</th>
+                      <th class="border">To (mm/dd/yyyy)</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {% if casual_by_dept %}
+                      {% for dept_name, employees in casual_by_dept.items() %}
+                        {% for emp in employees %}
+                          <tr class="text-center">
+                            <td>{{ loop.index }}</td>
+                            <td>
+                              <div class="d-flex justify-content-start align-items-center user-name">
+                                <div class="d-flex flex-column">
+                                  <a href="{{ url_for('EmployeeDetail', id=emp.id) }}" class="text-heading text-wrap">
+                                    <span class="fw-medium">{{ emp.last_name }} {{ emp.first_name }} {{ emp.middle_name }}</span>
+                                  </a>
+                                </div>
+                              </div>
+                            </td>
+                            <td>{{ emp.casual_details.name_extension or 'N/A' }}</td>
+                            <td>{{ emp.casual_details.position.title }}</td>
+                            <td>{{ emp.casual_details.equivalent_salary or '' }}</td>
+                            <td>{{ emp.casual_details.daily_wage or '' }}</td>
+                            <td>{{ emp.casual_details.contract_start.strftime('%m/%d/%Y') if emp.casual_details.contract_start else '' }}</td>
+                            <td>{{ emp.casual_details.contract_end.strftime('%m/%d/%Y') if emp.casual_details.contract_end else '' }}</td>
+                            <td>{{ emp.casual_details.assigned_department.name if emp.casual_details.assigned_department else '-' }}</td>
+
+                            <!-- Latest termination with child row toggle -->
+                            <td>
+                              {% if emp.termination_records %}
+                                {% set latest = emp.termination_records|sort(attribute='terminated_at')|last %}
+                                <span class="text-danger fw-bold">{{ (latest.terminated_at|to_ph_time).strftime('%m/%d/%Y') }}</span><br>
+                                <small>{{ latest.reason }}</small>
+                                <br>
+                                <button type="button" 
+                                        class="btn btn-sm btn-outline-secondary mt-1 view-history-btn" 
+                                        data-id="{{ emp.id }}">
+                                  View All
+                                </button>
+                                
+                                <!-- Hidden template for DataTables child row -->
+                                <template id="history-{{ emp.id }}">
+                                  <div class="p-2">
+                                    <h6 class="fw-bold">Termination History</h6>
+                                    <ul class="list-group list-group-flush">
+                                      {% for hist in emp.termination_records|sort(attribute='terminated_at') %}
+                                        <li class="list-group-item">
+                                          <strong>{{ (hist.terminated_at|to_ph_time).strftime('%m/%d/%Y') }}</strong> — 
+                                          <span class="text-danger">{{ hist.reason }}</span><br>
+                                          <small>
+                                            Terminated by: {{ hist.user.name if hist.user else 'System/Unknown' }}
+                                            ({{ hist.user.role if hist.user else 'N/A' }})
+                                          </small>
+                                        </li>
+                                      {% endfor %}
+                                    </ul>
+                                  </div>
+                                </template>
+                              {% else %}
+                                <span class="text-muted">No record</span>
+                              {% endif %}
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="text-center">
+                              <div class="d-flex justify-content-center gap-1">
+                                <button 
+                                  type="button" 
+                                  class="btn btn-sm btn-warning btn-return"
+                                  data-id="{{ emp.id }}"
+                                  data-name="{{ emp.last_name }} {{ emp.first_name }} {{ emp.middle_name }}"
+                                  data-position="{{ emp.casual_details.position.title }}"
+                                  data-dailywage="{{ emp.casual_details.daily_wage or '0.00' }}"
+                                  data-department="{{ emp.casual_details.assigned_department_id or '' }}"
+                                  data-url="{{ url_for('return_casual_employee') }}"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#returnEmployeeModal2">
+                                  Return
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      {% endfor %}
+
+                    {% endif %}
+                  </tbody>
+                </table>
+
+
+
+
+          </div>
+      
+      </div>
+        </div>
+
+        </div>
+    
+        <!-- PERMANENT EMPLOYEE -->
+        <div class="tab-pane fade show " id="navs-pills-travel-order" role="tabpanel" aria-labelledby="travel-order-tab">
+          <div class="card-header border-bottom p-0 pb-3">
+
+        <div class="d-flex justify-content-between align-items-center mb-2 pb-2">
+              <h5 class="card-title mb-0">Permanent, Co-Term and Electives Employees</h5>
+
+              <div class="d-flex align-items-center gap-2">
+                
+                <!-- Export Button -->
+                <div class="btn-group">
+                  <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                          type="button"
+                          id="exportDropdown"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false">
+                    <i class="bi bi-box-arrow-up me-1"></i>
+                    <span>Export</span>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                    <li>
+                      <a class="dropdown-item" href="{{ url_for('generate_terminated_permanent_pdf') }}">
+                        <i class="bi bi-file-pdf me-2"></i>Export as PDF
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item" href="{{ url_for('print_terminated_permanent') }}" target="_blank">
+                        <i class="bi bi-printer me-2"></i>Print
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+           <div class="row pt-4 g-3">
+            <div class="col-12 col-md-6">
+              <select id="permanentOrg" class="form-select text-capitalize">
+                <option value="">All Organizational Units</option>
+                {% for dept in departments %}
+                  <option value="{{ dept.id }}">{{ dept.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <select id="positionOrg" class="form-select text-capitalize">
+                <option value="">Select Position</option>
+              </select>
+            </div>
+          </div>
+
+            </div>
+      <div class="row pt-4 g-3 align-items-end">
+
+            <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                <table class="datatables-users table border-top dataTable dtr-column table-bordered" 
+                      id="employeeTable" 
+                      style="width: 100%; height: 100%;">
+                  <thead class="table-dark align-middle text-center">
+                    <tr>
+                      <th class="d-none">Dept ID</th>
+                      <th>ORGANIZATIONAL UNIT</th>
+                      <th>ITEM NUMBER</th>
+                      <th>POSITION TITLE</th>
+                      <th>STEP</th>
+                      <th>LEVEL</th>
+                      <th>FULL NAME</th>
+                      <th>TIN / UMID NO.</th>
+                      <th>DATE OF ORIGINAL APPOINTMENT</th>
+                      <th>STATUS</th>
+                      <th>LATEST TERMINATION</th>
+                      <th>ACTION</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {% if permanent_by_dept %}
+                      {% for dept_name, employees in permanent_by_dept.items() %}
+                        {% for emp in employees %}
+                        <tr class="text-center">
+                          <td class="d-none">{{ emp.department.id }}</td>
+                          <td>{{ emp.department.name }}</td>
+                          <td>{{ emp.permanent_details.item_number }}</td>
+                          <td>{{ emp.permanent_details.position.title }}</td>
+                          <td>{{ emp.permanent_details.step }}</td>
+                          <td>{{ emp.permanent_details.level }}</td>
+                          <td>
+                            <div class="d-flex justify-content-start align-items-center user-name">
+                              <div class="d-flex flex-column">
+                                <a href="{{ url_for('EmployeeDetail', id=emp.id) }}" class="text-heading text-truncate">
+                                  <span class="fw-medium">{{ emp.last_name }} {{ emp.first_name }} {{ emp.middle_name }}</span>
+                                </a>
+                              </div>
+                            </div>
+                          </td>
+                          <td>{{ emp.permanent_details.tin }} {{ emp.umid_no }}</td>
+                          <td>{{ emp.permanent_details.date_original_appointment.strftime('%Y-%m-%d') if emp.permanent_details.date_original_appointment else '' }}</td>
+                          <td>{{ emp.status }}</td>
+
+                          <!-- Latest Termination -->
+                          <td>
+                            {% if emp.termination_records %}
+                              {% set latest = emp.termination_records|sort(attribute='terminated_at')|last %}
+                              <span class="text-danger fw-bold">{{ (latest.terminated_at|to_ph_time).strftime('%m/%d/%Y') }}</span><br>
+                              <small>{{ latest.reason }}</small><br>
+                              <button class="btn btn-sm btn-outline-secondary mt-1 view-history-btn" 
+                                      data-id="{{ emp.id }}">
+                                View All
+                              </button>
+                            {% else %}
+                              <span class="text-muted">No record</span>
+                            {% endif %}
+                          </td>
+
+                          <!-- Actions -->
+                          <td class="text-center align-middle">
+                            <div class="d-flex flex-column justify-content-center gap-2">
+                              <button type="button" 
+                                      class="btn btn-sm btn-warning btn-return"
+                                      data-id="{{ emp.id }}"
+                                      data-name="{{ emp.last_name }} {{ emp.first_name }} {{ emp.middle_name }}"
+                                      data-url="{{ url_for('return_employee', employee_id=emp.id) }}"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#returnEmployeeModal">
+                                Return
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+
+                        <!-- Hidden termination history template -->
+                        {% if emp.termination_records %}
+                        <template id="history-{{ emp.id }}">
+                          <div class="p-2 bg-light">
+                            <h6 class="fw-bold">Termination History</h6>
+                            <ul class="list-group list-group-flush">
+                              {% for hist in emp.termination_records|sort(attribute='terminated_at') %}
+                              <li class="list-group-item">
+                                <strong>{{ (hist.terminated_at|to_ph_time).strftime('%m/%d/%Y') }}</strong> — 
+                                <span class="text-danger">{{ hist.reason }}</span><br>
+                                <small>Terminated by: {{ hist.user.name if hist.user else 'System/Unknown' }}
+                                ({{ hist.user.role if hist.user else 'N/A' }})</small>
+                              </li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        </template>
+                        {% endif %}
+
+                        {% endfor %}
+                      {% endfor %}
+                    {% endif %}
+                  </tbody>
+                </table>
+
+
+            </div>
+        
+        </div>
+          </div>
+        </div>
+        
+        <!-- JO EMPLOYEE -->
+        <div class="tab-pane fade" id="navs-pills-JO" role="tabpanel" aria-labelledby="JO-tab">
+          <div class="card-header border-bottom p-0 pb-4 mb-4">
+          <h5 class="card-title mb-0">Archieve JO Employees</h5>
+
+            
+
+          <div class="d-flex justify-content-between align-items-center row pt-4 gap-md-0 g-6 ">
+            
+            <div class="col-md-6 user_role">
+              <select id="joOrg" class="form-select text-capitalize">
+                <option value="" selected>All Departments</option>
+                {% for dept in departments %}
+                  <option value="{{ dept.name }}">{{ dept.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6 d-flex justify-content-end gap-2">
+              
+            <!-- Export Button -->
+            <div class="btn-group">
+              <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                      type="button"
+                      id="exportDropdown"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false">
+                <i class="bi bi-box-arrow-up me-1"></i>
+                <span>Export</span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('generate_terminated_joborder_pdf') }}">
+                    <i class="bi bi-file-pdf me-2"></i>Export as PDF
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('print_terminated_joborder') }}" target="_blank">
+                    <i class="bi bi-printer me-2"></i>Print
+                  </a>
+                </li>
+              </ul>
+            </div>
+            </div>
+           
+          </div>
+        </div>
+
+          <div class="card-datable">
+
+            <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+             <table class="datatables-users table border-top dataTable dtr-column table-bordered" 
+       id="JOtbl" 
+       style="width: 100%; height: 100%;">
+  <thead class="table-dark align-middle text-center">
+    <tr>
+      <th>ORGANIZATIONAL UNIT</th>
+      <th>FULL NAME</th>
+      <th>ASSIGNED DEPARTMENT</th>
+      <th>EMPLOYMENT STATUS</th>
+      <th>LATEST TERMINATION</th>
+      <th>ACTION</th>
+    </tr>
+  </thead>
+
+  <tbody class="text-center">
+    {% if job_order_by_dept %}
+      {% for dept_name, employees in job_order_by_dept.items() %}
+        {% for employee in employees %}
+          <tr>
+            <td>{{ employee.department.name if employee.department else 'N/A' }}</td>
+            <td>
+              <div class="d-flex justify-content-center align-items-center user-name">
+                <div class="d-flex flex-column">
+                  <span class="fw-medium">{{ employee.first_name }} {{ employee.middle_name }} {{ employee.last_name }}</span>
+                </div>
+              </div>
+            </td>
+            <td>{{ employee.job_order_details.assigned_department.name if employee.job_order_details and employee.job_order_details.assigned_department else '-' }}</td>
+            <td>{{ employee.status }}</td>
+
+            <!-- Latest Termination with child row toggle -->
+            <td>
+              {% if employee.termination_records %}
+                {% set latest = employee.termination_records|sort(attribute='terminated_at')|last %}
+                <span class="text-danger fw-bold">{{ (latest.terminated_at|to_ph_time).strftime('%m/%d/%Y') }}</span><br>
+                <small>{{ latest.reason }}</small><br>
+                <button type="button" 
+                        class="btn btn-sm btn-outline-secondary mt-1 view-history-btn" 
+                        data-id="JO{{ employee.id }}">
+                  View All
+                </button>
+
+                <!-- Hidden template for DataTables child row -->
+                <template id="history-JO{{ employee.id }}">
+                  <div class="p-2">
+                    <h6 class="fw-bold">Termination History</h6>
+                    <ul class="list-group list-group-flush">
+                      {% for hist in employee.termination_records|sort(attribute='terminated_at') %}
+                        <li class="list-group-item">
+                          <strong>{{ (hist.terminated_at|to_ph_time).strftime('%m/%d/%Y') }}</strong> — 
+                          <span class="text-danger">{{ hist.reason }}</span><br>
+                          <small>
+                            Terminated by: {{ hist.user.name if hist.user else 'System/Unknown' }}
+                            ({{ hist.user.role if hist.user else 'N/A' }})
+                          </small>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </template>
+              {% else %}
+                <span class="text-muted">No record</span>
+              {% endif %}
+            </td>
+
+            <!-- Actions -->
+            <td>
+              <button type="button" 
+                      class="btn btn-sm btn-warning btn-return-jo"
+                      data-id="{{ employee.id }}"
+                      data-name="{{ employee.last_name }} {{ employee.first_name }} {{ employee.middle_name }}"
+                      data-bs-toggle="modal"
+                      data-bs-target="#returnJOEmployeeModal">
+                Return
+              </button>
+            </td>
+          </tr>
+        {% endfor %}
+      {% endfor %}
+ 
+    {% endif %}
+  </tbody>
+</table>
+
+
+           
+            </div>
+        
+        </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+
+</div>
+  
+
+<div class="modal fade" id="returnEmployeeModal" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="return-employee-form" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title" id="returnModalLabel">Confirm Return</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to return <strong id="return-employee-name"></strong> to active service?
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-warning">Confirm Return</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Return Casual Employee Modal -->
+<div class="modal fade" id="returnEmployeeModal2" tabindex="-1" aria-labelledby="returnEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="POST" action="{{ url_for('return_casual_employee') }}" id="returnEmployeeForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="returnEmployeeModalLabel">Return Casual Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-12">
+              <label class="form-label">Employee Name</label>
+              <input type="text" class="form-control" id="employeeName" readonly>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Position Title</label>
+              <input type="text" class="form-control" id="employeePosition" readonly>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Daily Wage</label>
+              <input type="text" class="form-control" id="employeeDailyWage" name="employeeDailyWage">
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label">Assign Department <span class="text-danger">*</span></label>
+              <select name="assigned_department_id" id="employeeDepartment" class="form-select" required>
+                <option value="" disabled selected>-- Select Department --</option>
+                {% for dept in departments %}
+                  <option value="{{ dept.id }}">{{ dept.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Return Date <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="return_date" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Reason for Return <span class="text-danger">*</span></label>
+              <select class="form-select" name="reason" required>
+                <option value="" selected disabled>-- Select Reason --</option>
+                <option value="End of Contract">End of Contract</option>
+                <option value="Resignation">Resignation</option>
+                <option value="Termination">Termination</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contract From<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="employment_from" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contract To<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="employment_to">
+            </div>
+
+            <!-- Hidden input for employee_id -->
+            <input type="hidden" name="employee_id" id="employeeId">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-warning">Return Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="returnJOEmployeeModal" tabindex="-1" aria-labelledby="returnJOEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="POST" action="/return_jo_employee">
+        <div class="modal-header">
+          <h5 class="modal-title" id="returnJOEmployeeModalLabel">Return JO Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row g-3">
+            <!-- Hidden Employee ID -->
+            <input type="hidden" id="returnJOEmployeeId" name="employee_id">
+
+            <!-- Employee Name (read-only just for display) -->
+            <div class="col-md-12">
+              <label class="form-label">Employee Name</label>
+              <input type="text" class="form-control" id="returnJOEmployeeName" readonly>
+            </div>
+
+            <!-- Date Returned -->
+            <div class="col-md-12">
+              <label class="form-label">Date Returned<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_returned" required>
+            </div>
+
+            <!-- Contract Start -->
+            <div class="col-md-6">
+              <label class="form-label">New Contract Start<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="contract_start" required>
+            </div>
+
+            <!-- Contract End -->
+            <div class="col-md-6">
+              <label class="form-label">New Contract End<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="contract_end" required>
+            </div>
+
+            <!-- Assign Department -->
+            <div class="col-md-12">
+              <label class="form-label">Reassign Department<span class="text-danger">*</span></label>
+              <select name="assigned_department_id" class="form-control" required>
+                {% for dept in departments %}
+                  <option value="{{ dept.id }}">{{ dept.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Return Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- JS FOR JO RETURN -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const returnJOButtons = document.querySelectorAll('.btn-return-jo');
+
+    returnJOButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        // Get employee details from button attributes
+        const employeeId = button.getAttribute('data-id');
+        const employeeName = button.getAttribute('data-name');
+
+        // Set values into modal fields
+        document.getElementById('returnJOEmployeeId').value = employeeId;
+        document.getElementById('returnJOEmployeeName').value = employeeName;
+      });
+    });
+  });
+</script>
+
+
+<!-- JS FOR RETURN CASUAL -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const returnButtons = document.querySelectorAll(".btn-return");
+  const employeeNameEl = document.getElementById("employeeName");
+  const employeeIdEl = document.getElementById("employeeId");
+  const employeePositionEl = document.getElementById("employeePosition");
+  const employeeDailyWageEl = document.getElementById("employeeDailyWage");
+  const returnForm = document.getElementById("returnEmployeeForm");
+  const employeeDepartmentEl = document.getElementById("employeeDepartment");
+
+  returnButtons.forEach(button => {
+    button.addEventListener("click", function() {
+      const empName = this.getAttribute("data-name");
+      const empId = this.getAttribute("data-id");
+      const actionUrl = this.getAttribute("data-url");
+
+      // Optional: Pass position and department too if available in data attributes
+      const empPosition = this.getAttribute("data-position") || "";
+      const empDailyWage = this.getAttribute("data-dailywage") || "";
+      const empDepartment = this.getAttribute("data-department") || "";
+
+      // Fill modal fields
+      employeeNameEl.value = empName;
+      employeeIdEl.value = empId;
+      employeePositionEl.value = empPosition;
+      employeeDailyWageEl.value = empDailyWage;
+
+      // Preselect department
+      if (empDepartment) {
+        employeeDepartmentEl.value = empDepartment;
+      } else {
+        employeeDepartmentEl.value = "";
+      }
+
+      // Update form action dynamically
+      returnForm.action = actionUrl;
+    });
+  });
+});
+</script>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const returnButtons = document.querySelectorAll('.btn-return');
+    const returnName = document.getElementById('return-employee-name');
+    const returnForm = document.getElementById('return-employee-form');
+
+    returnButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        const empName = this.getAttribute('data-name');
+        const formAction = this.getAttribute('data-url');
+
+        returnName.textContent = empName;
+        returnForm.action = formAction;  // Dynamically set form action URL
+      });
+    });
+  });
+</script>
+
+
+
+
+<script src="{{ url_for('static', filename='js/savingtabs.js') }}"></script>
+
+<!-- AUTOMOTATIC ORG AND POSITIONS -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const orgUnitSelect = document.getElementById('organizationalUnitSelect');
+    const positionSelect = document.getElementById('positionTitleSelect');
+  
+    orgUnitSelect.addEventListener('change', function () {
+      const departmentId = this.value;
+  
+      // If no department selected, clear position select
+      if (!departmentId) {
+        positionSelect.innerHTML = '<option value="" disabled selected>Please select an Organizational Unit first</option>';
+        return;
+      }
+  
+      // Show loading message
+      positionSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
+  
+      fetch(`/get_positions/${departmentId}`)
+        .then(response => response.json())
+        .then(data => {
+          positionSelect.innerHTML = '<option value="" disabled selected>Select Position Title</option>';
+          data.forEach(position => {
+            const opt = document.createElement('option');
+            opt.value = position.id;
+            opt.textContent = position.title;
+            positionSelect.appendChild(opt);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching positions:', error);
+          positionSelect.innerHTML = '<option value="" disabled selected>Error loading positions</option>';
+        });
+    });
+  
+    // On page load, clear position select initially
+    positionSelect.innerHTML = '<option value="" disabled selected>Please select an Organizational Unit first</option>';
+  });
+  </script>
+  
+
+<script>
+
+  function enableTableSearch(inputId, tableId) {
+    const searchInput = document.getElementById(inputId);
+    const table = document.getElementById(tableId);
+
+    if (!searchInput || !table) {
+      console.warn(`Search input or table not found: #${inputId}, #${tableId}`);
+      return;
+    }
+
+    const tbody = table.querySelector("tbody");
+    const rows = tbody.getElementsByTagName("tr");
+
+    searchInput.addEventListener("input", function () {
+      const filter = searchInput.value.toLowerCase();
+      Array.from(rows).forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
+    });
+  }
+
+  // Example usage after DOM is loaded
+  document.addEventListener("DOMContentLoaded", function () {
+    enableTableSearch("searchInput", "employeeTable");
+    enableTableSearch("searchCasual", "casualtbl");
+    enableTableSearch("searchJO", "JOtbl");
+
+  });
+</script>
+
+
+<!-- FILTER PERMANET (FOR NOW) AUTO -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const orgSelect = document.getElementById("permanentOrg");
+    const posSelect = document.getElementById("positionOrg");
+    const table = document.getElementById("employeeTable");
+    const rows = table.querySelectorAll("tbody tr");
+
+    // Helper: Get trimmed lowercase text from cell
+    function getCellText(row, index) {
+      return row.cells[index]?.innerText.trim().toLowerCase();
+    }
+
+    // Filter the table
+  function filterTable() {
+    const selectedOrgText = orgSelect.selectedIndex > 0 ? orgSelect.options[orgSelect.selectedIndex].text.toLowerCase() : '';
+
+    const selectedPosText = posSelect.value.toLowerCase();  // use value instead of text
+
+    rows.forEach(row => {
+      const orgText = getCellText(row, 0);  // Organizational Unit column
+      const posText = getCellText(row, 2);  // Position Title column
+
+      const matchesOrg = !selectedOrgText || orgText === selectedOrgText;
+      // If no position selected (empty string), ignore position filter (always true)
+      const matchesPos = !selectedPosText || posText === selectedPosText;
+
+      row.style.display = (matchesOrg && matchesPos) ? "" : "none";
+    });
+  }
+
+
+    // 1. When org changes, load positions via AJAX and then filter table
+    orgSelect.addEventListener("change", function () {
+      const departmentId = this.value;
+
+
+      if (!departmentId) {
+        posSelect.innerHTML = '<option value="">Select Position</option>';
+        filterTable(); // Show all
+        return;
+      }
+
+      // Show loading message
+      posSelect.innerHTML = '<option value="">Loading...</option>';
+
+      fetch(`/get_positions/${departmentId}`)
+        .then(response => response.json())
+        .then(data => {
+          // Reset positions
+          posSelect.innerHTML = '<option value="">Select Position</option>';
+
+          if (data.length > 0) {
+            data.forEach(position => {
+              const option = document.createElement("option");
+              option.value = position.title; // Use title as value for matching
+              option.textContent = position.title;
+              posSelect.appendChild(option);
+            });
+          } else {
+            posSelect.innerHTML += '<option disabled>No positions found</option>';
+          }
+
+          // After loading positions, filter by selected org
+          filterTable();
+        })
+        .catch(error => {
+          console.error("Error fetching positions:", error);
+          posSelect.innerHTML = '<option disabled>Error loading positions</option>';
+        });
+    });
+
+    // 2. When position changes, filter the table
+    posSelect.addEventListener("change", filterTable);
+  });
+  </script>
+
+<!-- FILTER FOR CASUAL -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const deptSelect = document.getElementById("casualtOrg");
+    const table = document.getElementById("casualtbl");
+    const rows = table.querySelectorAll("tbody tr");
+
+    function getCellText(row, index) {
+      return row.cells[index]?.innerText.trim().toLowerCase();
+    }
+
+    function filterTable() {
+      const selectedDeptText = deptSelect.options[deptSelect.selectedIndex]?.text.toLowerCase();
+      const isAllDepartments = selectedDeptText === "all departments";
+
+
+      rows.forEach(row => {
+        const deptText = getCellText(row, 8); // Assigned Department column (index 8)
+        const matchesDept = isAllDepartments || deptText === selectedDeptText;
+
+        row.style.display = matchesDept ? "" : "none";
+      });
+    }
+
+    deptSelect.addEventListener("change", filterTable);
+  });
+</script>
+
+<!-- FILTER FOR JO -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const deptSelect = document.getElementById("joOrg");
+    const table = document.getElementById("JOtbl"); // 👈 match sa HTML id
+    if (!deptSelect || !table) return; // safeguard
+
+    const rows = table.querySelectorAll("tbody tr");
+
+    function getCellText(row, index) {
+      return row.cells[index]?.innerText.trim().toLowerCase();
+    }
+
+    function filterTable() {
+      const selectedDeptText = deptSelect.options[deptSelect.selectedIndex]?.text.toLowerCase();
+      const isAllDepartments = selectedDeptText === "all departments";
+
+      rows.forEach(row => {
+        const deptText = getCellText(row, 2); // 👈 "ASSIGNED DEPARTMENT" column (3rd col = index 2)
+        const matchesDept = isAllDepartments || deptText === selectedDeptText;
+        row.style.display = matchesDept ? "" : "none";
+      });
+    }
+
+    deptSelect.addEventListener("change", filterTable);
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+  const table = document.getElementById("JOtbl");
+  const tbody = table.querySelector("tbody");
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+
+  // Reorder rows: unassigned department first
+  rows.sort((a, b) => {
+    const deptA = a.cells[2]?.innerText.trim();
+    const deptB = b.cells[2]?.innerText.trim();
+    return (deptA === '-' ? -1 : 1) - (deptB === '-' ? -1 : 1);
+  });
+
+  // Append sorted rows back to tbody
+  rows.forEach(row => tbody.appendChild(row));
+});
+
+</script>
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+    const tableConfigs = {
+        '#employeeTable': { 
+            org: '#permanentOrg', 
+            pos: '#positionOrg', 
+            orgCol: 0, 
+            posCol: 3,
+            columnDefs: [
+                { targets: 0, visible: false },
+                { targets: 1, width: "8%" },
+                { targets: 2, width: "4%" },
+                { targets: 3, width: "8%" },
+                { targets: 4, width: "4%" },
+                { targets: 5, width: "4%" },
+                { targets: 6, width: "12%" },
+                { targets: [4, 5], width: "6%", className: "text-center" }
+            ],
+            childRow: true
+        },
+        '#casualtbl': { 
+            org: '#casualtOrg',
+            pos: null,
+            orgCol: 8,
+            columnDefs: [
+                { targets: 1, width: "25%" },
+                { targets: [0, 2, 6, 7], width: "6%", className: "text-center" }
+            ],
+            childRow: true
+        },
+        '#JOtbl': { 
+            org: '#joOrg',
+            pos: null,
+            orgCol: 3,
+            columnDefs: [
+                { targets: 1, width: "25%" }
+            ],
+            childRow: true
+        }
+    };
+
+    Object.entries(tableConfigs).forEach(([selector, config]) => {
+        const table = $(selector).DataTable({
+            paging: true,
+            searching: true,
+            ordering: true,
+            responsive: true,
+            autoWidth: false,
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50, 100],
+            dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>' +
+                 't' +
+                 '<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+            language: {
+                search: "",
+                searchPlaceholder: "Search..."
+            },
+            columnDefs: config.columnDefs || [],
+            rowCallback: function(row) {
+                if ($(row).hasClass("collapse")) $(row).remove();
+            }
+        });
+
+        // --- UI Styling ---
+        $(".dataTables_filter input", table.table().container())
+            .addClass("form-control form-control-lg w-auto")
+            .css("margin-left", "0");
+
+        $(".dataTables_length select", table.table().container())
+            .addClass("form-select form-select-lg")
+            .css("min-width", "80px");
+
+        // --- Filter Logic ---
+        let currentDept = "";
+        let currentPos = "";
+
+        const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+        const applyFilters = () => {
+            table.column(config.orgCol).search(
+                currentDept ? "^" + escapeRegex(currentDept) + "$" : "",
+                true, false
+            );
+
+            if (config.pos) {
+                table.column(config.posCol).search(
+                    currentPos ? "^" + escapeRegex(currentPos) + "$" : "",
+                    true, false
+                );
+            }
+
+            table.draw();
+        };
+
+        // --- Department Filter ---
+        if (config.org) {
+            $(config.org).on("change", function () {
+                const deptId = $(this).val();
+                currentDept = deptId || "";
+
+                if (config.pos) {
+                    const posSelect = $(config.pos);
+                    posSelect.html('<option value="">Select Position</option>');
+                    currentPos = "";
+                    applyFilters();
+
+                    if (!deptId) return;
+
+                    posSelect.html('<option value="">Loading positions...</option>');
+                    fetch(`/get_positions/${deptId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            posSelect.html('<option value="">Select Position</option>');
+                            if (data.length > 0) {
+                                data.forEach(pos => {
+                                    const opt = $("<option>")
+                                        .val(pos.title)
+                                        .text(pos.title);
+                                    posSelect.append(opt);
+                                });
+                            } else {
+                                posSelect.append('<option disabled>No positions found</option>');
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Error fetching positions:", err);
+                            posSelect.html('<option disabled>Error loading positions</option>');
+                        });
+                } else {
+                    applyFilters();
+                }
+            });
+        }
+
+        // --- Position Filter ---
+        if (config.pos) {
+            $(config.pos).on("change", function () {
+                currentPos = $(this).val() || "";
+                applyFilters();
+            });
+        }
+
+        // --- Child Row for Termination History ---
+        if (config.childRow) {
+            $(selector + ' tbody').on('click', 'button.view-history-btn', function () {
+                const tr = $(this).closest('tr');
+                const row = table.row(tr);
+                const empId = $(this).data('id');
+                const template = document.getElementById(`history-${empId}`);
+                const content = template
+                    ? `<div style="text-align: left;">${template.innerHTML}</div>`
+                    : '<div>No history</div>';
+
+                if (row.child.isShown()) {
+                    row.child.hide();
+                    tr.removeClass('shown');
+                } else {
+                    row.child(content).show();
+                    tr.addClass('shown');
+                }
+            });
+        }
+    });
+
+    // --- Fix responsive redraw on tab change ---
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        const target = $(e.target).attr("data-bs-target");
+        $(target).find('table.dataTable').each(function() {
+            $(this).DataTable().columns.adjust().responsive.recalc();
+        });
+    });
+});
+</script>
+{% endblock %}
+
+
+
+
+
+{% endblock content %}

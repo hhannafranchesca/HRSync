@@ -1,0 +1,410 @@
+
+{% extends "base/AdminDashboard.html" %}
+
+{% block content %}
+
+<!-- <h4 class="fw-bold py-3 mb-2"><span class="text-muted fw-light">My Profile/</span> Account</h4> -->
+ <ul class="nav nav-pills mb-3" role="tablist">
+
+    <li class="nav-item ">
+       <a class="nav-link" href="{{ url_for('adminaccount') }}" role="tab" id="interview-tab" aria-controls="navs-pills-interview" aria-selected="false">
+        Account
+      </a>
+    </li>
+  
+    <li class="nav-item">
+      <a class="nav-link active" href="" role="tab" id="interview-tab" aria-controls="navs-pills-interview" aria-selected="false">
+        Security
+      </a>
+    </li>
+  </ul>
+
+    <div class="tab-content p-0">
+
+        <div class="tab-pane fade show active" id="navs-pills-under-interview" role="tabpanel" aria-labelledby="under-interview-tab">
+            <div class="card h-100">
+              <form id="passwordForm" method="POST" action="{{ url_for('adminUpdatePasst') }}">
+                  {{ form2.hidden_tag() }}
+
+                  <!-- Hidden Flask fields -->
+                  {{ form2.password(class="d-none", id="realPassword") }}
+                  {{ form2.confirm_password(class="d-none", id="realConfirmPassword") }}
+                  {{ form2.current_password(class="form-control d-none", id="realCurrentPassword") }}
+
+                  <div class="mb-4">
+                    <h5 class="card-header">Change Password</h5>
+                    <hr class="my-0"/>
+                    <div class="card-body">
+                      <div class="row">
+                        <!-- New Password -->
+                        <div class="mb-4 col-md-6">
+                          <label for="newPass" class="form-label fw-semibold">New Password</label>
+
+                          <!-- Input + toggle -->
+                          <div class="input-group">
+                            <input type="password" id="newPass"
+                                  class="form-control border-end-0 rounded-end-0"
+                                  placeholder="Enter new password" required>
+                            <span class="input-group-text bg-white border-start-0 rounded-start-0">
+                              <i class="bi bi-eye-slash" id="toggleNewPass" style="cursor: pointer;"></i>
+                            </span>
+                          </div>
+
+                          <!-- Strength Indicator -->
+                          <div class="d-flex align-items-center justify-content-between mt-2">
+                            <small class="text-muted fw-semibold">Password Strength</small>
+                            <small id="strengthLabel" class="fw-semibold text-muted"></small>
+                          </div>
+                          <div class="progress mt-1 mb-3" style="height: 8px; border-radius: 10px;">
+                            <div id="passwordStrengthBar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                          </div>
+
+                          <!-- Requirement messages -->
+                          <div class="border rounded bg-light px-3 py-2">
+                            <p class="fw-semibold mb-2" style="font-size: 0.95rem;">Password must contain:</p>
+                            <ul id="passwordRequirements" class="list-unstyled mb-0" style="font-size: 0.9rem;">
+                              <li id="lengthReq" class="text-muted d-flex align-items-center mb-1">
+                                <i class="bi bi-check-circle me-2"></i> At least 8 characters
+                              </li>
+                              <li id="letterReq" class="text-muted d-flex align-items-center mb-1">
+                                <i class="bi bi-check-circle me-2"></i> At least one letter
+                              </li>
+                              <li id="numberReq" class="text-muted d-flex align-items-center">
+                                <i class="bi bi-check-circle me-2"></i> At least one number
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="mb-4 col-md-6">
+                          <label for="confirmNewPass" class="form-label fw-semibold">Confirm New Password</label>
+                          <div class="input-group">
+                            <input type="password" id="confirmNewPass"
+                                  class="form-control border-end-0 rounded-end-0"
+                                  placeholder="Confirm new password" required>
+                            <span class="input-group-text bg-white border-start-0 rounded-start-0">
+                              <i class="bi bi-eye-slash" id="toggleConfirmNewPass" style="cursor: pointer;"></i>
+                            </span>
+                          </div>
+                          <div id="confirmMessage" style="font-size: 1rem; font-weight: 500;"></div>
+                        </div>
+                      </div>
+
+                      <div class="d-flex justify-content-end mt-2">
+                        <button type="button" class="btn btn-primary" id="checkPasswordsBtn">Save Changes</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Modal for current password -->
+                  <div class="modal fade" id="currentPasswordModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="modalLabel">Confirm Current Password</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                          <label for="modalCurrentPassword" class="form-label fw-semibold">Current Password</label>
+                          <div class="input-group">
+                            <input type="password" class="form-control border-end-0 rounded-end-0"
+                                  id="modalCurrentPassword" placeholder="Enter current password" required>
+                            <span class="input-group-text bg-white border-start-0 rounded-start-0">
+                              <i class="bi bi-eye-slash" id="toggleModalCurrentPassword" style="cursor: pointer;"></i>
+                            </span>
+                          </div>
+                        </div>
+
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="button" class="btn btn-primary" id="finalSubmitBtn">Confirm and Save</button>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </form>
+
+            </div>
+
+              <div class="card mt-4">
+                <h5 class="card-header">Login History</h5>
+                <hr class="my-0"/>
+                <div class="card-body">
+                  <div class="table-responsive">
+                   <table id="loginTable" class="table table-bordered table-hover">
+                      <thead class="table-dark">
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Date & Time</th>
+                          <th scope="col">IP Address</th>
+                          <th scope="col">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for login in logins %}
+                        <tr>
+                          <td>{{ loop.index }}</td>
+                          <td> {{ (login.timestamp|to_ph_time).strftime('%b %d, %Y %I:%M %p') if login.timestamp else '-' }}</td>
+                          <td>{{ login.ip_address }}</td>
+                          <td>
+                            {% if login.success %}
+                              <span class="badge bg-success">Success</span>
+                            {% else %}
+                              <span class="badge bg-danger">Failed</span>
+                            {% endif %}
+                          </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                          <td colspan="5" class="text-center">No login history available.</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+
+                  </div>
+                </div>
+              </div>
+
+
+  
+        </div>
+        
+        
+  
+    </div>
+
+       
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // === References ===
+  const newPass = document.getElementById("newPass");
+  const confirmNewPass = document.getElementById("confirmNewPass");
+  const modalCurrentPassword = document.getElementById("modalCurrentPassword");
+  const checkBtn = document.getElementById("checkPasswordsBtn");
+  const finalSubmitBtn = document.getElementById("finalSubmitBtn");
+  const form = document.getElementById("passwordForm");
+
+  const realPassword = document.getElementById("realPassword");
+  const realConfirmPassword = document.getElementById("realConfirmPassword");
+  const realCurrentPassword = document.getElementById("realCurrentPassword");
+
+  const lengthReq = document.getElementById('lengthReq');
+  const letterReq = document.getElementById('letterReq');
+  const numberReq = document.getElementById('numberReq');
+  const strengthBar = document.getElementById('passwordStrengthBar');
+  const confirmMessage = document.getElementById('confirmMessage');
+
+  const requirementsMet = { length: false, letter: false, number: false };
+
+  // === Requirement & Strength Checking ===
+  function updateRequirement(item, condition, key) {
+    const icon = item.querySelector('i');
+    requirementsMet[key] = condition;
+
+    if (condition) {
+      item.classList.add('text-success');
+      item.classList.remove('text-danger', 'text-muted');
+      icon.classList.add('text-success');
+      icon.classList.remove('text-danger', 'text-muted');
+    } else {
+      item.classList.add('text-danger');
+      item.classList.remove('text-success');
+      icon.classList.add('text-danger');
+      icon.classList.remove('text-success');
+    }
+  }
+
+  function updatePasswordStrength() {
+    const value = newPass.value;
+    let score = 0;
+
+    const lengthValid = value.length >= 8;
+    updateRequirement(lengthReq, lengthValid, "length");
+    if (lengthValid) score++;
+
+    const letterValid = /[A-Za-z]/.test(value);
+    updateRequirement(letterReq, letterValid, "letter");
+    if (letterValid) score++;
+
+    const numberValid = /\d/.test(value);
+    updateRequirement(numberReq, numberValid, "number");
+    if (numberValid) score++;
+
+    const percent = (score / 3) * 100;
+    strengthBar.style.width = percent + '%';
+    strengthBar.classList.remove('bg-danger', 'bg-warning', 'bg-success');
+    if (score === 1) strengthBar.classList.add('bg-danger');
+    else if (score === 2) strengthBar.classList.add('bg-warning');
+    else if (score === 3) strengthBar.classList.add('bg-success');
+  }
+
+  // === Password Match Check ===
+  function checkPasswordMatch() {
+    if (!confirmNewPass.value) {
+      confirmMessage.textContent = '';
+      return false;
+    }
+    if (newPass.value === confirmNewPass.value) {
+      confirmMessage.textContent = "✅ Passwords match";
+      confirmMessage.classList.add('text-success');
+      confirmMessage.classList.remove('text-danger');
+      return true;
+    } else {
+      confirmMessage.textContent = "❌ Passwords do not match";
+      confirmMessage.classList.add('text-danger');
+      confirmMessage.classList.remove('text-success');
+      return false;
+    }
+  }
+
+  // === Event Listeners ===
+  newPass.addEventListener('input', () => {
+    updatePasswordStrength();
+    checkPasswordMatch();
+  });
+  confirmNewPass.addEventListener('input', checkPasswordMatch);
+
+  // === Toggle Visibility ===
+  function toggleVisibility(iconId, input) {
+    const icon = document.getElementById(iconId);
+    icon.addEventListener('click', () => {
+      input.type = input.type === 'password' ? 'text' : 'password';
+      icon.classList.toggle('bi-eye');
+      icon.classList.toggle('bi-eye-slash');
+    });
+  }
+  toggleVisibility("toggleNewPass", newPass);
+  toggleVisibility("toggleConfirmNewPass", confirmNewPass);
+  toggleVisibility("toggleModalCurrentPassword", modalCurrentPassword);
+
+  // === Check Button Click ===
+checkBtn.addEventListener("click", function() {
+  const newVal = newPass.value.trim();
+  const confirmVal = confirmNewPass.value.trim();
+  const allRequirementsMet = Object.values(requirementsMet).every(Boolean);
+  const passwordsMatch = checkPasswordMatch();
+
+  // === Empty field check ===
+  if (!newVal && !confirmVal) {
+    Swal.fire({
+      title: "Missing Fields",
+      text: "Please fill out both password fields.",
+      icon: "warning",
+      confirmButtonText: "OK"
+    });
+    return;
+  }
+  if (!newVal) {
+    Swal.fire({
+      title: "Missing Password",
+      text: "Please enter your new password.",
+      icon: "warning",
+      confirmButtonText: "OK"
+    });
+    return;
+  }
+  if (!confirmVal) {
+    Swal.fire({
+      title: "Missing Confirmation",
+      text: "Please confirm your new password.",
+      icon: "warning",
+      confirmButtonText: "OK"
+    });
+    return;
+  }
+
+  // === Strength check ===
+  if (!allRequirementsMet) {
+    Swal.fire({
+      title: "Weak Password",
+      text: "Password must include at least 8 characters, one letter, and one number.",
+      icon: "error",
+      confirmButtonText: "OK"
+    });
+    return;
+  }
+
+  // === Match check ===
+  if (!passwordsMatch) {
+    Swal.fire({
+      title: "Passwords Do Not Match",
+      text: "Please make sure both password fields match.",
+      icon: "error",
+      confirmButtonText: "OK"
+    });
+    return;
+  }
+
+  // === If all good, show modal ===
+  const modal = new bootstrap.Modal(document.getElementById("currentPasswordModal"));
+  modal.show();
+});
+
+
+  // === Final Submit ===
+  finalSubmitBtn.addEventListener("click", function() {
+    const currentVal = modalCurrentPassword.value.trim();
+    if (!currentVal) {
+      Swal.fire({
+        title: "Missing Current Password",
+        text: "Please enter your current password to confirm.",
+        icon: "warning",
+        confirmButtonText: "OK"
+      });
+      return;
+    }
+
+    realPassword.value = newPass.value;
+    realConfirmPassword.value = confirmNewPass.value;
+    realCurrentPassword.value = currentVal;
+
+    form.submit();
+  });
+});
+</script>
+
+
+
+{% block scripts %}
+<script>
+  $(document).ready(function () {
+    let table = $('#loginTable').DataTable({
+      paging: true,
+      searching: true,
+      ordering: true,
+      responsive: true,
+      dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>t<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+      language: {
+        search: "",  // removes the "Search:" label text
+        searchPlaceholder: "Search Login History..."
+      }
+    });
+
+    // Style search input
+    $(".dataTables_filter input")
+      .addClass("form-control form-control-lg w-auto")
+      .css("margin-left", "0");
+
+    // Style entries dropdown
+    $(".dataTables_length select")
+      .addClass("form-select form-select-lg")
+      .css("min-width", "80px");
+  });
+</script>
+
+{% endblock %}
+
+
+
+
+
+
+{% endblock content %} 

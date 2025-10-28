@@ -1,0 +1,201 @@
+{% extends "base/AdminDashboard.html" %}
+{% block content %}
+
+<!-- <h4 class="fw-bold py-3 mb-2"><span class="text-muted fw-light">My Profile/</span> Account</h4> -->
+ <ul class="nav nav-pills mb-3" role="tablist">
+
+    <li class="nav-item ">
+      <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-under-interview" id="interview-tab" aria-controls="navs-pills-interview" aria-selected="true">
+        Account
+      </button>
+    </li>
+  
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('adminUpdatePasst') }}" role="tab" id="interview-tab" aria-controls="navs-pills-interview" aria-selected="false">
+        Security
+      </a>
+    </li>
+  </ul>
+
+    <div class="tab-content p-0">
+
+    <!-- Under Review -->
+        <div class="tab-pane fade show active" id="navs-pills-under-interview" role="tabpanel" aria-labelledby="under-interview-tab">
+            <div class="card h-100">
+               <form id="formAccountSettings" action="" method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-4">
+                        <h5 class="card-header">Profile Details</h5>
+
+                        <div class="card-body">
+                            <div class="d-flex align-items-start align-items-sm-center gap-4">
+                               <img
+                                    src="{{ url_for('static', filename='img/avatars/' ~ current_user.image_file) if current_user.image_file and current_user.image_file != 'default.jpg' else url_for('static', filename='img/avatars/default.png') }}"
+                                    alt="user-avatar"
+                                    class="d-block rounded rounded-circle border"
+                                    height="100"
+                                    width="100"
+                                    id="uploadedAvatar"
+                                    />
+                                <div class="button-wrapper">
+                                     <label for="upload" class="btn btn-primary me-2 mb-4 d-flex align-items-center gap-2" tabindex="0">
+                                        <i class="bx bx-upload"></i>
+                                        <span>Upload new photo</span>
+                                        {{ form.image_file(class="account-file-input", id="upload", style="display:none;", accept="image/png, image/jpeg") }}
+                                    </label>
+                                    <p class="text-muted mb-0">Allowed JPG or PNG</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-0" />
+                        <div class="card-body">
+                            <div class="row">
+
+                                 <div class="mb-3 col-md-6">
+                                    <label class="form-label">Department</label>
+                                    <input type="text" class="form-control" value="{% if current_user.employee.casual_details %} {{ current_user.employee.casual_details.assigned_department.name }}
+                                        {% elif current_user.employee.jo_details %}
+                                            {{ current_user.employee.jo_details.assigned_department.name }}
+                                        {% else %}
+                                            {{ current_user.employee.department.name }}
+                                        {% endif %}"
+                                        readonly>
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label">Position</label>
+                                    <input type="text" class="form-control" 
+                                        value="{% if current_user.employee.permanent_details %}{{ current_user.employee.permanent_details.position.title }}
+                                                {% elif current_user.employee.casual_details %}{{ current_user.employee.casual_details.position.title }}
+                                                {% elif current_user.employee.job_order_details %}{{ current_user.employee.job_order_details.position_title }}
+                                                {% else %}N/A{% endif %}" readonly>
+                                </div>
+                                      <div class="mb-3 col-md-6">
+                                    <label class="form-label">Status</label>
+                                    <input type="text" class="form-control" value="{% if current_user.employee.status == 'P' %}P - Permanent
+                                        {% elif current_user.employee.status == 'E' %}E - Electives
+                                        {% elif current_user.employee.status == 'T' %}T - Temporary
+                                        {% elif current_user.employee.status == 'CT' %}CT - Co-Terminous
+                                        {% elif current_user.employee.status == 'PA' %}PA - Presidential Appointee
+                                        {% else %}{{ current_user.employee.status }}{% endif %}" readonly>
+                                </div>
+
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label">Level</label>
+                                    <input type="text" class="form-control" 
+                                        value="{% if current_user.employee.permanent_details %}{% if current_user.employee.permanent_details.level == 'K' %}K - Key Positions{% elif current_user.employee.permanent_details.level == 'A' %}A - Administrative Positions{% elif current_user.employee.permanent_details.level == 'S' %}S - Support to Key Positions{% elif current_user.employee.permanent_details.level == 'T' %}T - Technical Positions{% else %}{{ current_user.employee.permanent_details.level }}{% endif %}{% else %}N/A{% endif %}" 
+                                        readonly>
+                                </div>
+
+
+
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label">Date Hired</label>
+                                    <input type="text" class="form-control" 
+                                        value="{% if current_user.employee.job_order_details and current_user.employee.job_order_details.date_hired %}{{ current_user.employee.job_order_details.date_hired.strftime('%Y-%m-%d') }}
+                                                {% elif current_user.employee.permanent_details and current_user.employee.permanent_details.date_original_appointment %}{{ current_user.employee.permanent_details.date_original_appointment.strftime('%Y-%m-%d') }}
+                                                {% else %}N/A{% endif %}" readonly>
+                                </div>
+
+                                <div class="mb-3 col-md-6">
+                                    {{ form.date_of_birth.label(class="form-label") }}
+                                    {{ form.date_of_birth(class="form-control", value=current_user.employee.permanent_details.date_of_birth.strftime('%Y-%m-%d') if current_user.employee.permanent_details and current_user.employee.permanent_details.date_of_birth else '') }}
+                                </div>
+
+                                <div class="mb-3 col-md-6">
+                                    {{ form.gender.label(class="form-label") }}
+                                    {{ form.gender(class="form-control", value=current_user.employee.permanent_details.sex if current_user.employee.permanent_details else '') }}
+                                </div>
+
+                                <div class="mb-3 col-md-6">
+                                    {{ form.tin.label(class="form-label") }}
+                                    {{ form.tin(class="form-control", value=current_user.employee.permanent_details.tin if current_user.employee.permanent_details else '') }}
+                                </div>
+
+                                
+                                <div class="mb-3 col-md-6">
+                                    {{ form.first_name.label(class="form-label") }}
+                                    {{ form.first_name(class="form-control") }}
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    {{ form.middle_name.label(class="form-label") }}
+                                    {{ form.middle_name(class="form-control") }}
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    {{ form.last_name.label(class="form-label") }}
+                                    {{ form.last_name(class="form-control") }}
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    {{ form.email.label(class="form-label") }}
+                                    {{ form.email(class="form-control") }}
+                                </div>
+
+                                  <div class="mb-3 col-md-6">
+                                    <label class="form-label">Digital Signature</label>
+                                    <div class="d-flex align-items-start align-items-sm-center gap-4">
+                                        
+                                        <!-- Preview -->
+                                        <img
+                                        src="{{ signature_data if signature_data else url_for('static', filename='img/no-image.png') }}"
+                                        alt="user-signature"
+                                        class="d-block rounded border"
+                                        height="100"
+                                        width="200"
+                                        id="signaturePreview"
+                                        />
+
+                                        <div class="button-wrapper">
+                                        <!-- Sneat file input -->
+                                        <div class="input-group">
+                                            {{ form.signature_file(class="form-control", id="uploadSignature", accept="image/png, image/jpeg") }}
+                                            <label class="input-group-text" for="uploadSignature">
+                                            <i class="bx bx-upload me-1"></i> Upload
+                                            </label>
+                                        </div>
+                                        <p class="text-muted mt-2 mb-0">Allowed JPG or PNG (Required: White background)</p>
+                                        </div>
+
+                                    </div>
+                                    </div>
+                        
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-2">
+                                {{ form.submit(class="btn btn-primary me-2") }}
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                </form>
+
+
+            </div>
+
+  
+        </div>
+        
+        
+  
+    </div>
+
+       
+
+
+<script>
+  // Live preview for signature upload
+  document.getElementById("uploadSignature").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        document.getElementById("signaturePreview").src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+
+
+
+{% endblock %}

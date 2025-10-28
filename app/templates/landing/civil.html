@@ -1,0 +1,94 @@
+
+{% extends "base/landingBase.html" %}
+{% block content %}
+    <!-- Page Title -->
+    <div class="page-title">
+      <div class="container d-lg-flex justify-content-between align-items-center">
+        <h1 class="mb-2 mb-lg-0">Civil Registration</h1>
+        <nav class="breadcrumbs">
+          <ol>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li class="current">Civil Registration</li>
+          </ol>
+        </nav>
+      </div>
+    </div><!-- End Page Title -->
+
+    <!-- Service Details Section -->
+    <section id="service-details" class="service-details section">
+
+      <div class="container">
+
+        <div class="row gy-5">
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="service-box">
+                <h4>Civil Registration Services</h4>
+                <div class="services-list">
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Registration of Live Births</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Registration of Marriages</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Registration of Deaths</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Issuance of Certified True Copies of Civil Registry Documents</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Application for Marriage License</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Registration of Legal Instruments (e.g., Affidavit of Acknowledgment, Legitimation)</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Correction of Clerical Errors and Supplemental Reports</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Registration of Court Decrees (e.g., Annulment, Adoption)</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Batch Request System (BREQS) for PSA Document Requests</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Assistance in Delayed Registration Cases</span></a>
+                </div>
+
+              </div>
+                 
+
+            <!-- <div class="service-box">
+              <h4>Download Catalog</h4>
+              <div class="download-catalog">
+                <a href="#"><i class="bi bi-filetype-pdf"></i><span>Catalog PDF</span></a>
+                <a href="#"><i class="bi bi-file-earmark-word"></i><span>Catalog DOC</span></a>
+              </div>
+            </div>End Services List -->
+
+            <div class="help-box d-flex flex-column justify-content-center align-items-center">
+              <i class="bi bi-headset help-icon"></i>
+              <h4>Have a Question?</h4>
+              <p class="d-flex align-items-center mt-2 mb-0"><i class="bi bi-telephone me-2"></i> <span>+1 5589 55488 55</span></p>
+              <p class="d-flex align-items-center mt-1 mb-0"><i class="bi bi-envelope me-2"></i> <a href="mailto:contact@example.com">contact@example.com</a></p>
+            </div>
+
+          </div>
+
+          <div class="col-lg-8 ps-lg-5" data-aos="fade-up" data-aos-delay="200">
+            <img src="{{ url_for('static', filename='img/landing/MU.PNG') }}" alt="Civil Registration Office of Victoria Laguna" class="img-fluid services-img">
+
+            <h3>Ensuring Timely and Accurate Civil Registration for Every Citizen of Victoria, Laguna</h3>
+            <p>
+              The Civil Registrar’s Office of Victoria, Laguna is committed to delivering accurate, timely, and reliable registration services to the public. Our office plays a vital role in documenting important life events that serve as the legal foundation for identity, family relationships, and civil rights.
+            </p>
+            <p>
+              Whether you are registering the birth of a child, applying for a marriage license, or requesting a copy of a civil document, our team is here to assist you with efficiency and care. We ensure that each record is processed with integrity and in accordance with national and local laws.
+            </p>
+            <ul>
+              <li><i class="bi bi-check-circle"></i> <span>Registration of live births, marriages, and deaths for legal documentation.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Issuance of certified true copies of civil registry documents.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Assistance with delayed registration and correction of clerical errors.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Efficient and courteous service from experienced civil registration staff.</span></li>
+            </ul>
+            <p>
+              Our mission is to make civil documentation accessible to all residents, ensuring that every citizen of Victoria is properly represented in official records. We are here to support your family through all of life’s major milestones.
+            </p>
+            <p>
+              With the dedication of our local government and the support of the community, we continue to improve our services to meet the growing needs of the people. Your identity and rights matter—let us help you safeguard them.
+            </p>
+          </div>
+          
+          
+          
+
+        </div>
+
+      </div>
+
+    </section><!-- /Service Details Section -->
+
+    {% endblock content %}

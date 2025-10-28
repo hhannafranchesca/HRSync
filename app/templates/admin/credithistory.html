@@ -1,0 +1,499 @@
+{% extends "base/AdminDashboard.html" %}
+{% block content %}
+
+
+<div class="row mb-4">
+  <!-- Summary Row -->
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="row gy-4 gy-sm-1">
+
+          <!-- Vacation Earned -->
+          <div class="col-sm-12 col-lg-6 col-xl-2">
+            <div class="d-flex justify-content-between align-items-center border-end pe-lg-3">
+              <div>
+                <h4 class="mb-0">{{ total_vacation_earned }}</h4>
+                <small class="text-muted">Vacation Earned</small>
+              </div>
+              <div class="avatar">
+                <span class="avatar-initial rounded bg-label-primary">
+                  <i class="bi bi-sun fs-3"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vacation Used -->
+          <div class="col-sm-12 col-lg-6 col-xl-2">
+            <div class="d-flex justify-content-between align-items-center border-end pe-lg-3">
+              <div>
+                <h4 class="mb-0 text-danger">{{ total_vacation_used }}</h4>
+                <small class="text-muted">Vacation Used</small>
+              </div>
+              <div class="avatar">
+                <span class="avatar-initial rounded bg-label-danger">
+                  <i class="bi bi-arrow-up-circle fs-3"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vacation Remaining -->
+          <div class="col-sm-12 col-lg-6 col-xl-2">
+            <div class="d-flex justify-content-between align-items-center border-end pe-lg-3">
+              <div>
+                <h4 class="mb-0 text-success">{{ total_vacation_remaining }}</h4>
+                <small class="text-muted">Vacation Remaining</small>
+              </div>
+              <div class="avatar">
+                <span class="avatar-initial rounded bg-label-success">
+                  <i class="bi bi-check-circle fs-3"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sick Earned -->
+          <div class="col-sm-12 col-lg-6 col-xl-2">
+            <div class="d-flex justify-content-between align-items-center border-end pe-lg-3">
+              <div>
+                <h4 class="mb-0">{{ total_sick_earned }}</h4>
+                <small class="text-muted">Sick Earned</small>
+              </div>
+              <div class="avatar">
+                <span class="avatar-initial rounded bg-label-info">
+                  <i class="bi bi-thermometer-half fs-3"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sick Used -->
+          <div class="col-sm-12 col-lg-6 col-xl-2">
+            <div class="d-flex justify-content-between align-items-center border-end pe-lg-3">
+              <div>
+                <h4 class="mb-0 text-danger">{{ total_sick_used }}</h4>
+                <small class="text-muted">Sick Used</small>
+              </div>
+              <div class="avatar">
+                <span class="avatar-initial rounded bg-label-danger">
+                  <i class="bi bi-arrow-up-circle fs-3"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sick Remaining -->
+          <div class="col-sm-12 col-lg-6 col-xl-2">
+            <div class="d-flex justify-content-between align-items-center pe-lg-3">
+              <div>
+                <h4 class="mb-0 text-success">{{ total_sick_remaining }}</h4>
+                <small class="text-muted">Sick Remaining</small>
+              </div>
+              <div class="avatar">
+                <span class="avatar-initial rounded bg-label-success">
+                  <i class="bi bi-check2-circle fs-3"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- row gy-4 gy-sm-1 -->
+      </div> <!-- card-body -->
+    </div> <!-- card -->
+  </div> <!-- col-md-12 -->
+</div>
+
+<div class="col-xl-12">
+
+  <div class="nav-align-top mb-4">
+      <ul class="nav nav-pills mb-3" role="tablist">
+
+
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                  data-bs-target="#navs-pills-travel-order" id="travel-order-tab" 
+                  aria-controls="navs-pills-travel-order" aria-selected="true">
+                  Employee Credits
+          </button>
+        </li>
+
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                  data-bs-target="#navs-pills-Leave-Credits" id="Leave-Credits-tab" 
+                  aria-controls="navs-pills-Leave-Credits" aria-selected="false">
+                  Credit History
+          </button>
+        </li>
+    
+      
+
+    
+     
+      </ul>
+    
+      <div class="tab-content h-100 min-vh-100">
+
+            <!-- Employee Credit -->
+         <div class="tab-pane fade show " id="navs-pills-travel-order" role="tabpanel" aria-labelledby="travel-order-tab">
+        
+          <div class="card-datable">
+            <div class="row mx-1 my-4 align-items-center justify-content-between border-bottom pb-4 mt-2">
+              
+              <!-- Left: Length selector -->
+              <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+                <h5 class="card-title mb-0">Employee Credit</h5>
+
+              </div>
+          
+              <!-- Right: Search, Export, Add -->
+             <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end align-items-center">
+                <div class="btn-group">
+                  <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                          type="button"
+                          id="exportDropdown"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false">
+                    <i class="bi bi-box-arrow-up me-1"></i>
+                    <span>Export</span>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                    <li>
+                      <a class="dropdown-item" href="{{ url_for('head_credit_summary_pdf') }}">
+                        <i class="bi bi-file-pdf me-2"></i>Export as PDF
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item" href="{{ url_for('head_credit_history_print') }}" target="_blank">
+                        <i class="bi bi-printer me-2"></i>Print
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+    
+    
+            <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                   <table class="table table-bordered bg-light" id="employee-credits-table">
+                    <thead class="table-dark text-center">
+                      <tr>
+                        <th rowspan="2">Employee Name</th>
+                        <th rowspan="2">Position</th>
+                        <th colspan="3">Vacation Credits</th>
+                        <th colspan="3">Sick Credits</th>
+                      </tr>
+                      <tr>
+                        <th>Earned</th>
+                        <th>Used</th>
+                        <th>Remaining</th>
+                        <th>Earned</th>
+                        <th>Used</th>
+                        <th>Remaining</th>
+                      </tr>
+                    </thead>
+                    <tbody class="text-center">
+                      {% for emp in employee_credits %}
+                        <tr>
+                          <td>{{ emp.name }}</td>
+                          <td>{{ emp.position }}</td>
+                          <td>{{ '%.2f'|format(emp.vacation_earned) }}</td>
+                          <td>{{ '%.2f'|format(emp.vacation_used) }}</td>
+                          <td>{{ '%.2f'|format(emp.vacation_remaining) }}</td>
+                          <td>{{ '%.2f'|format(emp.sick_earned) }}</td>
+                          <td>{{ '%.2f'|format(emp.sick_used) }}</td>
+                          <td>{{ '%.2f'|format(emp.sick_remaining) }}</td>
+                        </tr>
+                      {% else %}
+                        <tr>
+                          <td colspan="8">No employees found in this department.</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+
+
+
+            </div>
+        
+        </div>
+          </div>
+        </div>
+
+        <!-- Credit History -->
+        <div class="tab-pane fade " id="navs-pills-Leave-Credits" role="tabpanel" aria-labelledby="Leave-Credits-tab">
+
+        <div class="card-datable">
+          <div class="row mx-1 my-4 align-items-center justify-content-between border-bottom pb-4 mt-2">
+            
+            <!-- Left: Length selector -->
+            <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+              <h5 class="card-title mb-0">Credit History</h5>
+
+            </div>
+        
+        
+            <!-- Right: Search, Export, Add -->
+           <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end align-items-center">
+            <!-- Export Button -->
+            <div class="btn-group">
+              <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                      type="button"
+                      id="exportDropdown"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false">
+                <i class="bi bi-box-arrow-up me-1"></i>
+                <span>Export</span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('head_credit_history_pdf') }}">
+                    <i class="bi bi-file-pdf me-2"></i>Export as PDF
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('head_credit_summary_print') }}" target="_blank">
+                    <i class="bi bi-printer me-2"></i>Print
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          </div>
+  
+  
+          <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+              <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+              <table id="credit-transactions-table" class="table table-hover table-bordered text-center align-middle shadow-sm">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Employee</th>
+                    <th>Position</th>
+                    <th>Leave Type</th>
+                    <th>Action</th>
+                    <th>Amount</th>
+                    <th>Notes</th>
+                    <th>Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for emp in employee_credits %}
+                    {% set emp_transactions = transactions_by_employee.get(emp.id, []) %}
+
+                    {% for tx in emp_transactions|sort(attribute='timestamp', reverse=True) %}
+                      <tr>
+                        <!-- Employee -->
+                        <td>{{ emp.name }}</td>
+
+                        <!-- Position -->
+                        <td>{{ emp.position }}</td>
+
+                        <!-- Leave Type -->
+                        <td>
+                          <span class="badge 
+                            {% if tx.leave_type == 'Vacation' %}bg-primary
+                            {% elif tx.leave_type == 'Sick' %}bg-info 
+                            {% else %}bg-secondary{% endif %}">
+                            {{ tx.leave_type }}
+                          </span>
+                        </td>
+
+                        <!-- Action -->
+                        <td>
+                          <span class="badge d-flex align-items-center justify-content-center gap-1
+                            {% if tx.action == 'Earned' %}bg-success
+                            {% elif tx.action == 'Used' %}bg-warning text-dark
+                            {% elif tx.action == 'Edited' %}bg-danger
+                            {% else %}bg-secondary{% endif %}">
+                            {% if tx.action == 'Earned' %}
+                              <i class="bi bi-plus-circle"></i>
+                            {% elif tx.action == 'Used' %}
+                              <i class="bi bi-dash-circle"></i>
+                            {% elif tx.action == 'Edited' %}
+                              <i class="bi bi-pencil-square"></i>
+                            {% endif %}
+                            {{ tx.action }}
+                          </span>
+                        </td>
+
+                        <!-- Amount -->
+                        <td>
+                          {% if tx.amount > 0 %}
+                            <span class="text-success fw-bold">+{{ '%.1f' | format(tx.amount) }}</span>
+                          {% elif tx.amount < 0 %}
+                            <span class="text-danger fw-bold">{{ '%.1f' | format(tx.amount) }}</span>
+                          {% else %}
+                            {{ '%.1f' | format(tx.amount) }}
+                          {% endif %}
+                        </td>
+
+                        <!-- Notes -->
+                        <td><p class="text-secondary mb-0">{{ tx.notes or '—' }}</p></td>
+
+                        <!-- Timestamp -->
+                        <td data-order="{{ tx.timestamp.timestamp() }}">{{ (tx.timestamp|to_ph_time).strftime('%b %d, %Y %I:%M %p') }}</td>
+                      </tr>
+                    {% else %}
+                      <tr>
+                        <td colspan="8" class="text-muted">No transactions for {{ emp.name }}</td>
+                      </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td colspan="8">No credit transactions found.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+
+
+          </div>
+      
+      </div>
+        </div>
+
+        </div>
+    
+        
+      </div>
+    </div>
+    
+
+</div>
+  
+
+
+
+
+
+<!-- SAVING TABS -->
+<script src="{{ url_for('static', filename='js/savingtabs.js') }}"></script>
+
+<script>
+// EMPLOYEE CREDIT TABLE SEARCH
+document.getElementById('searchInput').addEventListener('input', function () {
+  const query = this.value.toLowerCase();
+  const rows = document.querySelectorAll('#employee-credits-table tbody tr');
+
+  let currentDeptRow = null;
+  rows.forEach(row => {
+    // Check if it's a department row
+    if (row.classList.contains('table-secondary')) {
+      currentDeptRow = row;
+      row.style.display = ''; // show department header by default
+      return;
+    }
+
+    const text = row.textContent.toLowerCase();
+    const match = text.includes(query);
+    row.style.display = match ? '' : 'none';
+
+    // Hide department row if all its employees are hidden
+    if (!match && currentDeptRow) {
+      const siblingRows = [];
+      let next = row.nextElementSibling;
+      while (next && !next.classList.contains('table-secondary')) {
+        siblingRows.push(next);
+        next = next.nextElementSibling;
+      }
+      const hasVisible = siblingRows.some(r => r.style.display !== 'none');
+      currentDeptRow.style.display = hasVisible ? '' : 'none';
+    }
+  });
+});
+
+
+// CREDIT HISTORY TABLE SEARCH
+document.getElementById('searchCasual').addEventListener('input', function () {
+  const query = this.value.toLowerCase();
+  const rows = document.querySelectorAll('#navs-pills-Leave-Credits tbody tr');
+
+  let currentDeptRow = null;
+  rows.forEach(row => {
+    if (row.classList.contains('table-secondary')) {
+      currentDeptRow = row;
+      row.style.display = '';
+      return;
+    }
+
+    const text = row.textContent.toLowerCase();
+    const match = text.includes(query);
+    row.style.display = match ? '' : 'none';
+
+    if (!match && currentDeptRow) {
+      const siblingRows = [];
+      let next = row.nextElementSibling;
+      while (next && !next.classList.contains('table-secondary')) {
+        siblingRows.push(next);
+        next = next.nextElementSibling;
+      }
+      const hasVisible = siblingRows.some(r => r.style.display !== 'none');
+      currentDeptRow.style.display = hasVisible ? '' : 'none';
+    }
+  });
+});
+</script>
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+
+    // Employee Credits Table
+    var empCreditsTable = $('#employee-credits-table').DataTable({
+        paging: true,
+        lengthChange: true,     // show "Show X entries"
+        pageLength: 10,         // default 10 entries
+        searching: true,        // enable search box
+        ordering: true,
+        info: true,             // show "Showing 1 to 10 of X entries"
+        autoWidth: false,
+        responsive: true,
+        dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>t<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search Employee Credits..."
+        }
+    });
+
+    // Credit Transactions Table
+    var creditTxTable = $('#credit-transactions-table').DataTable({
+        paging: true,
+        lengthChange: true,
+        pageLength: 10,
+        searching: true,
+        ordering: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>t<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search Credit Transactions..."
+        }
+    });
+
+    // Make search input bigger
+    $('.dataTables_filter input').addClass('form-control form-control-lg').css('width', '300px');
+
+    // Make length select a bit larger
+    $('.dataTables_length select').addClass('form-select form-select-lg');
+
+    // Adjust columns when switching tabs
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+        $.fn.dataTable
+            .tables({ visible: true, api: true })
+            .columns.adjust();
+    });
+
+});
+</script>
+{% endblock %}
+
+{% endblock content %}

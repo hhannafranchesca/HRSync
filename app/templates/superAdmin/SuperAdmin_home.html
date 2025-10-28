@@ -1,0 +1,1572 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+<style>
+   
+/* Calendar container */
+#calendar {
+  font-size: 0.9rem;
+  background-color: #fff;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.3rem; /* or 24px */
+  font-weight: bold;
+}
+
+/* Calendar buttons */
+.fc .fc-button {
+  background-color: #1f2937; /* Gray-800 */
+  color: #fff;
+  border: none;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.9rem;
+  margin: 0 2px;
+  border-radius: 0.375rem;
+  text-transform: capitalize;
+  transition: all 0.2s ease-in-out;
+}
+
+
+
+/* Month & general views */
+.fc-event {
+  border-radius: 0.5rem;
+  padding: 1px 8px;
+  font-size: 0.975rem;
+  font-weight: 500;
+  border: 1px solid #cbd5e1;
+  color: #fff !important;
+  background-color: #6c757d; /* fallback default */
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+.fc .fc-toolbar-chunk .fc-today-button {
+  margin-left: 20px;   /* space sa gilid */
+  margin-top: 4px;    /* dagdag space sa taas */
+}
+
+/* Week/Day view (timeGrid) */
+.fc-timegrid-event-harness .fc-event,
+.fc-timegrid-event .fc-event-main {
+  color: #fff !important;
+  background-color: inherit !important;
+  border: none !important;
+}
+
+/* List view */
+.fc-list-event {
+  background-color: inherit !important;
+  border-left: 4px solid currentColor;
+}
+.fc-list-event .fc-event-title,
+.fc-list-event-title {
+  color: #fff !important;
+}
+
+/* Hover */
+.fc-event:hover {
+  opacity: 0.95;
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+  z-index: 10;
+}
+
+/* Label colors - readable text for light backgrounds */
+.fc-event.fc-primary, .fc-primary {
+  background-color: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+.fc-event.fc-success, .fc-success {
+  background-color: #dcfce7 !important;
+  color: #15803d !important;
+}
+.fc-event.fc-danger, .fc-danger {
+  background-color: #fee2e2 !important;
+  color: #b91c1c !important;
+}
+.fc-event.fc-warning, .fc-warning {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+}
+.fc-event.fc-info-solid, .fc-info-solid {
+  background-color: #cffafe !important;
+  color: #0369a1 !important;
+}
+.fc-event.fc-warning-solid, .fc-warning-solid {
+  background-color: #fef9c3 !important;
+  color: #78350f !important;
+}
+.fc-event.fc-primary-solid, .fc-primary-solid {
+  background-color: #e0f2fe !important;
+  color: #1e3a8a !important;
+}
+.fc-event.fc-default, .fc-default {
+  background-color: #f3f4f6 !important;
+  color: #374151 !important;
+}
+/* Apply text color directly inside event content */
+.fc-event .fc-event-title,
+.fc-event .fc-event-time,
+.fc-event .fc-event-main {
+  color: inherit !important;
+}
+/* Remove event border */
+.fc-event {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.fc .fc-list-event:hover td {
+  background-color: rgba(0, 0, 0, 0.05) !important; /* subtle dark */
+}
+/* Make FullCalendar toolbar responsive */
+@media (max-width: 768px) {
+  .fc .fc-toolbar {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.5rem;
+  }
+
+  .fc .fc-toolbar-chunk {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* para hindi dikit yung buttons */
+    gap: 0.25rem;
+  }
+
+  .fc .fc-toolbar-title {
+    font-size: 1rem; /* paliitin yung title sa mobile */
+    text-align: center;
+  }
+}
+
+/* employee chart */
+  .bg-avatar-0 { background-color: #6BCB77; }
+  .bg-avatar-1 { background-color: #4D96FF; }
+  .bg-avatar-2 { background-color: #00B8A9; }
+  .bg-avatar-3 { background-color: #3DCCC7; }
+  .bg-avatar-4 { background-color: #84D2C5; }
+  .bg-avatar-5 { background-color: #6A9AC4; }
+  .bg-avatar-6 { background-color: #64C9CF; }
+  .bg-avatar-7 { background-color: #6B9AC4; }
+
+  /* Base card style */
+  .top-employee-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+
+  /* Hover effect: highlight with primary glow */
+  .top-employee-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25); /* Bootstrap primary rgba */
+    border-color: #0d6efd; /* Bootstrap primary */
+    background-color: #f8f9fa;
+  }
+
+  .scrollable-top-employees {
+    max-height: 300px;
+    min-height: 300px; 
+    overflow-y: auto;
+  }
+
+
+  /* pending request  */
+
+  .list-group-item:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  /* Make each column in the row take full height */
+  .equal-height-row > .col-md-6 {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .equal-height-row .card {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .equal-height-row .card-body {
+    overflow-y: auto;
+    min-height: 250px;
+  }
+
+
+
+
+</style>
+
+
+<div class="row g-4">
+
+  
+{% if not current_user.employee.job_order_details and not current_user.employee.is_department_head %}
+  {% if ipcr_submission_open %}
+    <div class="col-12 mt-4">
+
+      {% if ipcr_exists and not ipcr_submitted and not ipcr_graded %}
+        <!-- Returned State -->
+        <div class="card border-0 shadow-sm rounded-4 bg-warning-subtle">
+          <div class="card-body text-center p-5">
+            <div class="mb-3">
+              <i class="bi bi-arrow-counterclockwise fs-1 text-warning" style="font-size: 3rem;"></i>
+            </div>
+            <h4 class="card-title text-warning mb-2">IPCR Returned</h4>
+            <p class="card-text text-muted mb-4 fs-6">
+              Your submitted <strong>IPCR</strong> has been returned by your head for revision. Please make the necessary updates and resubmit.
+            </p>
+            <a href="{{ url_for('EmployeeSubmitIPCRhr') }}" class="btn btn-lg btn-warning px-4">
+              <i class="bi bi-upload me-2"></i> Resubmit IPCR
+            </a>
+          </div>
+        </div>
+
+      {% elif not ipcr_exists %}
+        <!-- Not Yet Started -->
+        <div class="card border-0 shadow-sm rounded-4 bg-light">
+          <div class="card-body text-center p-5">
+            <div class="mb-3">
+              <i class="bi bi-file-earmark-check-fill fs-1 text-primary" style="font-size: 3rem;"></i>
+            </div>
+            <h4 class="card-title text-primary mb-2">IPCR Submission Now Open</h4>
+            <p class="card-text text-muted mb-4 fs-6">
+              You are now eligible to submit your <strong>Individual Performance Commitment and Review (IPCR)</strong>. Please complete it before the evaluation deadline.
+            </p>
+            <a href="{{ url_for('EmployeeSubmitIPCRhr') }}" class="btn btn-lg btn-primary px-4">
+              <i class="bi bi-upload me-2"></i> Submit IPCR
+            </a>
+          </div>
+        </div>
+
+      {% elif ipcr_submitted and not ipcr_graded %}
+        <!-- Submitted but not yet graded -->
+        <div class="card border-0 shadow-sm rounded-4 bg-primary-subtle">
+          <div class="card-body text-center p-5">
+            <div class="mb-3">
+              <i class="bi bi-check-circle-fill fs-1 text-primary" style="font-size: 3rem;"></i>
+            </div>
+            <h4 class="card-title fw-bold text-primary mb-2">IPCR Submitted</h4>
+            <p class="card-text text-muted fs-6">
+              Your <strong>Individual Performance Commitment and Review</strong> has been successfully submitted and is pending evaluation.
+            </p>
+          </div>
+        </div>
+
+      {% elif ipcr_submitted and ipcr_graded %}
+        <!-- Graded -->
+        <div class="card border-0 shadow-sm rounded-4 bg-success-subtle">
+          <div class="card-body text-center p-5">
+            <div class="mb-3">
+              <i class="bi bi-star-fill fs-1 text-success" style="font-size: 3rem;"></i>
+            </div>
+            <h4 class="card-title fw-bold text-success mb-2">IPCR Graded</h4>
+            <p class="card-text text-muted fs-6">
+              Your <strong>IPCR</strong> has been evaluated and graded. Great job!
+            </p>
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+  {% endif %}
+{% endif %}
+
+
+
+  <!-- LEFT COLUMN -->
+  <div class="col-md-12">
+    <!-- Total Employees & Performance -->
+    <div class="card">
+      <div class="card-body">
+       <div class="row gy-4 gy-sm-1">
+          <!-- Total Employees -->
+          <div class="col-sm-12 col-lg-6 col-xl-3">
+            <div class="d-flex justify-content-between align-items-center border-end pe-lg-4">
+              <div>
+                <h4 class="mb-0">{{ employee_count }}</h4>
+                <small class="text-muted">Employees</small>
+              </div>
+              <div class="avatar">
+                <span class="avatar-initial rounded bg-label-primary">
+                  <i class="bi bi-person fs-3"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Job Applicants -->
+          <div class="col-sm-12 col-lg-6 col-xl-3">
+            <div class="d-flex justify-content-between align-items-center  border-end pe-lg-4">
+              <div>
+                <h4 class="mb-0">{{ applicant_count }}</h4>
+                <small class="text-muted">Job Applicants</small>
+              </div>
+              <div class="avatar">
+                <span class="avatar-initial rounded bg-label-success">
+                  <i class="bi bi-person-lines-fill fs-3"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Permits -->
+          <div class="col-sm-12 col-lg-6 col-xl-3">
+            <div class="d-flex justify-content-between align-items-center  border-end pe-lg-4">
+              <div>
+                <h4 class="mb-0">{{ pending_permit_count }}</h4>
+                <small class="text-muted">Pending Permits</small>
+              </div>
+              <div class="avatar">
+                <span class="avatar-initial rounded bg-label-warning">
+                  <i class="bi bi-file-earmark-check fs-3"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ongoing Evaluations -->
+          <div class="col-sm-12 col-lg-6 col-xl-3">
+            <div class="d-flex justify-content-between align-items-center pe-lg-4">
+              <div>
+                <h4 class="mb-0">{{ graded_department_count  }} / 22</h4>
+                 <small class="text-muted">Departments Fully Graded (IPCR)</small>
+              </div>
+              <div class="avatar">
+                <span class="avatar-initial rounded bg-label-info">
+                  <i class="bi bi-graph-up fs-3"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      
+    </div>
+
+
+
+<div class="row mt-4 g-3">
+  <!-- LEFT COLUMN -->
+  <div class="col-12 col-lg-6 d-flex flex-column gap-3">
+
+    <!-- Charts Row -->
+    <div class="row g-3">
+      <!-- Employee Chart -->
+      <div class="col-12 col-md-6 d-flex">
+        <div class="card shadow-sm w-100">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-people-fill me-2"></i>
+              Employee Distribution by Type
+            </h5>
+          </div>
+          <div class="card-body p-3">
+           <div class="d-flex justify-content-center align-items-center" style="height: 320px;">
+            <div id="employeeChart" style="width: 100%; height: 100%;"></div>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IPCR Progress Chart -->
+      <div class="col-12 col-md-6 d-flex">
+        <div class="card shadow-sm w-100">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-clipboard-check-fill me-2"></i>
+              IPCR Submission Progress
+            </h5>
+          </div>
+          <div class="card-body p-3 text-center">
+            <div id="ipcrProgressChart" style="height: 220px;"></div>
+            <p class="mt-3">{{ evaluation_period_name }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Performing Employees -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title mb-3">
+          <i class="bi bi-person-lines-fill me-2"></i>Top Performing Employees based on IPCR
+        </h5>
+
+        <!-- Scrollable area -->
+        <div class="scrollable-top-employees" style="max-height: 350px; overflow-y: auto;">
+          <div class="d-flex flex-column gap-2">
+            {% for employee in top_employees %}
+            <div class="card border-0 bg-light shadow-sm top-employee-card">
+              <div class="card-body d-flex align-items-center justify-content-between p-3">
+                <!-- Profile Picture or Initials -->
+                <div class="d-flex align-items-center">
+                  <div class="me-3">
+                    {% if employee[0] and employee[0] != 'default.jpg' %}
+                      <img src="{{ url_for('static', filename='img/avatars/' ~ employee[0]) }}"
+                           class="rounded-circle border" width="45" height="45" alt="Avatar">
+                    {% else %}
+                      <div class="rounded-circle text-white d-flex justify-content-center align-items-center bg-avatar-{{ loop.index0 % 8 }}"
+                           style="width: 45px; height: 45px;">
+                        {{ employee[1][:2].upper() }}
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <div class="fw-semibold">
+                      {{ employee[1] }}
+                      {% if loop.index <= 3 %}
+                        <span class="badge bg-primary ms-2">Rank {{ loop.index }}</span>
+                      {% endif %}
+                    </div>
+                    <small class="text-muted">{{ employee[2] }}</small>
+                  </div>
+                </div>
+
+                <!-- Rating -->
+                <div class="text-end">
+                  <div class="fw-bold">{{ employee[3] }}</div>
+                  <small class="text-muted">Rating</small>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+
+            {% if top_employees|length == 0 %}
+              <p class="text-center text-muted">No graded IPCRs found for the active period.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: Calendar -->
+  <div class="col-12 col-lg-6">
+    <div class="card h-100" style="min-height: 690px;">
+      <div class="card-header d-flex justify-content-between align-items-center pb-0">
+        <h5 class="mb-0">
+          <i class="bi bi-calendar3 me-2 text-primary"></i>
+          Schedule Calendar
+        </h5>
+      </div>
+      <div class="card-body pt-3">
+        <div id="calendar" class="mt-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- <div class="col-12 mt-4">
+  <div class="row g-4">
+     -->
+   <!-- Donut Chart Card -->
+<!-- <div class="col-lg-6 col-12">
+  <div class="card shadow-sm h-100">
+    <div class="card-header bg-light d-flex flex-column">
+      <h5 class="mb-1">
+        <i class="bi bi-pie-chart-fill me-2"></i>
+        Employee Credit Overview
+      </h5>
+      <small class="text-muted">Used vs Remaining Credits</small>
+    </div>
+    <div class="card-body d-flex align-items-center justify-content-center">
+      <div id="donutChart" style="height: 300px; width: 100%;"></div>
+    </div>
+  </div>
+</div> -->
+
+<!-- Line Chart Card -->
+<!-- <div class="col-lg-6 col-12">
+  <div class="card shadow-sm h-100">
+    <div class="card-header bg-light d-flex flex-column">
+      <h5 class="mb-1">
+        <i class="bi bi-graph-up-arrow me-2"></i>
+        Credit Trends
+      </h5>
+      <small class="text-muted">Earned vs Used Over Time</small>
+    </div>
+    <div class="card-body d-flex align-items-center justify-content-center">
+      <div id="lineChart" style="height: 300px; width: 100%;"></div>
+    </div>
+  </div>
+</div>
+
+
+  </div>
+</div> -->
+
+<!-- hr request  -->
+<div class="col-12 mt-4">
+<div class="card shadow-sm mt-4">
+  <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <div>
+       <h5 class="mb-1">
+       <i class="bi bi-clipboard-data me-2"></i>
+      Overview of Monthly Permit Requests
+      </h5>
+    </div>
+    <select id="permitMonthFilter" class="form-select form-select-sm" style="width: auto;">
+      <option value="all">All Months</option>
+      {% for month in permit_chart_labels %}
+        <option value="{{ month }}">{{ month }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="card-body">
+    <div id="permitChart" style="height: 350px;"></div>
+  </div>
+</div>
+</div>
+
+<div class="row mt-4">
+  <!-- LEFT: All Pending Requests -->
+  <div class="col-12 col-md-6 d-flex flex-column">
+    <div class="row g-3 flex-grow-1">
+      
+      <!-- Pending Leave Requests -->
+      <div class="col-12 col-sm-6 d-flex flex-column">
+        <div class="card h-100">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <div>
+              <i class="bi bi-calendar-check me-2"></i><strong>Pending Leave Requests</strong>
+            </div>
+            <a href="{{ url_for('EmployeePermits') }}#leave" class="btn btn-sm btn-outline-primary">View All</a>
+          </div>
+          <div class="card-body" style="max-height: 250px; overflow-y: auto;">
+            {% if pending_leave_requests %}
+              <ul class="list-group list-group-flush">
+                {% for req in pending_leave_requests %}
+                  {% set emp = req.employee %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                      {% set image = emp.image_file if emp.image_file else emp.user.image_file if emp.user else None %}
+                      {% if image and image != 'default.jpg' %}
+                        <img src="{{ url_for('static', filename='img/avatars/' ~ image) }}"
+                             class="rounded-circle border" width="40" height="40" alt="Avatar">
+                      {% else %}
+                        <div class="rounded-circle text-white d-flex justify-content-center align-items-center bg-avatar-{{ loop.index0 % 8 }}"
+                             style="width: 40px; height: 40px;">
+                          {{ (emp.first_name[0] ~ emp.last_name[0]).upper() }}
+                        </div>
+                      {% endif %}
+                      <span>{{ emp.last_name }}, {{ emp.first_name }}</span>
+                    </div>
+                    <small class="text-muted">{{ req.leave_detail.leave_type }}</small>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted mb-0">No pending leave requests.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Travel Orders -->
+      <div class="col-12 col-sm-6 d-flex flex-column">
+        <div class="card h-100">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <div>
+              <i class="bi bi-journal-check me-2"></i><strong>Pending Travel Orders</strong>
+            </div>
+            <a href="/HR/Permits#travel" class="btn btn-sm btn-outline-primary">View All</a>
+          </div>
+          <div class="card-body" style="max-height: 250px; overflow-y: auto;">
+            {% if pending_travel_requests %}
+              <ul class="list-group list-group-flush">
+                {% for req in pending_travel_requests %}
+                  {% set emp = req.employee %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                      {% if emp.user.image_file and emp.user.image_file != 'default.jpg' %}
+                        <img src="{{ url_for('static', filename='img/avatars/' ~ emp.user.image_file) }}"
+                             class="rounded-circle border" width="40" height="40" alt="Avatar">
+                      {% else %}
+                        <div class="rounded-circle text-white d-flex justify-content-center align-items-center bg-avatar-{{ loop.index0 % 8 }}"
+                             style="width: 40px; height: 40px;">
+                          {{ (emp.first_name[0] ~ emp.last_name[0]).upper() }}
+                        </div>
+                      {% endif %}
+                      <span>{{ emp.last_name }}, {{ emp.first_name }}</span>
+                    </div>
+                    <small class="text-muted">{{ req.travel_detail.destination }}</small>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted mb-0">No pending travel orders.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: Employees on Leave/Travel Today -->
+  <div class="col-12 col-md-6 d-flex flex-column mt-3 mt-md-0">
+    <div class="card flex-fill">
+       <div class="card-header bg-light d-flex align-items-center">
+        <i class="bi bi-person-dash-fill me-2"></i>
+         <h5 class="mb-0">Employees on Leave Today</h5>
+      </div>
+      <div class="card-body" style="min-height: 250px; overflow-y: auto;">
+        {% if current_leave_employees %}
+          <ul class="list-group list-group-flush">
+            {% for permit in current_leave_employees %}
+              {% set emp = permit.employee %}
+              {% set user = emp.user if emp and emp.user else None %}
+              <li class="list-group-item px-0">
+                <div class="d-flex align-items-start gap-3">
+                  <!-- Avatar -->
+                  {% if user and user.image_file and user.image_file != 'default.jpg' %}
+                    <img src="{{ url_for('static', filename='img/avatars/' ~ user.image_file) }}"
+                         class="rounded-circle border" width="45" height="45" alt="Avatar">
+                  {% else %}
+                    <div class="rounded-circle text-white d-flex justify-content-center align-items-center bg-avatar-{{ loop.index0 % 8 }}"
+                         style="width: 45px; height: 45px;">
+                      {{ (emp.first_name[0] ~ emp.last_name[0]).upper() }}
+                    </div>
+                  {% endif %}
+                  <!-- Info -->
+                  <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <h6 class="mb-0 text-truncate">
+                        {{ emp.last_name }}, {{ emp.first_name }}{% if emp.middle_name %} {{ emp.middle_name }}{% endif %}
+                      </h6>
+                      <small class="text-muted ms-2">
+                        {{ permit.leave_detail.date_from.strftime('%b %d') }} - {{ permit.leave_detail.date_to.strftime('%b %d') }}
+                      </small>
+                    </div>
+                    <small class="text-muted d-block text-truncate">
+                      {{ permit.leave_detail.leave_type }}
+                    </small>
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">No employees on leave today.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row mt-4">
+  <!-- LEFT: All Pending Requests -->
+  <div class="col-12 col-md-6 d-flex flex-column">
+    <div class="row g-3 flex-grow-1">
+
+      <!-- Pending Clearance Forms -->
+      <div class="col-12 col-sm-6 d-flex flex-column">
+        <div class="card h-100">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <div>
+              <i class="bi bi-file-earmark-check me-2"></i><strong>Pending Clearance Forms</strong>
+            </div>
+            <a href="{{ url_for('EmployeePermits') }}#clearance" class="btn btn-sm btn-outline-primary">View All</a>
+          </div>
+          <div class="card-body" style="max-height: 250px; overflow-y: auto;">
+            {% if pending_clearance_requests %}
+              <ul class="list-group list-group-flush">
+                {% for req in pending_clearance_requests %}
+                  {% set emp = req.employee %}
+                  {% set user = emp.user if emp and emp.user else None %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                      {% if user and user.image_file and user.image_file != 'default.jpg' %}
+                        <img src="{{ url_for('static', filename='img/avatars/' ~ user.image_file) }}"
+                             class="rounded-circle border" width="40" height="40" alt="Avatar">
+                      {% else %}
+                        <div class="rounded-circle text-white d-flex justify-content-center align-items-center bg-avatar-{{ loop.index0 % 8 }}"
+                             style="width: 40px; height: 40px;">
+                          {{ (emp.first_name[0] ~ emp.last_name[0]).upper() }}
+                        </div>
+                      {% endif %}
+                      <span>{{ emp.last_name }}, {{ emp.first_name }}</span>
+                    </div>
+                    <small class="text-muted">{{ req.clearance_detail.clearance_purpose or "N/A" }}</small>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted mb-0">No pending clearance forms.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending COE Requests -->
+      <div class="col-12 col-sm-6 d-flex flex-column">
+        <div class="card h-100">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <div>
+              <i class="bi bi-person-badge me-2"></i><strong>Pending COE Requests</strong>
+            </div>
+            <a href="{{ url_for('EmployeePermits') }}#coe" class="btn btn-sm btn-outline-primary">View All</a>
+          </div>
+          <div class="card-body" style="max-height: 250px; overflow-y: auto;">
+            {% if pending_coe_requests %}
+              <ul class="list-group list-group-flush">
+                {% for req in pending_coe_requests %}
+                  {% set emp = req.employee %}
+                  {% set user = emp.user if emp and emp.user else None %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                      {% if user and user.image_file and user.image_file != 'default.jpg' %}
+                        <img src="{{ url_for('static', filename='img/avatars/' ~ user.image_file) }}"
+                             class="rounded-circle border" width="40" height="40" alt="Avatar">
+                      {% else %}
+                        <div class="rounded-circle text-white d-flex justify-content-center align-items-center bg-avatar-{{ loop.index0 % 8 }}"
+                             style="width: 40px; height: 40px;">
+                          {{ (emp.first_name[0] ~ emp.last_name[0]).upper() }}
+                        </div>
+                      {% endif %}
+                      <span>{{ emp.last_name }}, {{ emp.first_name }}</span>
+                    </div>
+                    <small class="text-muted">Requested</small>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted mb-0">No pending COE requests.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: Employees on Travel Today -->
+  <div class="col-12 col-md-6 d-flex flex-column mt-3 mt-md-0">
+    <div class="card flex-fill d-flex flex-column">
+      <div class="card-header bg-light d-flex align-items-center">
+          <i class="bi bi-geo-alt-fill me-2"></i>
+          <h5 class="mb-0">Employees on Travel Today</h5>
+      </div>
+      <div class="card-body flex-grow-1" style="min-height: 250px; overflow-y: auto;">
+        {% if current_travel_employees %}
+          <ul class="list-group list-group-flush">
+            {% for permit in current_travel_employees %}
+              {% set emp = permit.employee %}
+              {% set user = emp.user if emp and emp.user else None %}
+              <li class="list-group-item">
+                <div class="d-flex align-items-start gap-3">
+                  {% if user and user.image_file and user.image_file != 'default.jpg' %}
+                    <img src="{{ url_for('static', filename='img/avatars/' ~ user.image_file) }}"
+                         class="rounded-circle border" width="45" height="45" alt="Avatar">
+                  {% else %}
+                    <div class="rounded-circle text-white d-flex justify-content-center align-items-center bg-avatar-{{ loop.index0 % 8 }}"
+                         style="width: 45px; height: 45px;">
+                      {{ (emp.first_name[0] ~ emp.last_name[0]).upper() }}
+                    </div>
+                  {% endif %}
+                  <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <h6 class="mb-0 text-truncate">{{ emp.last_name }}, {{ emp.first_name }}{% if emp.middle_name %} {{ emp.middle_name }}{% endif %}</h6>
+                      <small class="text-muted flex-shrink-0 ms-2">
+                        {{ permit.travel_detail.date_departure.strftime('%b %d, %Y') }}
+                      </small>
+                    </div>
+                    <small class="text-muted d-block text-truncate">{{ permit.travel_detail.destination }}</small>
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">No employees on travel today.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- JOB APPLICANT -->
+<div class="col-12 mt-4">
+  <div class="card mb-4">
+    <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+      <h5 class="mb-0">
+        <i class="bi bi-briefcase-fill me-2"></i> Job Applications Overview
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-4">
+        
+        <!-- Chart -->
+        <div class="col-12 col-md-7">
+          <div id="jobApplicantsChart" style="min-height: 350px;"></div>
+        </div>
+
+        <!-- List View -->
+        <div class="col-12 col-md-5 mt-3 mt-md-0">
+          <div class="list-group h-100">
+            {% for job in job_applicants_data %}
+              <div class="list-group-item d-flex justify-content-between align-items-start flex-column flex-sm-row gap-2">
+                <div class="flex-fill">
+                  <h6 class="mb-1 fw-semibold">{{ job.title }}</h6>
+                  <small class="text-muted">
+                    {{ job.applicant_count }} applicant{{ job.applicant_count != 1 and 's' or '' }}
+                  </small>
+                </div>
+                <a href="{{ url_for('JobApplicants', job_id=job.id) }}" 
+                   class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
+                  <i class="bi bi-eye"></i> View
+                </a>
+              </div>
+            {% else %}
+              <div class="list-group-item text-center text-muted fst-italic py-4">
+                No job postings found.
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eventModalLabel">Event Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="eventModalBody">
+        <!-- Content inserted dynamically -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal for Adding Event -->
+<div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addEventModalLabel">Add Event</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addEventForm" method="POST" action="{{ url_for('add_event') }}">
+          <div class="mb-3">
+            <label for="eventTitle" class="form-label">Event Title</label>
+            <input type="text" class="form-control" id="eventTitle" name="title" placeholder="Enter event title" required>
+          </div>
+      <div class="mb-3">
+        <label for="eventLabel" class="form-label">Event Label</label>
+       <select class="form-select" id="eventLabel" name="label" required>
+        <option value="Meeting">Meeting</option>
+        <option value="Training">Training</option>
+        <option value="Leave">Leave</option>
+        <option value="Official Travel">Official Travel</option>
+        <option value="Holiday">Holiday</option>
+        <option value="Public Event">Public Event</option>
+        <option value="Administrative">Administrative</option>
+      </select>
+
+
+      </div>
+
+        <div class="mb-3">
+          <label for="eventStartDate" class="form-label">Start Date & Time</label>
+          <input type="datetime-local" class="form-control" id="eventStartDate" name="start_date" required>
+        </div>
+        <div class="mb-3">
+          <label for="eventEndDate" class="form-label">End Date & Time</label>
+          <input type="datetime-local" class="form-control" id="eventEndDate" name="end_date">
+        </div>
+
+          <div class="mb-3">
+            <label for="eventLocation" class="form-label">Location</label>
+            <input type="text" class="form-control" id="eventLocation" name="location" placeholder="Enter event location">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save Event</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Edit Event Modal -->
+<div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="editEventForm" method="POST" action="{{ url_for('edit_event') }}">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editEventModalLabel">Edit Event</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="event_id" id="editEventId">
+          <div class="mb-3">
+            <label for="editEventTitle" class="form-label">Event Title</label>
+            <input type="text" class="form-control" id="editEventTitle" name="title" required>
+          </div>
+          <div class="mb-3">
+            <label for="editEventLabel" class="form-label">Event Label</label>
+            <select class="form-select" id="editEventLabel" name="label" required>
+              <option value="Meeting">Meeting</option>
+              <option value="Training">Training</option>
+              <option value="Leave">Leave</option>
+              <option value="Official Travel">Official Travel</option>
+              <option value="Holiday">Holiday</option>
+              <option value="Public Event">Public Event</option>
+              <option value="Administrative">Administrative</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="editEventStartDate" class="form-label">Start Date & Time</label>
+            <input type="datetime-local" class="form-control" id="editEventStartDate" name="start_date" required>
+          </div>
+          <div class="mb-3">
+            <label for="editEventEndDate" class="form-label">End Date & Time</label>
+            <input type="datetime-local" class="form-control" id="editEventEndDate" name="end_date">
+          </div>
+          <div class="mb-3">
+            <label for="editEventLocation" class="form-label">Location</label>
+            <input type="text" class="form-control" id="editEventLocation" name="location">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Update Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Calendar -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+
+    // Helper: format datetime for input[type="datetime-local"]
+    const toDatetimeLocal = (date) => {
+      const pad = (n) => (n < 10 ? '0' + n : n);
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    };
+
+    // Reusable function to show modal
+    const showModal = (title, body) => {
+      document.getElementById('eventModalLabel').innerText = title;
+      document.getElementById('eventModalBody').innerHTML = body;
+      new bootstrap.Modal(document.getElementById('eventModal')).show();
+    };
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      height: '100%', 
+  themeSystem: 'bootstrap5',
+  initialView: 'dayGridMonth',
+  headerToolbar: {
+    left: 'prev,next today',
+    center: 'title',
+    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+  },
+
+
+   eventClassNames: function(arg) {
+    return typeof arg.event.classNames === 'function'
+      ? arg.event.classNames()
+      : arg.event.classNames;
+  },
+
+  
+  eventSources: [
+    {
+      url: '/admin/calendar-events',
+      extraParams: { source: 'calendar' },
+      color: '#3788d8'
+    },
+    {
+      url: '/admin/interview-events',
+      extraParams: { source: 'interview' },
+      color: '#28a745'
+    }
+  ],
+
+ 
+
+  eventClick: function (info) {
+    const event = info.event;
+    const props = event.extendedProps;
+
+    const source = props.source;
+
+    if (source === 'interview') {
+        const dateOptions = {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        };
+
+        const formattedDate = event.start
+          ? new Date(event.start).toLocaleString('en-US', dateOptions)
+          : 'N/A';
+
+        const content = `
+           <div class="mb-4 text-center">
+        <h4 class="fw-semibold text-primary mb-2">${event.title}</h4>
+        <p class="text-muted mb-0">${formattedDate}</p>
+      </div>
+
+          <div class="mb-3">
+            <h6 class="fw-bold fs-4 mb-1">Method</h6>
+            <p class="text-muted fs-5 mb-3">${props.method || 'N/A'}</p>
+            <hr>
+            <h6 class="fw-bold fs-4 mb-1">Interviewer</h6>
+            <p class="text-muted fs-5 mb-3">${props.interviewer || 'N/A'}</p>
+            <hr>
+            <h6 class="fw-bold fs-4 mb-1">Status</h6>
+            <p class="text-muted fs-5 mb-3">${props.status || 'N/A'}</p>
+            <hr>
+            <h6 class="fw-bold fs-4 mb-1">Date and Time</h6>
+            <p class="text-muted fs-5 ">${formattedDate}</p>
+          </div>
+        `;
+
+        showModal('Interview Details', content);
+      }
+else {
+  const dateOptionsFull = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  };
+
+  const timeOnlyOptions = {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  };
+
+  const startDate = event.start ? new Date(event.start) : null;
+  const endDate = event.end ? new Date(event.end) : null;
+
+  let formattedDateRange = startDate
+    ? startDate.toLocaleString('en-US', dateOptionsFull)
+    : 'N/A';
+
+  if (startDate && endDate) {
+    const isSameDay =
+      startDate.getFullYear() === endDate.getFullYear() &&
+      startDate.getMonth() === endDate.getMonth() &&
+      startDate.getDate() === endDate.getDate();
+
+    if (isSameDay) {
+      const datePart = startDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      const startTime = startDate.toLocaleString('en-US', timeOnlyOptions);
+      const endTime = endDate.toLocaleString('en-US', timeOnlyOptions);
+      formattedDateRange = `${datePart}, ${startTime} – ${endTime}`;
+    } else {
+      const formattedStart = startDate.toLocaleString('en-US', dateOptionsFull);
+      const formattedEnd = endDate.toLocaleString('en-US', dateOptionsFull);
+      formattedDateRange = `${formattedStart} – ${formattedEnd}`;
+    }
+  }
+
+  const content = `
+    <div class="mb-4 text-center">
+      <h4 class="fw-semibold text-primary mb-2">${event.title}</h4>
+      <p class="text-muted mb-0">${formattedDateRange}</p>
+    </div>
+
+    <div class="mb-3">
+      <h6 class="fw-bold fs-4 mb-1">Event Type</h6>
+      <p class="text-muted fs-5 mb-3">${props.label || 'N/A'}</p>
+      <hr>
+      <h6 class="fw-bold fs-4 mb-1">Description / Location</h6>
+      <p class="text-muted fs-5 mb-3">${props.location || 'N/A'}</p>
+      <hr>
+      <h6 class="fw-bold fs-4 mb-1">Date and Time</h6>
+      <p class="text-muted fs-5">${formattedDateRange}</p>
+    </div>
+  `;
+
+  showModal('', content);
+}
+
+
+
+  }
+});
+
+
+    calendar.render();
+  });
+</script>
+
+
+
+
+
+
+<!-- Pass the employee counts from Flask -->
+<script id="employeeCounts" type="application/json">
+  {{ {
+    "permanent": permanent_count | default(0),
+    "casual": casual_count | default(0),
+    "jobOrder": job_order_count | default(0)
+  } | tojson }}
+</script>
+
+<!-- Chart rendering -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Parse employee count data from Flask
+  const employeeCountsScript = document.getElementById('employeeCounts');
+  let employeeCounts = { permanent: 0, casual: 0, jobOrder: 0 };
+
+  try {
+    employeeCounts = JSON.parse(employeeCountsScript.textContent);
+  } catch (e) {
+    console.warn('Failed to parse employee counts JSON:', e);
+  }
+
+  // Calculate total employees
+  const totalEmployees = 
+    employeeCounts.permanent + 
+    employeeCounts.casual + 
+    employeeCounts.jobOrder;
+
+  // ApexCharts donut chart config
+  const options = {
+    chart: {
+      type: 'donut',
+      height: 300
+    },
+    labels: ['Permanent', 'Casual', 'Job Order'],
+    series: [
+      employeeCounts.permanent,
+      employeeCounts.casual,
+      employeeCounts.jobOrder
+    ],
+    colors: ['#7367F0', '#28C76F', '#00CFE8'],
+    legend: {
+      position: 'bottom'
+    },
+    tooltip: {
+      y: {
+        formatter: function (val) {
+          return val + " employees";
+        }
+      }
+    },
+plotOptions: {
+  pie: {
+    donut: {
+      labels: {
+        show: true,
+        name: {
+          show: true,
+          fontSize: '12px',
+          fontWeight: 300,
+          offsetY: -10
+        },
+        value: {
+          show: true,
+          fontSize: '20px',
+          fontWeight: 560,
+          color: '#000',
+          offsetY: 15,
+          formatter: function (val) {
+            return parseInt(val) + ' employees';
+          }
+        },
+        total: {
+          show: true,
+          label: 'Total Employees',
+          formatter: function () {
+            return totalEmployees.toString();
+          },
+          style: {
+            fontSize: '14px',
+            fontWeight: 300,
+            color: '#999'
+          },
+          offsetY: -30
+        }
+      }
+    }
+  }
+}
+
+  };
+
+  // Render the chart inside #employeeChart div
+  const chart = new ApexCharts(document.querySelector("#employeeChart"), options);
+  chart.render();
+});
+</script>
+
+
+<!-- progrestchart  -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const graded = JSON.parse('{{ graded_count | default(0) | tojson }}');
+  const submittedOnly = JSON.parse('{{ submitted_not_graded_count | default(0) | tojson }}');
+  const totalExpected = JSON.parse('{{ ipcr_total_expected | default(0) | tojson }}');
+  const remaining = Math.max(totalExpected - (graded + submittedOnly), 0);
+  const defaultValue = graded + submittedOnly;
+
+  // Define the colors (must match order of series)
+  const chartColors = ['#7367F0', '#FF9F43', '#ADB5BD'];
+
+  const options = {
+    chart: {
+      type: 'donut',
+      height: 290,
+      events: {
+        mounted: function () {
+          // Initial center label
+          updateCenter(defaultValue + " IPCRs", "IPCR Progress", '#000');
+        },
+        dataPointMouseEnter: function(event, chartContext, config) {
+          const label = config.w.globals.labels[config.dataPointIndex];
+          const value = config.w.globals.series[config.dataPointIndex];
+          const color = chartColors[config.dataPointIndex];
+          updateCenter(value + " IPCRs", label, color);
+        },
+        dataPointMouseLeave: function() {
+          updateCenter(defaultValue + " IPCRs", "IPCR Progress", '#000');
+        }
+      }
+    },
+
+    series: [graded, submittedOnly, remaining],
+    labels: ['Graded', 'Submitted', 'Remaining'],
+    colors: chartColors,
+
+    legend: {
+      show: true,
+      position: 'bottom',
+      horizontalAlign: 'center',
+      fontSize: '14px',
+      labels: { colors: '#6c757d', useSeriesColors: true },
+      markers: { width: 12, height: 12, radius: 12 }
+    },
+
+    dataLabels: {
+      enabled: true,
+      formatter: function (val) { return Math.round(val) + "%"; }
+    },
+
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '65%',
+          labels: {
+            show: true,
+            name: {
+              show: true,
+              fontSize: '16px',
+              fontWeight: 500,
+              color: '#6c757d',
+              offsetY: -10
+            },
+            value: {
+              show: true,
+              fontSize: '20px',
+              fontWeight: 560,
+              color: '#000',
+              offsetY: 10
+            },
+            total: {
+              show: true,
+              showAlways: true,
+              label: 'Total IPCR Expected',
+              fontSize: '15px',
+              fontWeight: 500,
+              color: '#999',
+              formatter: function () {
+                return totalExpected;
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  const chart = new ApexCharts(document.querySelector("#ipcrProgressChart"), options);
+  chart.render();
+
+  // 🔧 Updates the donut’s center text and color dynamically
+  function updateCenter(valueText, labelText, color) {
+    const nameLabel = document.querySelector("#ipcrProgressChart .apexcharts-datalabel-label");
+    const valueLabel = document.querySelector("#ipcrProgressChart .apexcharts-datalabel-value");
+
+    if (nameLabel) {
+      nameLabel.textContent = labelText;
+      nameLabel.style.color = color;
+    }
+    if (valueLabel) {
+      valueLabel.textContent = valueText;
+      valueLabel.style.color = color;
+    }
+  }
+});
+</script>
+
+
+
+
+
+<!-- JOB APPLICARTIOM  -->
+<script id="jobApplicantsData" type="application/json">
+  {{ job_applicants_data | tojson }}
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const jobApplicantsData = JSON.parse(document.getElementById('jobApplicantsData').textContent);
+
+    const jobTitles = jobApplicantsData.map(job => job.title);
+    const applicantCounts = jobApplicantsData.map(job => job.applicant_count);
+
+    const chartEl = document.querySelector("#jobApplicantsChart");
+
+    var options = {
+      chart: {
+        type: 'bar',
+        height: 400,
+        toolbar: {
+          show: true
+        },
+        fontFamily: 'Inter, sans-serif',
+        offsetX: 10,  // Add some horizontal spacing to chart area
+        offsetY: 0
+      },
+      plotOptions: {
+        bar: {
+          borderRadius: 8,
+          columnWidth: '38%', // Reduce width of bars to avoid edge crowding
+          dataLabels: {
+            position: 'top'
+          },
+          distributed: false
+        }
+      },
+      series: [{
+        name: 'Applicants',
+        data: applicantCounts
+      }],
+      dataLabels: {
+        enabled: true,
+        formatter: function (val) {
+          return val;
+        },
+        offsetY: -10,
+        style: {
+          fontSize: '13px',
+          fontWeight: '600',
+          colors: ['#333']
+        }
+      },
+      xaxis: {
+        categories: jobTitles.map(title => title.length > 20 ? title.slice(0, 20) + '…' : title),
+        labels: {
+          rotate: -25,
+          trim: true,
+          padding: 8, // Extra padding between x-axis and labels
+          style: {
+            fontSize: '12px',
+            fontWeight: 500,
+            colors: '#555'
+          },
+          tooltip: {
+            enabled: true
+          }
+        },
+        title: {
+          text: 'Job Title',
+          style: {
+            fontWeight: 'bold',
+            fontSize: '14px'
+          }
+        },
+        tickPlacement: 'on'
+      },
+      yaxis: {
+        title: {
+          text: 'Number of Applicants',
+          style: {
+            fontWeight: 'bold',
+            fontSize: '14px'
+          }
+        },
+        labels: {
+          style: {
+            fontSize: '12px',
+            colors: '#555'
+          }
+        }
+      },
+      tooltip: {
+        theme: 'light',
+        y: {
+          formatter: function (val) {
+            return val + " applicants";
+          }
+        }
+      },
+      colors: ['#0d6efd'],
+      grid: {
+        padding: {
+          left: 20,   // Add padding around the chart to prevent bars from touching edges
+          right: 20
+        },
+        borderColor: '#e0e0e0',
+        strokeDashArray: 5
+      }
+    };
+
+    const chart = new ApexCharts(chartEl, options);
+    chart.render();
+  });
+</script>
+
+
+
+
+<!-- Permit Request Chart Data -->
+<script id="permitData" type="application/json">
+  {{
+    {
+      "labels": permit_chart_labels,      
+      "leave": leave_counts,
+      "travel": travel_counts,
+      "clearance": clearance_counts,
+      "coe": coe_counts,
+      "details": permit_details         
+    } | tojson
+  }}
+</script>
+
+
+
+<!-- Chart Container -->
+<div id="permitChart"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const permitData = JSON.parse(document.getElementById("permitData").textContent);
+
+  // Map series names to dictionary keys in permit_details
+  const typeMap = {
+    "Leave": "Leave",
+    "Travel Order": "Travel Order",
+    "Clearance Form": "Clearance Form",
+    "COE": "Certification of Employment"
+  };
+
+  // Map Month-Year label -> original "YYYY-MM" key
+  const monthKeyMap = {};
+  permitData.labels.forEach((label, i) => {
+    monthKeyMap[label] = Object.keys(permitData.details)[i];
+  });
+
+  // ApexCharts options
+  var options = {
+    chart: { type: 'bar', height: 350, stacked: true },
+    series: [
+      { name: 'Leave', data: permitData.leave },
+      { name: 'Travel Order', data: permitData.travel },
+      { name: 'Clearance Form', data: permitData.clearance },
+      { name: 'COE', data: permitData.coe }
+    ],
+    xaxis: { categories: permitData.labels },
+    plotOptions: { bar: { horizontal: false, columnWidth: '50%' } },
+    tooltip: {
+      custom: function({ series, seriesIndex, dataPointIndex, w }) {
+        let type = w.globals.seriesNames[seriesIndex];
+        let monthLabel = permitData.labels[dataPointIndex];        // Month-Year
+        let originalKey = monthKeyMap[monthLabel];                 // YYYY-MM
+        let dictKey = typeMap[type];
+        let breakdown = permitData.details[originalKey][dictKey];
+
+        return `
+          <div style="padding:8px;">
+            <b>${type} (${monthLabel})</b><br>
+            Pending: ${breakdown.Pending}<br>
+            Approved: ${breakdown.Approved}<br>
+            Rejected: ${breakdown.Rejected}<br>
+            Cancelled: ${breakdown.Cancelled}
+          </div>
+        `;
+      }
+    }
+  };
+
+  // Render chart
+  var chart = new ApexCharts(document.querySelector("#permitChart"), options);
+  chart.render();
+
+  // Dropdown filter
+  document.getElementById("permitMonthFilter").addEventListener("change", function () {
+    let selected = this.value;
+    if (selected === "all") {
+      chart.updateOptions({ xaxis: { categories: permitData.labels } });
+      chart.updateSeries([
+        { name: 'Leave', data: permitData.leave },
+        { name: 'Travel Order', data: permitData.travel },
+        { name: 'Clearance Form', data: permitData.clearance },
+        { name: 'COE', data: permitData.coe }
+      ]);
+    } else {
+      let idx = permitData.labels.indexOf(selected);
+      chart.updateOptions({ xaxis: { categories: [selected] } });
+      chart.updateSeries([
+        { name: 'Leave', data: [permitData.leave[idx]] },
+        { name: 'Travel Order', data: [permitData.travel[idx]] },
+        { name: 'Clearance Form', data: [permitData.clearance[idx]] },
+        { name: 'COE', data: [permitData.coe[idx]] }
+      ]);
+    }
+  });
+});
+</script>
+{% endblock content %}

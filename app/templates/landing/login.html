@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login Page</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --background-color: #ffffff;
+      --default-color: #444444;
+      --heading-color: #012970;
+      --accent-color: #4154f1;
+      --surface-color: #ffffff;
+      --contrast-color: #ffffff;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      color: var(--default-color);
+      background: url('{{ url_for("static", filename="img/landing/MU.PNG") }}') no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-container {
+      display: flex;
+      width: 900px;
+      max-width: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .welcome-section {
+      flex: 1;
+      background-color: rgba(65, 84, 241, 0.85);
+      padding: 50px;
+      color: var(--contrast-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+      backdrop-filter: blur(5px);
+    }
+
+    .welcome-section h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .welcome-section p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .login-section {
+      flex: 1;
+      background-color: rgba(255, 255, 255, 0.85);
+      padding: 50px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .logo {
+      width: 120px;
+      margin-bottom: 20px;
+    }
+
+    .login-section h2 {
+      color: var(--heading-color);
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+
+    
+ 
+
+    .options a {
+      text-decoration: none;
+      color: var(--accent-color);
+    }
+
+    .flash-message {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1050; /* Bootstrap's modal z-index */
+      width: auto;
+      margin: 0;
+    }
+
+    .alert-secondary {
+      background-color: #ebeef0;
+      border-color: #dadee3;
+      color: #8592a3;
+    }
+    .alert-secondary .btn-close {
+      background-image: url("data:image/svg+xml,%3Csvg width='150px' height='151px' viewBox='0 0 150 151' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cdefs%3E%3Cpolygon id='path-1' points='131.251657 0 74.9933705 56.25 18.7483426 0 0 18.75 56.2450278 75 0 131.25 18.7483426 150 74.9933705 93.75 131.251657 150 150 131.25 93.7549722 75 150 18.75'%3E%3C/polygon%3E%3C/defs%3E%3Cg id='🎨-%5BSetup%5D:-Colors-&amp;-Shadows' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Artboard' transform='translate(-225.000000, -250.000000)'%3E%3Cg id='Icon-Color' transform='translate(225.000000, 250.500000)'%3E%3Cuse fill='%238592a3' xlink:href='%23path-1'%3E%3C/use%3E%3Cuse fill-opacity='0.5' fill='%238592a3' xlink:href='%23path-1'%3E%3C/use%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .alert-secondary .alert-link {
+      color: #8592a3;
+    }
+    
+    .card .alert-secondary hr {
+      background-color: #8592a3 !important;
+    }
+    
+    .alert-success {
+      background-color: #e8fadf;
+      border-color: #d4f5c3;
+      color: #71dd37;
+    }
+    .alert-success .btn-close {
+      background-image: url("data:image/svg+xml,%3Csvg width='150px' height='151px' viewBox='0 0 150 151' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cdefs%3E%3Cpolygon id='path-1' points='131.251657 0 74.9933705 56.25 18.7483426 0 0 18.75 56.2450278 75 0 131.25 18.7483426 150 74.9933705 93.75 131.251657 150 150 131.25 93.7549722 75 150 18.75'%3E%3C/polygon%3E%3C/defs%3E%3Cg id='🎨-%5BSetup%5D:-Colors-&amp;-Shadows' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Artboard' transform='translate(-225.000000, -250.000000)'%3E%3Cg id='Icon-Color' transform='translate(225.000000, 250.500000)'%3E%3Cuse fill='%2371dd37' xlink:href='%23path-1'%3E%3C/use%3E%3Cuse fill-opacity='0.5' fill='%2371dd37' xlink:href='%23path-1'%3E%3C/use%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .alert-success .alert-link {
+      color: #71dd37;
+    }
+    
+    .card .alert-success hr {
+      background-color: #71dd37 !important;
+    }
+    
+    .alert-info {
+      background-color: #d7f5fc;
+      border-color: #b3edf9;
+      color: #03c3ec;
+    }
+    .alert-info .btn-close {
+      background-image: url("data:image/svg+xml,%3Csvg width='150px' height='151px' viewBox='0 0 150 151' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cdefs%3E%3Cpolygon id='path-1' points='131.251657 0 74.9933705 56.25 18.7483426 0 0 18.75 56.2450278 75 0 131.25 18.7483426 150 74.9933705 93.75 131.251657 150 150 131.25 93.7549722 75 150 18.75'%3E%3C/polygon%3E%3C/defs%3E%3Cg id='🎨-%5BSetup%5D:-Colors-&amp;-Shadows' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Artboard' transform='translate(-225.000000, -250.000000)'%3E%3Cg id='Icon-Color' transform='translate(225.000000, 250.500000)'%3E%3Cuse fill='%2303c3ec' xlink:href='%23path-1'%3E%3C/use%3E%3Cuse fill-opacity='0.5' fill='%2303c3ec' xlink:href='%23path-1'%3E%3C/use%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .alert-info .alert-link {
+      color: #03c3ec;
+    }
+    
+    .card .alert-info hr {
+      background-color: #03c3ec !important;
+    }
+    
+    .alert-warning {
+      background-color: #fff2d6;
+      border-color: #ffe6b3;
+      color: #ffab00;
+    }
+    .alert-warning .btn-close {
+      background-image: url("data:image/svg+xml,%3Csvg width='150px' height='151px' viewBox='0 0 150 151' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cdefs%3E%3Cpolygon id='path-1' points='131.251657 0 74.9933705 56.25 18.7483426 0 0 18.75 56.2450278 75 0 131.25 18.7483426 150 74.9933705 93.75 131.251657 150 150 131.25 93.7549722 75 150 18.75'%3E%3C/polygon%3E%3C/defs%3E%3Cg id='🎨-%5BSetup%5D:-Colors-&amp;-Shadows' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Artboard' transform='translate(-225.000000, -250.000000)'%3E%3Cg id='Icon-Color' transform='translate(225.000000, 250.500000)'%3E%3Cuse fill='%23ffab00' xlink:href='%23path-1'%3E%3C/use%3E%3Cuse fill-opacity='0.5' fill='%23ffab00' xlink:href='%23path-1'%3E%3C/use%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .alert-warning .alert-link {
+      color: #ffab00;
+    }
+    
+    .card .alert-warning hr {
+      background-color: #ffab00 !important;
+    }
+    
+    .alert-danger {
+      background-color: #ffe0db;
+      border-color: #ffc5bb;
+      color: #ff3e1d;
+    }
+    .alert-danger .btn-close {
+      background-image: url("data:image/svg+xml,%3Csvg width='150px' height='151px' viewBox='0 0 150 151' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cdefs%3E%3Cpolygon id='path-1' points='131.251657 0 74.9933705 56.25 18.7483426 0 0 18.75 56.2450278 75 0 131.25 18.7483426 150 74.9933705 93.75 131.251657 150 150 131.25 93.7549722 75 150 18.75'%3E%3C/polygon%3E%3C/defs%3E%3Cg id='🎨-%5BSetup%5D:-Colors-&amp;-Shadows' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Artboard' transform='translate(-225.000000, -250.000000)'%3E%3Cg id='Icon-Color' transform='translate(225.000000, 250.500000)'%3E%3Cuse fill='%23ff3e1d' xlink:href='%23path-1'%3E%3C/use%3E%3Cuse fill-opacity='0.5' fill='%23ff3e1d' xlink:href='%23path-1'%3E%3C/use%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .alert-danger .alert-link {
+      color: #ff3e1d;
+    }
+    
+    .card .alert-danger hr {
+      background-color: #ff3e1d !important;
+    }
+    
+    .alert-dark {
+      background-color: #dcdfe1;
+      border-color: #bdc2c8;
+      color: #233446;
+    }
+    .alert-dark .btn-close {
+      background-image: url("data:image/svg+xml,%3Csvg width='150px' height='151px' viewBox='0 0 150 151' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cdefs%3E%3Cpolygon id='path-1' points='131.251657 0 74.9933705 56.25 18.7483426 0 0 18.75 56.2450278 75 0 131.25 18.7483426 150 74.9933705 93.75 131.251657 150 150 131.25 93.7549722 75 150 18.75'%3E%3C/polygon%3E%3C/defs%3E%3Cg id='🎨-%5BSetup%5D:-Colors-&amp;-Shadows' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Artboard' transform='translate(-225.000000, -250.000000)'%3E%3Cg id='Icon-Color' transform='translate(225.000000, 250.500000)'%3E%3Cuse fill='%23233446' xlink:href='%23path-1'%3E%3C/use%3E%3Cuse fill-opacity='0.5' fill='%23233446' xlink:href='%23path-1'%3E%3C/use%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .alert-dark .alert-link {
+      color: #233446;
+    }
+    
+    .card .alert-dark hr {
+      background-color: #233446 !important;
+    }
+    
+    .alert-gray {
+      background-color: rgba(253, 253, 254, 0.856);
+      border-color: rgba(251, 251, 252, 0.73);
+      color: rgba(67, 89, 113, 0.1);
+    }
+    .alert-gray .btn-close {
+      background-image: url("data:image/svg+xml,%3Csvg width='150px' height='151px' viewBox='0 0 150 151' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cdefs%3E%3Cpolygon id='path-1' points='131.251657 0 74.9933705 56.25 18.7483426 0 0 18.75 56.2450278 75 0 131.25 18.7483426 150 74.9933705 93.75 131.251657 150 150 131.25 93.7549722 75 150 18.75'%3E%3C/polygon%3E%3C/defs%3E%3Cg id='🎨-%5BSetup%5D:-Colors-&amp;-Shadows' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Artboard' transform='translate(-225.000000, -250.000000)'%3E%3Cg id='Icon-Color' transform='translate(225.000000, 250.500000)'%3E%3Cuse fill='rgba(67, 89, 113, 0.1)' xlink:href='%23path-1'%3E%3C/use%3E%3Cuse fill-opacity='0.5' fill='rgba(67, 89, 113, 0.1)' xlink:href='%23path-1'%3E%3C/use%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .alert-gray .alert-link {
+      color: rgba(67, 89, 113, 0.1);
+    }
+  </style>
+      <!-- HEADER -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/main.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/theme-default.css')}}">
+</head>
+<body>
+  <!-- MESSAGE SUCCESS OR INVALID -->
+   {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <script>
+                        // Process category entirely in JavaScript
+                        const category = '{{ category }}';
+                        const isTimed = category.endsWith('-timed');
+                        const cleanCategory = isTimed ? category.replace('-timed', '') : category;
+                        const isDanger = cleanCategory === 'danger';
+                        
+                        Swal.fire({
+                            title: cleanCategory.charAt(0).toUpperCase() + cleanCategory.slice(1) + '!',
+                            text: '{{ message|tojson }}',
+                            icon: isDanger ? 'error' : cleanCategory,
+                            confirmButtonText: "OK",
+                            showConfirmButton: !isTimed,
+                            timer: isTimed ? 1700 : undefined,
+                            timerProgressBar: isTimed
+                        });
+                    </script>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+      
+  <div class="container min-vh-100 d-flex justify-content-center align-items-center">
+    <div class="card shadow-lg p-4" style="max-width: 450px; width: 100%; border-radius: 1rem;">
+      
+      <div class="text-center mb-4">
+        <img src="{{ url_for('static', filename='img/landing/victoria.png') }}" alt="Victoria Logo" class="logo mb-3" style="width: 80px;">
+        <h2 class="fw-bold">Sign In</h2>
+        <p class="text-muted small">Welcome back! Please login to your account.</p>
+      </div>
+  
+      <form method="POST" action="{{ url_for('login') }}" class="w-100">
+        {{ form.hidden_tag() }}
+        
+        <div class="mb-3">
+          {{ form.login.label(class="form-label fw-semibold") }}
+          {{ form.login(class="form-control", placeholder="Email or Login ID") }}
+          {% for error in form.login.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="mb-3">
+        {{ form.password.label(class="form-label fw-semibold") }}
+        <div class="input-group">
+          {{ form.password(class="form-control border-end-0", placeholder="Password", id="passwordInput") }}
+          <span class="input-group-text bg-transparent border-start-0">
+            <i class="bi bi-eye-slash" id="togglePassword" style="cursor: pointer;"></i>
+          </span>
+        </div>
+        {% for error in form.password.errors %}
+          <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+      </div>
+  
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="form-check">
+            {{ form.remember(class="form-check-input") }}
+            {{ form.remember.label(class="form-check-label small", for="remember") }}
+          </div>
+          <a href="{{ url_for('forgot_password') }}" class="small text-primary text-decoration-none">Forgot password?</a>
+        </div>
+  
+        <button type="submit" class="btn btn-primary w-100 py-2">Sign In</button>
+  
+        <div class="text-center mt-3">
+          <a href="{{ url_for('home') }}" class="text-decoration-none d-flex align-items-center justify-content-center text-primary small">
+            ← Back to Home
+          </a>
+        </div>
+      </form>
+  
+    </div>
+  </div>
+  
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('passwordInput');
+
+    togglePassword.addEventListener('click', function () {
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      this.classList.toggle('bi-eye');
+      this.classList.toggle('bi-eye-slash');
+    });
+  });
+</script>
+
+</body>
+</html>

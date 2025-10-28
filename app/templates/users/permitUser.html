@@ -1,0 +1,1486 @@
+{% extends "base/UserDashboard.html" %}
+
+{% block content %}
+<div class="col-xl-12">
+
+  <div class="nav-align-top mb-4">
+   <ul class="nav nav-pills mb-3 flex-nowrap overflow-auto" role="tablist" style="white-space: nowrap;">
+
+  {% if not current_user.employee.job_order_details %}  
+  <li class="nav-item">
+    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+            data-bs-target="#navs-pills-leave-application" id="leave-application-tab" 
+            aria-controls="navs-pills-leave-application" aria-selected="true">
+      Application for Leave
+    </button>
+  </li>
+
+  <li class="nav-item">
+    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+            data-bs-target="#navs-pills-travel-order" id="travel-order-tab" 
+            aria-controls="navs-pills-travel-order" aria-selected="false">
+      Travel Order
+    </button>
+  </li>
+  {% endif %}
+
+  <li class="nav-item">
+    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+            data-bs-target="#navs-pills-clearance-form" id="clearance-form-tab" 
+            aria-controls="navs-pills-clearance-form" aria-selected="false">
+      Clearance Form
+    </button>
+  </li>
+
+  <li class="nav-item">
+    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+            data-bs-target="#navs-pills-coe" id="coe-tab" 
+            aria-controls="navs-pills-coe" aria-selected="false">
+      Certification of Employment (COE)
+    </button>
+  </li>
+</ul>
+
+
+    <div class="tab-content">
+
+      <!-- Application for Leave Tab -->
+      <div class="tab-pane fade show" id="navs-pills-leave-application" role="tabpanel" aria-labelledby="leave-application-tab">
+
+       <div class="card-datable">
+          <div class="row mx-1 my-4 align-items-center justify-content-between border-bottom pb-4 mt-2">
+            <!-- Left: Length selector / search -->
+            <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+               <h5 class="card-title mb-0">Personal Application for Leave</h5>
+
+            </div>
+
+            
+
+            
+              <!-- Right: Export + Create -->
+            <div class="col-12 col-md-auto d-flex justify-content-end">
+
+              <!-- CREATE APPLICATION BUTTON -->
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#leaveFormModal">
+                Create Application for Leave
+              </button>
+            </div>
+          </div>
+
+          <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+              <table class="table table-bordered align-middle border-top dataTable dtr-column collapsed" 
+                id="leaveApplicationTable" style="width: 100%; height: 100%;">
+                <thead class="table-dark align-middle text-center">
+                  <tr>
+                    <th>Request Type</th>
+                    <th>Date Requested</th>
+                    <th>Type of Leave</th>
+                    <th>Credits Remaining</th>
+                    <th>Paid Days</th>
+                    <th>Status</th>
+                    <th>Current Stage</th>
+                    <th>Remarks</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+            <tbody>
+                {% if leave_permits %}
+                  {% for permit in leave_permits %}
+                    <tr class="text-center align-middle">
+                      <td>{{ permit.permit_type or 'N/A' }}</td>
+                      <td>
+                        {% if permit.date_requested %}
+                          {{ (permit.date_requested|to_ph_time).strftime('%b %d, %Y %I:%M %p') if permit.date_requested else '-' }}
+                        {% else %}
+                          N/A
+                        {% endif %}
+                      </td>
+                        <td>
+                        {% if permit.leave_detail %}
+                          {{ permit.leave_detail.leave_type }}
+                          <br>
+                          <small class="text-secondary">
+                            {{ permit.leave_detail.date_from.strftime('%b %d, %Y') }}
+                            –
+                            {{ permit.leave_detail.date_to.strftime('%b %d, %Y') }}
+                          </small>
+                        {% else %}
+                          -
+                        {% endif %}
+                      </td>
+
+                     <td>
+                        {% if permit.employee and permit.employee.credit_balance and permit.leave_detail %}
+                          {% set cb = permit.employee.credit_balance %}
+                          {% set leave_type = permit.leave_detail.leave_type.lower() %}
+
+                          {% if 'vacation' in leave_type %}
+                            {% if cb.vacation_remaining > 0 %}
+                              <div class="text-success fw-semibold">
+                                <i class="bi bi-sun me-1"></i> Vacation Leave
+                                <div class="small text-muted ms-4">{{ cb.vacation_remaining }} credit(s) remaining</div>
+                              </div>
+                            {% else %}
+                              <div class="text-danger fw-semibold">
+                                <i class="bi bi-sun-fill me-1"></i> Vacation Leave
+                                <div class="small text-muted ms-4">0 credit remaining</div>
+                              </div>
+                            {% endif %}
+
+                          {% elif 'sick' in leave_type %}
+                            {% if cb.sick_remaining > 0 %}
+                              <div class="text-info fw-semibold">
+                                <i class="bi bi-thermometer-half me-1"></i> Sick Leave
+                                <div class="small text-muted ms-4">{{ cb.sick_remaining }} credit(s) remaining</div>
+                              </div>
+                            {% else %}
+                              <div class="text-danger fw-semibold">
+                                <i class="bi bi-thermometer me-1"></i> Sick Leave
+                                <div class="small text-muted ms-4">0 credit remaining</div>
+                              </div>
+                            {% endif %}
+
+                          {% else %}
+                            <div class="text-secondary">
+                               Not Applicable
+                            </div>
+                          {% endif %}
+
+                        {% else %}
+                          <div class="text-secondary">
+                            <i class="bi bi-question-circle me-1"></i> N/A
+                          </div>
+                        {% endif %}
+                      </td>
+                      
+                       <td>
+                        {% if permit.leave_detail %}
+                          {% set leave = permit.leave_detail %}
+                          {% set leave_type = leave.leave_type.lower() %}
+
+                          {% if 'vacation' in leave_type or 'sick' in leave_type %}
+                            {# ✅ Only vacation/sick leaves affect credits #}
+
+                            {% if leave.paid_days is not none %}
+                              {% if leave.paid_days|int > 0 %}
+                                <span class="text-success fs-6">
+                                   {{ leave.paid_days }} day(s) Paid
+                                </span>
+                                {% if leave.working_days|int > leave.paid_days|int %}
+                                  <br>
+                                  <span class="text-warning fs-6">
+                                    ⚠ {{ leave.working_days|int - leave.paid_days|int }} day(s) Unpaid
+                                  </span>
+                                {% endif %}
+                              {% else %}
+                                <span class="text-primary fs-6">
+                                  ⏳ Pending Approval
+                                </span>
+                              {% endif %}
+                            {% else %}
+                              {# fallback: estimated before approval #}
+                              {% if permit.employee and permit.employee.credit_balance %}
+                                {% set cb = permit.employee.credit_balance %}
+                                {% set requested_days = leave.working_days|int %}
+
+                                {% if 'vacation' in leave_type %}
+                                  {% set paid = [requested_days, cb.vacation_remaining]|min %}
+                                {% elif 'sick' in leave_type %}
+                                  {% set paid = [requested_days, cb.sick_remaining]|min %}
+                                {% endif %}
+
+                                <span class="text-primary fs-6">
+                                  Est. {{ paid }} day(s)
+                                </span>
+                              {% else %}
+                                <span class="text-muted fs-6">
+                                  N/A
+                                </span>
+                              {% endif %}
+                            {% endif %}
+
+                          {% else %}
+                            <span class="text-secondary fs-6">
+                              Not Applicable
+                            </span>
+                          {% endif %}
+                        {% else %}
+                          <span class="text-muted fs-6">
+                            N/A
+                          </span>
+                        {% endif %}
+                      </td>
+
+
+                        <td>
+                        <span class="badge 
+                          {% if permit.status == 'Completed' %}bg-success
+                          {% elif permit.status == 'Rejected' or permit.status == 'Cancelled' %}bg-danger
+                          {% elif permit.status == 'Pending' %}bg-warning
+                          {% else %}bg-secondary{% endif %}">
+                          {{ permit.status or '-' }}
+                        </span>
+
+                         {% if permit.status == 'Rejected' and permit.rejected_by %}
+                            <br>
+                            <small class="text-danger">
+                              Rejected by {{ permit.rejected_by }}
+                            </small>
+                          {% elif permit.status == 'Cancelled' and permit.date_released %}
+                            <br>
+                            <small class="text-secondary">
+                              Cancelled on {{ (permit.date_released|to_ph_time).strftime('%b %d, %Y %I:%M %p') }}
+                            </small>
+                          {% elif permit.status == 'Completed' and permit.date_released %}
+                            <br>
+                            <small class="text-secondary">
+                              Released on {{ (permit.date_released|to_ph_time).strftime('%b %d, %Y %I:%M %p') }}
+                            </small>
+                          {% endif %}
+
+                      </td>
+
+                
+
+
+
+                      <td>
+                        {% if permit.current_stage == 'HR' %}
+                          Awaiting HR approval
+                        {% elif permit.current_stage == 'Head' %}
+                          With Department Head for review
+                        {% elif permit.current_stage == 'Mayor' %}
+                          Awaiting Mayor’s approval
+                        {% elif permit.current_stage == 'Completed' %}
+                          ✔ Leave process completed
+                        {% elif permit.status == 'Rejected' %}
+                          ❌ Rejected
+                        {% elif permit.status == 'Cancelled' %}
+                          {{ permit.current_stage }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </td>
+
+
+                      <td>
+                        {% if permit.hr_remarks %}
+                          <span title="{{ permit.hr_remarks }}">{{ permit.hr_remarks|truncate(30, True, '...') }}</span>
+                        {% else %}
+                          -
+                        {% endif %}
+                      </td>
+                           <td class="d-flex flex-column align-items-center gap-1">
+                            {% if permit.status == 'Completed' or permit.status == 'Released' %}
+                               <a href="{{ url_for('generate_leave_application_pdf', permit_id=permit.id) }}" class="btn btn-primary btn-small"title="Print">Print</a>
+                            
+                            {% elif permit.status == 'Pending' %}
+                               <a href="#"
+                              class="btn btn-warning btn-sm edit-btn w-100"
+                              title="Edit"
+                              data-bs-toggle="modal"
+                              data-bs-target="#editLeaveModal"
+                              data-id="{{ permit.id }}"
+                              data-department="{{ permit.employee.department.name if permit.employee and permit.employee.department else 'N/A' }}"
+                              data-position="{% if permit.employee.permanent_details %}{{ permit.employee.permanent_details.position.title }}{% elif permit.employee.casual_details %}{{ permit.employee.casual_details.position.title }}{% elif permit.employee.job_order_details %}{{ permit.employee.job_order_details.position_title }}{% else %}N/A{% endif %}"
+                              data-fullname="{% if permit.employee %}{{ permit.employee.last_name }} {{ permit.employee.first_name }} {{ permit.employee.middle_name }}{% else %}Unknown{% endif %}"
+                              data-date-filing="{{ permit.leave_detail.date_from.strftime('%Y-%m-%d') if permit.leave_detail and permit.leave_detail.date_from else '' }}"
+                              data-date-end="{{ permit.leave_detail.date_to.strftime('%Y-%m-%d') if permit.leave_detail and permit.leave_detail.date_to else '' }}"
+                              data-leave-type="{{ permit.leave_detail.leave_type if permit.leave_detail else '' }}"
+                              data-salary="{{ permit.leave_detail.salary if permit.leave_detail and permit.leave_detail.salary else '' }}">
+                              Edit
+                            </a>
+
+
+                              <a href="#"
+                                class="btn btn-secondary btn-sm cancel-btn w-100"
+                                title="Cancel"
+                                data-bs-toggle="modal"
+                                data-bs-target="#cancelLeaveModal"
+                                data-id="{{ permit.id }}">
+                                Cancel
+                              </a>
+                            
+                            {% else %}
+                              <span class="text-muted">No action</span>
+                            {% endif %}
+                          </td>
+                    </tr>
+                  {% endfor %}
+        
+                {% endif %}
+              </tbody>
+
+
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Travel Order Tab -->
+     <div class="tab-pane fade" id="navs-pills-travel-order" role="tabpanel" aria-labelledby="travel-order-tab">
+
+         <div class="card-datable">
+          <div class="row mx-1 my-4 align-items-center justify-content-between border-bottom pb-3 mt-2">
+            <!-- Left: Search -->
+            <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+              <h5 class="card-title mb-0">Personal Travel Order Form</h5>
+            </div>
+
+            <div class="col-12 col-md-auto d-flex justify-content-end">
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#travelOrderModal">
+                Create Travel Order
+              </button>
+            </div>
+          </div>
+
+          <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+             <table class="table table-bordered align-middle border-top dataTable dtr-column collapsed" 
+                  id="travelOrderTable" style="width: 100%; height: 100%;">
+                <thead class="table-dark align-middle text-center">
+                  <tr>
+                    <th>Request Type</th>
+                    <th>Date Requested</th>
+                    <th>Travel Order No.</th>
+                    <th>Destination</th>
+                    <th>Status</th>
+                    <th>Current Stage</th>
+                    <th>Remarks</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for permit in travel_orders %}
+                    <tr class="text-center">
+                      <td>{{ permit.permit_type }}</td>
+                      <td>{{ (permit.date_requested|to_ph_time).strftime('%b %d, %Y %I:%M %p') if permit.date_requested else '-' }}</td>
+                      <td>{{ permit.travel_detail.id }}</td> 
+
+                         <td>
+                          {% if permit.travel_detail %}
+                            {{ permit.travel_detail.destination }}<br>
+                            <small class="text-muted">
+                              {{ permit.travel_detail.date_departure.strftime('%b %d, %Y %#I:%M %p') if permit.travel_detail.date_departure else 'No Departure Date' }}
+                            </small>
+                          {% else %}
+                            N/A
+                          {% endif %}
+                        </td>
+
+                        <td>
+                        <span class="badge 
+                          {% if permit.status == 'Completed' %}bg-success
+                          {% elif permit.status == 'Rejected' or permit.status == 'Cancelled' %}bg-danger
+                          {% elif permit.status == 'Pending' %}bg-warning
+                          {% else %}bg-secondary{% endif %}">
+                          {{ permit.status or '-' }}
+                        </span>
+
+                         {% if permit.status == 'Rejected' and permit.rejected_by %}
+                            <br>
+                            <small class="text-danger">
+                              Rejected by {{ permit.rejected_by }}
+                            </small>
+                          {% elif permit.status == 'Cancelled' and permit.date_released %}
+                            <br>
+                            <small class="text-secondary">
+                              Cancelled on {{ (permit.date_released|to_ph_time).strftime('%b %d, %Y %I:%M %p') }}
+                            </small>
+                          {% elif permit.status == 'Completed' and permit.date_released %}
+                            <br>
+                            <small class="text-secondary">
+                              Released on {{ (permit.date_released|to_ph_time).strftime('%b %d, %Y %I:%M %p') }}
+                            </small>
+                          {% endif %}
+                      </td>
+
+                           <td>
+                        {% if permit.current_stage == 'HR' %}
+                          Awaiting HR approval
+                        {% elif permit.current_stage == 'Head' %}
+                          With Department Head for review
+                        {% elif permit.current_stage == 'Mayor' %}
+                          Awaiting Mayor’s approval
+                        {% elif permit.current_stage == 'Completed' %}
+                          ✔ Travel Order process completed
+                        {% elif permit.status == 'Rejected' %}
+                          ❌ Rejected
+                        {% elif permit.status == 'Cancelled' %}
+                          {{ permit.current_stage }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </td>
+
+                      <td>{{ permit.hr_remarks or '-' }}</td>
+                      
+                       <td class="d-flex flex-column align-items-center gap-1">
+                           {% if permit.status == 'Completed' %}
+
+                            <a href="{{ url_for('generate_travel_order_pdf', permit_id=permit.id) }}" class="btn btn-primary btn-small"title="Print">Print</a>
+                           
+                            {% elif permit.status == 'Pending' %}
+                              <a href="#"
+                              class="btn btn-warning btn-sm edit-travel-btn w-100"
+                              title="Edit"
+                              data-bs-toggle="modal"
+                              data-bs-target="#editTravelModal"
+                              data-permit-id="{{ permit.id }}"
+                              data-full-name="{{ permit.employee.last_name }} {{ permit.employee.first_name }} {{ permit.employee.middle_name }}"
+                              data-position="{% if permit.employee.permanent_details %}{{ permit.employee.permanent_details.position.title }}{% elif permit.employee.casual_details %}{{ permit.employee.casual_details.position.title }}{% elif permit.employee.job_order_details %}{{ permit.employee.job_order_details.position_title }}{% else %}No position assigned{% endif %}"
+                              data-departure="{{ permit.travel_detail.date_departure.strftime('%Y-%m-%dT%H:%M') if permit.travel_detail and permit.travel_detail.date_departure else '' }}"
+                              data-destination="{{ permit.travel_detail.destination if permit.travel_detail else '' }}"
+                              data-purpose="{{ permit.travel_detail.purpose if permit.travel_detail else '' }}"
+                              data-file-url="{{ url_for('static', filename=permit.travel_detail.attachment) if permit.travel_detail and permit.travel_detail.attachment else '' }}">                              
+                              Edit
+                            </a>
+
+
+                              <a href="#"
+                                class="btn btn-secondary btn-sm cancel-btn w-100"
+                                title="Cancel"
+                                data-bs-toggle="modal"
+                                data-bs-target="#cancelLeaveModal"
+                                data-id="{{ permit.id }}">
+                                Cancel
+                              </a>
+                           
+                            {% else %}
+                          <span class="text-muted">No action</span>  
+                        {% endif %}
+                      </td>
+                     
+                    </tr>
+           
+                  {% endfor %}
+                </tbody>
+              </table>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clearance Form Tab -->
+      <div class="tab-pane fade" id="navs-pills-clearance-form" role="tabpanel" aria-labelledby="clearance-form-tab">
+
+      
+        <div class="card-datable">
+          <div class="row mx-1 my-4 align-items-center justify-content-between border-bottom pb-3 mt-2">
+
+            <!-- Left: Search -->
+            <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+                    <h5 class="card-title mb-0">Personal Clearance Form</h5>
+
+            </div>
+
+            <div class="col-12 col-md-auto d-flex justify-content-end">
+              <!-- CREATE CLEARANCE FORM BUTTON -->
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#clearanceModal">
+                Create Clearance Form
+              </button>
+            </div>
+          </div>
+
+          <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+              <table class="table table-bordered align-middle border-top dataTable dtr-column collapsed" 
+                id="clearanceFormTable" style="width: 100%; height: 100%;">
+                <thead class="table-dark align-middle text-center">
+                  <tr>
+                   <th>Request Type</th>
+                    <th>Date Requested</th>
+                    <th>Purpose</th>
+                    <th>Status</th>
+                    <th>Current Stage</th>
+                    <th>Remarks</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for permit in clearance_permits %}
+                  <tr>
+                    <td class="text-center">{{ permit.permit_type }}</td>
+                    <td class="text-center">{{ (permit.date_requested|to_ph_time).strftime('%b %d, %Y %I:%M %p') if permit.date_requested else '-' }}</td>
+                    <td class="text-center">
+                      {{ permit.clearance_detail.clearance_purpose }}
+                      {% if permit.clearance_detail.clearance_purpose == 'Other' %}
+                        <br><small class="text-muted">{{ permit.clearance_detail.other_purpose }}</small>
+                      {% endif %}
+                    </td>
+                    <td class="text-center">
+                      <span class="badge 
+                          {% if permit.status == 'Completed' %}bg-success
+                          {% elif permit.status == 'Rejected' or permit.status == 'Cancelled' %}bg-danger
+                          {% elif permit.status == 'Pending' %}bg-warning
+                          {% else %}bg-secondary{% endif %}">
+                          {{ permit.status or '-' }}
+                        </span>
+
+
+                     {% if permit.status == 'Rejected' and permit.rejected_by %}
+                            <br>
+                            <small class="text-danger">
+                              Rejected by {{ permit.rejected_by }}
+                            </small>
+                          {% elif permit.status == 'Cancelled' and permit.date_released %}
+                            <br>
+                            <small class="text-secondary">
+                              Cancelled on {{ (permit.date_released|to_ph_time).strftime('%b %d, %Y %I:%M %p') }}
+                            </small>
+                          {% elif permit.status == 'Completed' and permit.date_released %}
+                            <br>
+                            <small class="text-secondary">
+                              Released on {{ (permit.date_released|to_ph_time).strftime('%b %d, %Y %I:%M %p') }}
+                            </small>
+                          {% endif %}
+                    </td>
+
+                    <td class="text-center">
+                      {% if permit.current_stage == 'HR' %}
+                          Awaiting HR approval
+                      {% elif permit.current_stage == 'Head' %}
+                        With Department Head for review
+                      {% elif permit.current_stage == 'Mayor' %}
+                        Awaiting Mayor’s approval
+                      {% elif permit.current_stage == 'Completed' %}
+                        ✔ Clearance process completed
+                      {% elif permit.status == 'Rejected' %}
+                        ❌ Rejected
+                      {% elif permit.status == 'Cancelled' %}
+                        {{ permit.current_stage }}
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+
+
+                    <td class="text-center">
+                      {{ permit.hr_remarks or '—' }}
+                    </td>
+                     <td class="d-flex flex-column align-items-center gap-1">
+                       {% if permit.status == 'Completed'  %}
+                        <a href="{{ url_for('generate_clearance', permit_id=permit.id) }}" class="btn btn-primary btn-small"title="Print">Print</a>
+                         {% elif permit.status == 'Pending' %}
+                             <a href="#"
+                              class="btn btn-warning btn-sm edit-btn w-100"
+                              title="Edit"
+                              data-bs-toggle="modal"
+                              data-bs-target="#EditClearanceModal"
+                              data-id="{{ permit.id }}"
+                              data-purpose="{{ permit.clearance_detail.clearance_purpose if permit.clearance_detail else '' }}"
+                              data-other-purpose="{{ permit.clearance_detail.other_purpose if permit.clearance_detail and permit.clearance_detail.clearance_purpose == 'Other' else '' }}"
+                              data-date-of-application="{{ permit.date_requested.strftime('%Y-%m-%d') if permit.date_requested else '' }}"
+                              data-date-from="{{ permit.clearance_detail.date_from.strftime('%Y-%m-%d') if permit.clearance_detail and permit.clearance_detail.date_from else '' }}"
+                              data-date-to="{{ permit.clearance_detail.date_to.strftime('%Y-%m-%d') if permit.clearance_detail and permit.clearance_detail.date_to else '' }}">
+                              Edit
+                            </a>
+
+
+                              <a href="#"
+                                class="btn btn-secondary btn-sm cancel-btn w-100"
+                                title="Cancel"
+                                data-bs-toggle="modal"
+                                data-bs-target="#cancelLeaveModal"
+                                data-id="{{ permit.id }}">
+                                Cancel
+                              </a>
+                            {% else %}
+                        <span class="text-secondary">No Action</span>
+                        {% endif %}
+                      </td>
+        
+                  </tr>
+         
+                  {% endfor %}
+
+              </tbody>
+
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certification of Employment Tab -->
+      <div class="tab-pane fade" id="navs-pills-coe" role="tabpanel" aria-labelledby="coe-tab">
+
+        <div class="card-datable">
+          <div class="row mx-1 my-4 align-items-center justify-content-between border-bottom pb-3 mt-2">
+
+            <!-- Left: Search -->
+            <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+             <h5 class="card-title mb-0">Personal Certification of Employment (COE)</h5>
+            </div>
+
+            <!-- Right: Export + Create -->
+            <div class="col-12 col-md-auto d-flex justify-content-end">
+
+              <!-- CREATE COE BUTTON -->
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#coeModal">
+                Create COE
+              </button>
+            </div>
+          </div>
+
+          <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+              <table class="table table-bordered align-middle border-top dataTable dtr-column collapsed" 
+                id="coeTable" style="width: 100%; height: 100%;">
+                <thead class="table-dark align-middle text-center">
+                  <tr>
+                    <th>Request Type</th>
+                    <th>Date Requested</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Current Stage</th>
+                    <th>Remarks</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for permit in coe_permits %}
+                    <tr>
+                      <td class="text-center">Certification of Employment</td>
+                      <td class="text-center">{{ (permit.date_requested|to_ph_time).strftime('%b %d, %Y %I:%M %p') if permit.date_requested else '-' }}</td>
+                        <!-- Reason -->
+                    <td class="text-center">{{ permit.coe_detail.reason if permit.coe_detail else '-' }}</td>
+                      <td class="text-center">
+                      <span class="badge 
+                          {% if permit.status == 'Completed' %}bg-success
+                          {% elif permit.status == 'Rejected' or permit.status == 'Cancelled' %}bg-danger
+                          {% elif permit.status == 'Pending' %}bg-warning
+                          {% else %}bg-secondary{% endif %}">
+                          {{ permit.status or '-' }}
+                        </span>
+
+
+                     {% if permit.status == 'Rejected' and permit.rejected_by %}
+                            <br>
+                            <small class="text-danger">
+                              Rejected by {{ permit.rejected_by }}
+                            </small>
+                          {% elif permit.status == 'Cancelled' and permit.date_released %}
+                            <br>
+                            <small class="text-secondary">
+                              Cancelled on {{ (permit.date_released|to_ph_time).strftime('%b %d, %Y %I:%M %p') }}
+                            </small>
+                          {% elif permit.status == 'Completed' and permit.date_released %}
+                            <br>
+                            <small class="text-secondary">
+                              Released on {{ (permit.date_released|to_ph_time).strftime('%b %d, %Y %I:%M %p') }}
+                            </small>
+                          {% endif %}
+                    </td>
+                            <td class="text-center">
+                      {% if permit.current_stage == 'HR' %}
+                          Awaiting HR approval
+                      {% elif permit.current_stage == 'Head' %}
+                        With Department Head for review
+                      {% elif permit.current_stage == 'Mayor' %}
+                        Awaiting Mayor’s approval
+                      {% elif permit.current_stage == 'Completed' %}
+                        ✔ Clearance process completed
+                      {% elif permit.status == 'Rejected' %}
+                        ❌ Rejected
+                      {% elif permit.status == 'Cancelled' %}
+                        {{ permit.current_stage }}
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+
+                      <td class="text-center">{{ permit.hr_remarks or '-' }}</td>
+
+                      <td class="d-flex flex-column align-items-center gap-1">
+                                             {% if permit.status in ['Approved', 'Released', 'Completed'] %}
+                        <a href="{{ url_for('generate_coe_pdf', permit_id=permit.id) }}" 
+                          class="btn btn-primary btn-sm" title="Print" target="_blank" rel="noopener noreferrer">
+                          Print
+                        </a>
+                       {% elif permit.status == 'Pending' %}
+
+                          <!-- Edit -->
+                          <a href="#"
+                            class="btn btn-warning btn-sm edit-reason-btn w-100"
+                            title="Edit Reason"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editReasonModal"
+                            data-id="{{ permit.id }}"
+                            data-reason="{{ permit.coe_detail.reason if permit.coe_detail and permit.coe_detail.reason else '' }}">
+                            Edit
+                          </a>
+
+                            <a href="#"
+                                class="btn btn-secondary btn-sm cancel-btn w-100"
+                                title="Cancel"
+                                data-bs-toggle="modal"
+                                data-bs-target="#cancelLeaveModal"
+                                data-id="{{ permit.id }}">
+                                Cancel
+                              </a>
+                      {% else %}
+                        <span class="text-secondary">No Action</span>
+                      {% endif %}
+                      </td>
+                    
+                    </tr>
+            
+                  {% endfor %}
+                </tbody>
+
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- COE EDIT MODAL -->
+
+<div class="modal fade" id="editReasonModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="POST" action="{{ url_for('edit_coe_reason') }}">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit COE Request Reason</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="permit_id" id="editPermitId">
+          <div class="mb-3">
+            <label for="editReason" class="form-label">Reason</label>
+            <textarea class="form-control" name="reason" id="editReason" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Edit Leave -->
+<div class="modal fade" id="editLeaveModal" tabindex="-1" aria-labelledby="editLeaveModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="editLeaveModalLabel">Edit Leave Application</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form method="POST" action="{{ url_for('update_leave') }}">
+          <input type="hidden" name="permit_id" id="editLeavePermitId">
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Office/Department</label>
+              <input type="text" class="form-control" id="editDepartment" name="department" readonly>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Position</label>
+              <input type="text" class="form-control" id="editPosition" name="position" readonly>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="editFullName" name="full_name" readonly>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Date of Filing</label>
+              <input type="date" class="form-control" id="editDateFiling" name="date_filing">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">End of Filing</label>
+              <input type="date" class="form-control" id="editDateEnd" name="date_end">
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Type of Leave</label>
+              <select class="form-select" id="editLeaveType" name="leave_type">
+                 <option value="Vacation Leave">Vacation Leave</option>
+                    <option value="Forced Leave">Mandatory/Forced Leave</option>
+                    <option value="Sick Leave">Sick Leave</option>
+                    <option value="Maternity Leave">Maternity Leave</option>
+                    <option value="Paternity Leave">Paternity Leave</option>
+                    <option value="Special Privilege Leave">Special Privilege Leave</option>
+                    <option value="Solo Parent Leave">Solo Parent Leave</option>
+                    <option value="Study Leave">Study Leave</option>
+                    <option value="10-Day VAWC Leave">10-Day VAWC Leave</option>
+                    <option value="Rehabilitation Leave">Rehabilitation Leave</option>
+                    <option value="Special Leave Benefits for Women">Special Leave Benefits for Women</option>
+                    <option value="Special Emergency (Calamity) Leave">Special Emergency (Calamity) Leave</option>
+                    <option value="Adoption Leave">Adoption Leave</option>
+                <!-- Add the rest -->
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Salary</label>
+              <input type="text" class="form-control" id="editSalary" name="salary" readonly>
+            </div>
+          </div>
+
+          <div class="modal-footer mt-4">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Update Application</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Cancel Modal -->
+<div class="modal fade" id="cancelLeaveModal" tabindex="-1" aria-labelledby="cancelLeaveModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="cancelLeaveModalLabel">Cancel Request</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body text-center">
+        <p class="fw-semibold">Are you sure you want to cancel request??</p>
+        <p class="text-muted small">This action cannot be undone.</p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Go Back</button>
+
+        <!-- Cancel form -->
+        <form method="POST" action="{{ url_for('cancel_permit') }}">
+          <input type="hidden" name="permit_id" id="cancelPermitId">
+          <button type="submit" class="btn btn-danger">Yes, Cancel Request</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Edit Travel -->
+ <div class="modal fade" id="editTravelModal" tabindex="-1" aria-labelledby="editTravelModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form method="POST" action="{{ url_for('edit_travel') }}" enctype="multipart/form-data">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editTravelModalLabel">Edit Travel Order</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-control" id="edit-full-name" readonly>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Position</label>
+              <input type="text" class="form-control" id="edit-position" readonly>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Date/Time of Departure</label>
+              <input type="datetime-local" class="form-control" id="edit-departure" name="date_departure">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Destination</label>
+              <input type="text" class="form-control" id="edit-destination" name="destination">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Purpose of Travel</label>
+            <textarea class="form-control" id="edit-purpose" name="purpose" rows="3"></textarea>
+          </div>
+
+                    <div class="mb-3">
+            <label class="form-label">Current File</label><br>
+            <a href="#" target="_blank" id="edit-current-file">No file uploaded</a>
+          </div>
+
+
+          <div class="mb-3">
+            <label class="form-label">Upload New File (optional)</label>
+            <input type="file" class="form-control" name="attachment">
+          </div>
+
+          <input type="hidden" name="permit_id" id="edit-permit-id">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-warning">Save Changes</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- Edit clearance -->
+<div class="modal fade" id="EditClearanceModal" tabindex="-1" aria-labelledby="EditClearanceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="EditClearanceModalLabel">Edit Clearance</h5>
+        <button type="button" class="btn-close " data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <form method="POST" action="{{ url_for('update_clearance') }}">
+          <input type="hidden" name="permit_id" id="editClearancePermitId">
+
+          <!-- Purpose -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Purpose</label>
+            <div class="row">
+              <div class="col-md-12">
+                {% set purposes = ['Transfer', 'Resignation', 'Retirement', 'Leave', 'Other'] %}
+                {% for p in purposes %}
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="purpose" id="edit_purpose_{{ p }}" value="{{ p }}">
+                    <label class="form-check-label" for="edit_purpose_{{ p }}">{{ p }}</label>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Other Specify -->
+            <div class="mt-3">
+              <label for="editOtherSpecify" class="form-label">If "Other", please specify:</label>
+              <input type="text" class="form-control" id="editOtherSpecify" name="other_specify" placeholder="Specify other reason">
+            </div>
+          </div>
+
+
+          <!-- From/To -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <label for="edit_date_from" class="form-label fw-semibold">Date From</label>
+              <input type="date" class="form-control" id="edit_date_from" name="date_from">
+            </div>
+            <div class="col-md-6">
+              <label for="edit_date_to" class="form-label fw-semibold">Date To</label>
+              <input type="date" class="form-control" id="edit_date_to" name="date_to">
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="modal-footer border-0 p-0 pt-0">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Update Clearance</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+       
+
+<!-- Leave Form Modal -->
+<div class="modal fade" id="leaveFormModal" tabindex="-1" aria-labelledby="leaveFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content rounded-4">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="leaveFormModalLabel">Application for Leave</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{{ url_for('submit_leave') }}">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Office/Department</label>
+                <input type="text" class="form-control" name="department"
+                      value="{{ current_user.employee.department.name if current_user.employee and current_user.employee.department else 'N/A' }}"
+                      readonly>
+              </div>
+
+             <div class="col-md-6">
+                <label class="form-label">Position</label>
+                <input type="text" class="form-control" name="position"
+                      value="{% if current_user.employee.permanent_details %}{{ current_user.employee.permanent_details.position.title }}{% elif current_user.employee.casual_details %}{{ current_user.employee.casual_details.position.title }}{% elif current_user.employee.job_order_details %}{{ current_user.employee.job_order_details.position_title }}{% else %}N/A{% endif %}"
+                readonly>
+
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" name="full_name" placeholder="Full Name" value="{{ current_user.employee.last_name }} {{ current_user.employee.first_name }} {{ current_user.employee.middle_name }}" readonly>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Date of Filing</label>
+                <input type="date" class="form-control" name="date_filing" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">End of Filing</label>
+                <input type="date" class="form-control" name="date_end" required>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Type of Leave to be Availed Of</label>
+                <select class="form-select" name="leave_type" required>
+                <option value="" selected disabled>Select leave type</option>
+                    <option value="Vacation Leave">Vacation Leave</option>
+                    <option value="Forced Leave">Mandatory/Forced Leave</option>
+                    <option value="Sick Leave">Sick Leave</option>
+                    <option value="Maternity Leave">Maternity Leave</option>
+                    <option value="Paternity Leave">Paternity Leave</option>
+                    <option value="Special Privilege Leave">Special Privilege Leave</option>
+                    <option value="Solo Parent Leave">Solo Parent Leave</option>
+                    <option value="Study Leave">Study Leave</option>
+                    <option value="10-Day VAWC Leave">10-Day VAWC Leave</option>
+                    <option value="Rehabilitation Leave">Rehabilitation Leave</option>
+                    <option value="Special Leave Benefits for Women">Special Leave Benefits for Women</option>
+                    <option value="Special Emergency (Calamity) Leave">Special Emergency (Calamity) Leave</option>
+                    <option value="Adoption Leave">Adoption Leave</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Salary</label>
+                <input type="text" class="form-control" name="salary" placeholder="Enter salary"
+                value="{% if current_user.employee.permanent_details %}
+                              ₱{{ '{:,.2f}'.format(((current_user.employee.permanent_details.actual_salary|string).replace(',', '') | float) / 264) }}/day
+
+                          {% elif current_user.employee.casual_details %}
+                              ₱{{ '{:,.2f}'.format(current_user.employee.casual_details.daily_wage | float) }}/day
+                          {% elif current_user.employee.job_order_details %}
+                              N/A
+                          {% else %}
+                              N/A
+                          {% endif %}" readonly>
+              </div>
+            </div>
+
+            <div class="modal-footer mt-4">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Submit Application</button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Travel Order Modal -->
+<div class="modal fade" id="travelOrderModal" tabindex="-1" aria-labelledby="travelOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content rounded-4">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="travelOrderModalLabel">Travel Order Form</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        <form method="POST" action="{{ url_for('submit_travel_order') }}" enctype="multipart/form-data">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-control" name="full_name" 
+                    value="{{ current_user.employee.last_name }} {{ current_user.employee.first_name }} {{ current_user.employee.middle_name }}" readonly>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Position</label>
+              <input type="text" class="form-control" name="position"
+                    value="{% if current_user.employee.permanent_details %}{{ current_user.employee.permanent_details.position.title }}{% elif current_user.employee.casual_details %}{{ current_user.employee.casual_details.position.title }}{% elif current_user.employee.job_order_details %}{{ current_user.employee.job_order_details.position_title }}{% else %}N/A{% endif %}" readonly>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Date/Time of Departure</label>
+              <input type="datetime-local" class="form-control" name="departure_datetime" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Destination</label>
+              <input type="text" class="form-control" name="destination" placeholder="Enter destination" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Purpose of Travel</label>
+            <textarea class="form-control" name="purpose" rows="3" placeholder="Describe the purpose of the travel" required></textarea>
+          </div>
+
+                 <!-- File Attachment -->
+          <div class="mb-3">
+            <label class="form-label">Attachment (optional)</label>
+            <input type="file" class="form-control" name="attachment">
+            <small class="text-muted">Allowed formats: PDF, DOCX, JPG, PNG. Max size: 16MB.</small>
+          </div>
+
+          <div class="modal-footer mt-4 p-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Submit Travel Order</button>
+          </div>
+        </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+<!-- Certification of Employment Modal -->
+<div class="modal fade" id="coeModal" tabindex="-1" aria-labelledby="coeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content rounded-4">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="coeModalLabel">Certification of Employment (COE)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        <form method="POST" action="{{ url_for('submit_coe') }}">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-control" placeholder="Enter full name"
+                    value="{{ current_user.employee.last_name }} {{ current_user.employee.first_name }} {{ current_user.employee.middle_name }}" readonly>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Position</label>
+              <input type="text" class="form-control" name="position"
+                    value="{% if current_user.employee.permanent_details %}{{ current_user.employee.permanent_details.position.title }}{% elif current_user.employee.casual_details %}{{ current_user.employee.casual_details.position.title }}{% elif current_user.employee.job_order_details %}{{ current_user.employee.job_order_details.position_title }}{% else %}N/A{% endif %}" readonly>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <label class="form-label">Department</label>
+              <input type="text" class="form-control" name="department"
+                    value="{{ current_user.employee.department.name if current_user.employee and current_user.employee.department else 'N/A' }}" readonly>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <label class="form-label">Reason for Requesting COE</label>
+              <textarea class="form-control" name="reason" rows="3" placeholder="Enter reason for requesting COE"></textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer mt-4 p-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Submit COE</button>
+          </div>
+        </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clearance Form Modal -->
+<div class="modal fade" id="clearanceModal" tabindex="-1" aria-labelledby="clearanceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="clearanceModalLabel">Clearance Form</h5>
+        <button type="button" class="btn-close " data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-4">
+       <form method="POST" action="{{ url_for('submit_clearance') }}">
+  <!-- Purpose (Radio Buttons) -->
+  <div class="mb-4">
+    <label class="form-label fw-semibold">Purpose</label>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="purpose" id="Transfer" value="Transfer" required>
+          <label class="form-check-label" for="Transfer">Transfer</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="purpose" id="sResignation" value="Resignation">
+          <label class="form-check-label" for="sResignation">Resignation</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="purpose" id="Retirement" value="Retirement">
+          <label class="form-check-label" for="Retirement">Retirement</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="purpose" id="Leave" value="Leave">
+          <label class="form-check-label" for="Leave">Leave</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="purpose" id="separationOther" value="Other">
+          <label class="form-check-label" for="separationOther">Other</label>
+        </div>
+      </div>
+    </div>
+
+  <!-- Other Mode of Separation -->
+            <div class="mt-3">
+              <label for="otherSpecify" class="form-label">If "Other", please specify:</label>
+              <input type="text" class="form-control" id="otherSpecify" name="other_specify" placeholder="Specify other reason">
+            </div>
+          </div>
+
+
+            <!-- Optional Date Fields (if needed in backend) -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label for="date_from" class="form-label fw-semibold">Date From</label>
+            <input type="date" class="form-control" id="date_from" name="date_from">
+          </div>
+          <div class="col-md-6">
+            <label for="date_to" class="form-label fw-semibold">Date To</label>
+            <input type="date" class="form-control" id="date_to" name="date_to">
+          </div>
+        </div>
+
+  <!-- Footer Buttons -->
+  <div class="modal-footer border-0 p-0 pt-0">
+    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+    <button type="submit" class="btn btn-primary">Submit Clearance</button>
+  </div>
+</form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="{{ url_for('static', filename='js/savingtabs.js') }}"></script>
+
+
+<script>
+function setupTableSearch(searchInputId, tableId) {
+  const searchInput = document.getElementById(searchInputId);
+  const table = document.getElementById(tableId);
+
+  searchInput.addEventListener("input", function () {
+    const filter = searchInput.value.toLowerCase();
+    const rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+
+    Array.from(rows).forEach(row => {
+      const cells = row.getElementsByTagName("td");
+      let match = false;
+
+      Array.from(cells).forEach(cell => {
+        if (cell.textContent.toLowerCase().includes(filter)) {
+          match = true;
+        }
+      });
+
+      row.style.display = match ? "" : "none";
+    });
+  });
+}
+
+// Initialize all search filters
+document.addEventListener("DOMContentLoaded", function () {
+  setupTableSearch("searchLeave", "leaveApplicationTable");
+  setupTableSearch("searchTravel", "travelOrderTable");
+  setupTableSearch("searchClearance", "clearanceFormTable");
+  setupTableSearch("searchCOE", "coeTable");
+});
+</script>
+
+
+<!-- JS FOR EDIT LEAVE -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const editModal = document.getElementById('editLeaveModal');
+  editModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+
+    document.getElementById('editLeavePermitId').value = button.dataset.id;
+    document.getElementById('editDepartment').value = button.dataset.department;
+    document.getElementById('editPosition').value = button.dataset.position;
+    document.getElementById('editFullName').value = button.dataset.fullname;
+    document.getElementById('editDateFiling').value = button.dataset.dateFiling || '';
+    document.getElementById('editDateEnd').value = button.dataset.dateEnd || '';
+    document.getElementById('editSalary').value = button.dataset.salary || '';
+
+    const leaveType = button.dataset.leaveType;
+    const leaveSelect = document.getElementById('editLeaveType');
+    if (leaveSelect && leaveType) {
+      leaveSelect.value = leaveType;
+    }
+  });
+});
+
+</script>
+
+
+
+<!-- Cancel Modal -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const cancelModal = document.getElementById('cancelLeaveModal');
+  cancelModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const permitId = button.getAttribute('data-id');
+    document.getElementById('cancelPermitId').value = permitId;
+  });
+});
+</script>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const editModal = document.getElementById('editTravelModal');
+  editModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+
+    // Fill form fields
+    document.getElementById('edit-permit-id').value = button.getAttribute('data-permit-id');
+    document.getElementById('edit-full-name').value = button.getAttribute('data-full-name');
+    document.getElementById('edit-position').value = button.getAttribute('data-position');
+    document.getElementById('edit-departure').value = button.getAttribute('data-departure');
+    document.getElementById('edit-destination').value = button.getAttribute('data-destination');
+    document.getElementById('edit-purpose').value = button.getAttribute('data-purpose');
+
+    // ✅ Handle file link
+    const fileUrl = button.getAttribute('data-file-url');
+    const fileLink = document.getElementById('edit-current-file');
+
+    if (fileUrl && fileUrl.trim() !== "") {
+      fileLink.href = fileUrl;
+      fileLink.textContent = "View Current File";
+      fileLink.style.display = "inline";
+    } else {
+      fileLink.removeAttribute('href');
+      fileLink.textContent = "No file uploaded";
+      fileLink.style.display = "inline"; // keep visible with "No file uploaded"
+    }
+  });
+});
+</script>
+
+<!-- JS FOR Clearance -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const editModal = document.getElementById('EditClearanceModal');
+  editModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+
+    // Reset form fields
+    document.querySelectorAll('#EditClearanceModal input[type="radio"]').forEach(r => r.checked = false);
+    document.getElementById('editOtherSpecify').value = '';
+    document.getElementById('edit_date_from').value = '';
+    document.getElementById('edit_date_to').value = '';
+
+    // Fill with existing values
+    const permitId = button.getAttribute('data-id');
+    if (permitId) {
+      document.getElementById('editClearancePermitId').value = permitId;
+
+      const purpose = button.getAttribute('data-purpose');
+      if (purpose) {
+        const radio = document.getElementById('edit_purpose_' + purpose);
+        if (radio) radio.checked = true;
+      }
+
+      const otherPurpose = button.getAttribute('data-other-purpose');
+      if (otherPurpose) {
+        document.getElementById('editOtherSpecify').value = otherPurpose;
+      }
+
+      document.getElementById('edit_date_from').value = button.getAttribute('data-date-from') || '';
+      document.getElementById('edit_date_to').value = button.getAttribute('data-date-to') || '';
+    }
+  });
+});
+</script>
+
+<!-- JS FOR COE EDIT -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const editButtons = document.querySelectorAll(".edit-reason-btn");
+  editButtons.forEach(btn => {
+    btn.addEventListener("click", function () {
+      const permitId = this.dataset.id;
+      const reason = this.dataset.reason;
+
+      document.getElementById("editPermitId").value = permitId;
+      document.getElementById("editReason").value = reason || "";
+    });
+  });
+});
+</script>
+
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+    // Force table layout fixed for all DataTables
+    $('table.dataTable').css({
+        'table-layout': 'fixed',
+        'width': '100%'
+    });
+
+    // Common options for all tables
+    const commonOptions = (searchPlaceholder, columnCount) => ({
+        paging: true,
+        searching: true,
+        ordering: true,
+        responsive: true,
+        autoWidth: false,
+        columnDefs: Array.from({ length: columnCount }, (_, i) => ({ width: `${100/columnCount}%`, targets: i })),
+        dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>t<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: searchPlaceholder
+        }
+    });
+
+    // Initialize tables
+    var leaveTable = $('#leaveApplicationTable').DataTable(commonOptions("Search Leave Applications...", 9));
+    var travelTable = $('#travelOrderTable').DataTable(commonOptions("Search Travel Orders...", 8));
+    var clearanceTable = $('#clearanceFormTable').DataTable(commonOptions("Search Clearance Forms...", 7));
+    var coeTable = $('#coeTable').DataTable(commonOptions("Search Certificates of Employment...", 7));
+
+    // Style search inputs
+    $(".dataTables_filter input")
+        .addClass("form-control form-control-lg w-auto")
+        .css("margin-left", "0");
+
+    // Style entries dropdown
+    $(".dataTables_length select")
+        .addClass("form-select form-select-lg")
+        .css("min-width", "80px");
+
+    // Adjust columns when switching Bootstrap tabs
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+        $.fn.dataTable
+            .tables({ visible: true, api: true })
+            .columns.adjust();
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock content %}

@@ -1,0 +1,2447 @@
+<!DOCTYPE html>
+<!-- saved from url=(0030)http://127.0.0.1:5000/Employee -->
+<html lang="en" class="light-style layout-menu-fixed"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+        <title>HR - Employee</title>
+    
+  
+
+
+    <style data-fullcalendar=""></style><link href="./HR - Employee_files/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="./HR - Employee_files/bootstrap-icons.min.css">
+   
+    <link rel="stylesheet" href="./HR - Employee_files/flatpickr.min.css">
+
+    <link rel="stylesheet" href="./HR - Employee_files/owl.carousel.min.css">
+    <link rel="stylesheet" href="./HR - Employee_files/owl.theme.default.min.css">
+
+
+    <script src="./HR - Employee_files/apexcharts"></script>
+
+    <!-- HEADER -->
+    <link rel="stylesheet" type="text/css" href="./HR - Employee_files/main.css">
+    <link rel="stylesheet" type="text/css" href="./HR - Employee_files/theme-default.css">
+
+    <!-- <link rel="stylesheet" type="text/css" href="/static/css/colors.css"> -->
+    <link rel="stylesheet" type="text/css" href="./HR - Employee_files/apex-charts.css">
+
+    <script src="./HR - Employee_files/html2pdf.bundle.min.js.download"></script><style type="text/css" id="operaUserStyle"></style>
+
+
+    
+    <script src="./HR - Employee_files/config.js.download"></script>
+
+    <script src="./HR - Employee_files/sweetalert2@11"></script><style>:root{--swal2-outline: 0 0 0 3px rgba(100, 150, 200, 0.5);--swal2-container-padding: 0.625em;--swal2-backdrop: rgba(0, 0, 0, 0.4);--swal2-backdrop-transition: background-color 0.1s;--swal2-width: 32em;--swal2-padding: 0 0 1.25em;--swal2-border: none;--swal2-border-radius: 0.3125rem;--swal2-background: white;--swal2-color: #545454;--swal2-footer-border-color: #eee;--swal2-show-animation: swal2-show 0.3s;--swal2-hide-animation: swal2-hide 0.15s forwards;--swal2-icon-zoom: 1;--swal2-icon-animations: true;--swal2-title-padding: 0.8em 1em 0;--swal2-html-container-padding: 1em 1.6em 0.3em;--swal2-input-border-radius: 0.1875em;--swal2-input-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.06), 0 0 0 3px transparent;--swal2-input-background: transparent;--swal2-input-transition: border-color 0.1s, box-shadow 0.1s;--swal2-progress-step-background: #add8e6;--swal2-validation-message-background: #f0f0f0;--swal2-validation-message-color: #666;--swal2-close-button-position: initial;--swal2-close-button-inset: auto;--swal2-close-button-font-size: 2.5em;--swal2-close-button-color: #ccc;--swal2-close-button-transition: color 0.1s, box-shadow 0.1s;--swal2-close-button-outline: initial;--swal2-close-button-box-shadow: inset 0 0 0 3px transparent;--swal2-close-button-focus-box-shadow: inset var(--swal2-outline);--swal2-close-button-hover-transform: none;--swal2-button-darken-hover: rgba(0, 0, 0, 0.1);--swal2-button-darken-active: rgba(0, 0, 0, 0.2);--swal2-button-transition: box-shadow 0.1s;--swal2-confirm-button-border: 0;--swal2-confirm-button-border-radius: 0.25em;--swal2-confirm-button-background-color: #7066e0;--swal2-deny-button-border: 0;--swal2-deny-button-border-radius: 0.25em;--swal2-deny-button-background-color: #dc3741;--swal2-cancel-button-border: 0;--swal2-cancel-button-border-radius: 0.25em;--swal2-cancel-button-background-color: #6e7881;--swal2-toast-show-animation: swal2-toast-show 0.5s;--swal2-toast-hide-animation: swal2-toast-hide 0.1s forwards;--swal2-toast-border: none;--swal2-toast-box-shadow: 0 0 1px hsl(0deg 0% 0% / 0.075), 0 1px 2px hsl(0deg 0% 0% / 0.075), 1px 2px 4px hsl(0deg 0% 0% / 0.075), 1px 3px 8px hsl(0deg 0% 0% / 0.075), 2px 4px 16px hsl(0deg 0% 0% / 0.075)}[data-swal2-theme=dark]{--swal2-dark-theme-black: #19191a;--swal2-dark-theme-white: #e1e1e1;--swal2-background: var(--swal2-dark-theme-black);--swal2-color: var(--swal2-dark-theme-white);--swal2-footer-border-color: #555;--swal2-input-background: color-mix(in srgb, var(--swal2-dark-theme-black), var(--swal2-dark-theme-white) 10%);--swal2-validation-message-background: color-mix( in srgb, var(--swal2-dark-theme-black), var(--swal2-dark-theme-white) 10% );--swal2-validation-message-color: var(--swal2-dark-theme-white)}@media(prefers-color-scheme: dark){[data-swal2-theme=auto]{--swal2-dark-theme-black: #19191a;--swal2-dark-theme-white: #e1e1e1;--swal2-background: var(--swal2-dark-theme-black);--swal2-color: var(--swal2-dark-theme-white);--swal2-footer-border-color: #555;--swal2-input-background: color-mix(in srgb, var(--swal2-dark-theme-black), var(--swal2-dark-theme-white) 10%);--swal2-validation-message-background: color-mix( in srgb, var(--swal2-dark-theme-black), var(--swal2-dark-theme-white) 10% );--swal2-validation-message-color: var(--swal2-dark-theme-white)}}body.swal2-shown:not(.swal2-no-backdrop,.swal2-toast-shown){overflow:hidden}body.swal2-height-auto{height:auto !important}body.swal2-no-backdrop .swal2-container{background-color:rgba(0,0,0,0) !important;pointer-events:none}body.swal2-no-backdrop .swal2-container .swal2-popup{pointer-events:all}body.swal2-no-backdrop .swal2-container .swal2-modal{box-shadow:0 0 10px var(--swal2-backdrop)}body.swal2-toast-shown .swal2-container{box-sizing:border-box;width:360px;max-width:100%;background-color:rgba(0,0,0,0);pointer-events:none}body.swal2-toast-shown .swal2-container.swal2-top{inset:0 auto auto 50%;transform:translateX(-50%)}body.swal2-toast-shown .swal2-container.swal2-top-end,body.swal2-toast-shown .swal2-container.swal2-top-right{inset:0 0 auto auto}body.swal2-toast-shown .swal2-container.swal2-top-start,body.swal2-toast-shown .swal2-container.swal2-top-left{inset:0 auto auto 0}body.swal2-toast-shown .swal2-container.swal2-center-start,body.swal2-toast-shown .swal2-container.swal2-center-left{inset:50% auto auto 0;transform:translateY(-50%)}body.swal2-toast-shown .swal2-container.swal2-center{inset:50% auto auto 50%;transform:translate(-50%, -50%)}body.swal2-toast-shown .swal2-container.swal2-center-end,body.swal2-toast-shown .swal2-container.swal2-center-right{inset:50% 0 auto auto;transform:translateY(-50%)}body.swal2-toast-shown .swal2-container.swal2-bottom-start,body.swal2-toast-shown .swal2-container.swal2-bottom-left{inset:auto auto 0 0}body.swal2-toast-shown .swal2-container.swal2-bottom{inset:auto auto 0 50%;transform:translateX(-50%)}body.swal2-toast-shown .swal2-container.swal2-bottom-end,body.swal2-toast-shown .swal2-container.swal2-bottom-right{inset:auto 0 0 auto}@media print{body.swal2-shown:not(.swal2-no-backdrop,.swal2-toast-shown){overflow-y:scroll !important}body.swal2-shown:not(.swal2-no-backdrop,.swal2-toast-shown)>[aria-hidden=true]{display:none}body.swal2-shown:not(.swal2-no-backdrop,.swal2-toast-shown) .swal2-container{position:static !important}}div:where(.swal2-container){display:grid;position:fixed;z-index:1060;inset:0;box-sizing:border-box;grid-template-areas:"top-start     top            top-end" "center-start  center         center-end" "bottom-start  bottom-center  bottom-end";grid-template-rows:minmax(min-content, auto) minmax(min-content, auto) minmax(min-content, auto);height:100%;padding:var(--swal2-container-padding);overflow-x:hidden;transition:var(--swal2-backdrop-transition);-webkit-overflow-scrolling:touch}div:where(.swal2-container).swal2-backdrop-show,div:where(.swal2-container).swal2-noanimation{background:var(--swal2-backdrop)}div:where(.swal2-container).swal2-backdrop-hide{background:rgba(0,0,0,0) !important}div:where(.swal2-container).swal2-top-start,div:where(.swal2-container).swal2-center-start,div:where(.swal2-container).swal2-bottom-start{grid-template-columns:minmax(0, 1fr) auto auto}div:where(.swal2-container).swal2-top,div:where(.swal2-container).swal2-center,div:where(.swal2-container).swal2-bottom{grid-template-columns:auto minmax(0, 1fr) auto}div:where(.swal2-container).swal2-top-end,div:where(.swal2-container).swal2-center-end,div:where(.swal2-container).swal2-bottom-end{grid-template-columns:auto auto minmax(0, 1fr)}div:where(.swal2-container).swal2-top-start>.swal2-popup{align-self:start}div:where(.swal2-container).swal2-top>.swal2-popup{grid-column:2;place-self:start center}div:where(.swal2-container).swal2-top-end>.swal2-popup,div:where(.swal2-container).swal2-top-right>.swal2-popup{grid-column:3;place-self:start end}div:where(.swal2-container).swal2-center-start>.swal2-popup,div:where(.swal2-container).swal2-center-left>.swal2-popup{grid-row:2;align-self:center}div:where(.swal2-container).swal2-center>.swal2-popup{grid-column:2;grid-row:2;place-self:center center}div:where(.swal2-container).swal2-center-end>.swal2-popup,div:where(.swal2-container).swal2-center-right>.swal2-popup{grid-column:3;grid-row:2;place-self:center end}div:where(.swal2-container).swal2-bottom-start>.swal2-popup,div:where(.swal2-container).swal2-bottom-left>.swal2-popup{grid-column:1;grid-row:3;align-self:end}div:where(.swal2-container).swal2-bottom>.swal2-popup{grid-column:2;grid-row:3;place-self:end center}div:where(.swal2-container).swal2-bottom-end>.swal2-popup,div:where(.swal2-container).swal2-bottom-right>.swal2-popup{grid-column:3;grid-row:3;place-self:end end}div:where(.swal2-container).swal2-grow-row>.swal2-popup,div:where(.swal2-container).swal2-grow-fullscreen>.swal2-popup{grid-column:1/4;width:100%}div:where(.swal2-container).swal2-grow-column>.swal2-popup,div:where(.swal2-container).swal2-grow-fullscreen>.swal2-popup{grid-row:1/4;align-self:stretch}div:where(.swal2-container).swal2-no-transition{transition:none !important}div:where(.swal2-container)[popover]{width:auto;border:0}div:where(.swal2-container) div:where(.swal2-popup){display:none;position:relative;box-sizing:border-box;grid-template-columns:minmax(0, 100%);width:var(--swal2-width);max-width:100%;padding:var(--swal2-padding);border:var(--swal2-border);border-radius:var(--swal2-border-radius);background:var(--swal2-background);color:var(--swal2-color);font-family:inherit;font-size:1rem;container-name:swal2-popup}div:where(.swal2-container) div:where(.swal2-popup):focus{outline:none}div:where(.swal2-container) div:where(.swal2-popup).swal2-loading{overflow-y:hidden}div:where(.swal2-container) div:where(.swal2-popup).swal2-draggable{cursor:grab}div:where(.swal2-container) div:where(.swal2-popup).swal2-draggable div:where(.swal2-icon){cursor:grab}div:where(.swal2-container) div:where(.swal2-popup).swal2-dragging{cursor:grabbing}div:where(.swal2-container) div:where(.swal2-popup).swal2-dragging div:where(.swal2-icon){cursor:grabbing}div:where(.swal2-container) h2:where(.swal2-title){position:relative;max-width:100%;margin:0;padding:var(--swal2-title-padding);color:inherit;font-size:1.875em;font-weight:600;text-align:center;text-transform:none;word-wrap:break-word;cursor:initial}div:where(.swal2-container) div:where(.swal2-actions){display:flex;z-index:1;box-sizing:border-box;flex-wrap:wrap;align-items:center;justify-content:center;width:auto;margin:1.25em auto 0;padding:0}div:where(.swal2-container) div:where(.swal2-actions):not(.swal2-loading) .swal2-styled[disabled]{opacity:.4}div:where(.swal2-container) div:where(.swal2-actions):not(.swal2-loading) .swal2-styled:hover{background-image:linear-gradient(var(--swal2-button-darken-hover), var(--swal2-button-darken-hover))}div:where(.swal2-container) div:where(.swal2-actions):not(.swal2-loading) .swal2-styled:active{background-image:linear-gradient(var(--swal2-button-darken-active), var(--swal2-button-darken-active))}div:where(.swal2-container) div:where(.swal2-loader){display:none;align-items:center;justify-content:center;width:2.2em;height:2.2em;margin:0 1.875em;animation:swal2-rotate-loading 1.5s linear 0s infinite normal;border-width:.25em;border-style:solid;border-radius:100%;border-color:#2778c4 rgba(0,0,0,0) #2778c4 rgba(0,0,0,0)}div:where(.swal2-container) button:where(.swal2-styled){margin:.3125em;padding:.625em 1.1em;transition:var(--swal2-button-transition);box-shadow:0 0 0 3px rgba(0,0,0,0);font-weight:500}div:where(.swal2-container) button:where(.swal2-styled):not([disabled]){cursor:pointer}div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-confirm){border:var(--swal2-confirm-button-border);border-radius:var(--swal2-confirm-button-border-radius);background:initial;background-color:var(--swal2-confirm-button-background-color);color:#fff;font-size:1em}div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-deny){border:var(--swal2-deny-button-border);border-radius:var(--swal2-deny-button-border-radius);background:initial;background-color:var(--swal2-deny-button-background-color);color:#fff;font-size:1em}div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-cancel){border:var(--swal2-cancel-button-border);border-radius:var(--swal2-cancel-button-border-radius);background:initial;background-color:var(--swal2-cancel-button-background-color);color:#fff;font-size:1em}div:where(.swal2-container) button:where(.swal2-styled):focus-visible{outline:none;box-shadow:var(--swal2-action-button-outline)}div:where(.swal2-container) button:where(.swal2-styled)::-moz-focus-inner{border:0}div:where(.swal2-container) div:where(.swal2-footer){margin:1em 0 0;padding:1em 1em 0;border-top:1px solid var(--swal2-footer-border-color);color:inherit;font-size:1em;text-align:center;cursor:initial}div:where(.swal2-container) .swal2-timer-progress-bar-container{position:absolute;right:0;bottom:0;left:0;grid-column:auto !important;overflow:hidden;border-bottom-right-radius:var(--swal2-border-radius);border-bottom-left-radius:var(--swal2-border-radius)}div:where(.swal2-container) div:where(.swal2-timer-progress-bar){width:100%;height:.25em;background:rgba(0,0,0,.2)}div:where(.swal2-container) img:where(.swal2-image){max-width:100%;margin:2em auto 1em;cursor:initial}div:where(.swal2-container) button:where(.swal2-close){position:var(--swal2-close-button-position);inset:var(--swal2-close-button-inset);z-index:2;align-items:center;justify-content:center;width:1.2em;height:1.2em;margin-top:0;margin-right:0;margin-bottom:-1.2em;padding:0;overflow:hidden;transition:var(--swal2-close-button-transition);border:none;border-radius:var(--swal2-border-radius);outline:var(--swal2-close-button-outline);background:rgba(0,0,0,0);color:var(--swal2-close-button-color);font-family:monospace;font-size:var(--swal2-close-button-font-size);cursor:pointer;justify-self:end}div:where(.swal2-container) button:where(.swal2-close):hover{transform:var(--swal2-close-button-hover-transform);background:rgba(0,0,0,0);color:#f27474}div:where(.swal2-container) button:where(.swal2-close):focus-visible{outline:none;box-shadow:var(--swal2-close-button-focus-box-shadow)}div:where(.swal2-container) button:where(.swal2-close)::-moz-focus-inner{border:0}div:where(.swal2-container) div:where(.swal2-html-container){z-index:1;justify-content:center;margin:0;padding:var(--swal2-html-container-padding);overflow:auto;color:inherit;font-size:1.125em;font-weight:normal;line-height:normal;text-align:center;word-wrap:break-word;word-break:break-word;cursor:initial}div:where(.swal2-container) input:where(.swal2-input),div:where(.swal2-container) input:where(.swal2-file),div:where(.swal2-container) textarea:where(.swal2-textarea),div:where(.swal2-container) select:where(.swal2-select),div:where(.swal2-container) div:where(.swal2-radio),div:where(.swal2-container) label:where(.swal2-checkbox){margin:1em 2em 3px}div:where(.swal2-container) input:where(.swal2-input),div:where(.swal2-container) input:where(.swal2-file),div:where(.swal2-container) textarea:where(.swal2-textarea){box-sizing:border-box;width:auto;transition:var(--swal2-input-transition);border:1px solid #d9d9d9;border-radius:var(--swal2-input-border-radius);background:var(--swal2-input-background);box-shadow:var(--swal2-input-box-shadow);color:inherit;font-size:1.125em}div:where(.swal2-container) input:where(.swal2-input).swal2-inputerror,div:where(.swal2-container) input:where(.swal2-file).swal2-inputerror,div:where(.swal2-container) textarea:where(.swal2-textarea).swal2-inputerror{border-color:#f27474 !important;box-shadow:0 0 2px #f27474 !important}div:where(.swal2-container) input:where(.swal2-input):focus,div:where(.swal2-container) input:where(.swal2-file):focus,div:where(.swal2-container) textarea:where(.swal2-textarea):focus{border:1px solid #b4dbed;outline:none;box-shadow:inset 0 1px 1px rgba(0,0,0,.06),0 0 0 3px rgba(100,150,200,.5)}div:where(.swal2-container) input:where(.swal2-input)::placeholder,div:where(.swal2-container) input:where(.swal2-file)::placeholder,div:where(.swal2-container) textarea:where(.swal2-textarea)::placeholder{color:#ccc}div:where(.swal2-container) .swal2-range{margin:1em 2em 3px;background:var(--swal2-background)}div:where(.swal2-container) .swal2-range input{width:80%}div:where(.swal2-container) .swal2-range output{width:20%;color:inherit;font-weight:600;text-align:center}div:where(.swal2-container) .swal2-range input,div:where(.swal2-container) .swal2-range output{height:2.625em;padding:0;font-size:1.125em;line-height:2.625em}div:where(.swal2-container) .swal2-input{height:2.625em;padding:0 .75em}div:where(.swal2-container) .swal2-file{width:75%;margin-right:auto;margin-left:auto;background:var(--swal2-input-background);font-size:1.125em}div:where(.swal2-container) .swal2-textarea{height:6.75em;padding:.75em}div:where(.swal2-container) .swal2-select{min-width:50%;max-width:100%;padding:.375em .625em;background:var(--swal2-input-background);color:inherit;font-size:1.125em}div:where(.swal2-container) .swal2-radio,div:where(.swal2-container) .swal2-checkbox{align-items:center;justify-content:center;background:var(--swal2-background);color:inherit}div:where(.swal2-container) .swal2-radio label,div:where(.swal2-container) .swal2-checkbox label{margin:0 .6em;font-size:1.125em}div:where(.swal2-container) .swal2-radio input,div:where(.swal2-container) .swal2-checkbox input{flex-shrink:0;margin:0 .4em}div:where(.swal2-container) label:where(.swal2-input-label){display:flex;justify-content:center;margin:1em auto 0}div:where(.swal2-container) div:where(.swal2-validation-message){align-items:center;justify-content:center;margin:1em 0 0;padding:.625em;overflow:hidden;background:var(--swal2-validation-message-background);color:var(--swal2-validation-message-color);font-size:1em;font-weight:300}div:where(.swal2-container) div:where(.swal2-validation-message)::before{content:"!";display:inline-block;width:1.5em;min-width:1.5em;height:1.5em;margin:0 .625em;border-radius:50%;background-color:#f27474;color:#fff;font-weight:600;line-height:1.5em;text-align:center}div:where(.swal2-container) .swal2-progress-steps{flex-wrap:wrap;align-items:center;max-width:100%;margin:1.25em auto;padding:0;background:rgba(0,0,0,0);font-weight:600}div:where(.swal2-container) .swal2-progress-steps li{display:inline-block;position:relative}div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step{z-index:20;flex-shrink:0;width:2em;height:2em;border-radius:2em;background:#2778c4;color:#fff;line-height:2em;text-align:center}div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step.swal2-active-progress-step{background:#2778c4}div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step.swal2-active-progress-step~.swal2-progress-step{background:var(--swal2-progress-step-background);color:#fff}div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step.swal2-active-progress-step~.swal2-progress-step-line{background:var(--swal2-progress-step-background)}div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step-line{z-index:10;flex-shrink:0;width:2.5em;height:.4em;margin:0 -1px;background:#2778c4}div:where(.swal2-icon){position:relative;box-sizing:content-box;justify-content:center;width:5em;height:5em;margin:2.5em auto .6em;zoom:var(--swal2-icon-zoom);border:.25em solid rgba(0,0,0,0);border-radius:50%;border-color:#000;font-family:inherit;line-height:5em;cursor:default;user-select:none}div:where(.swal2-icon) .swal2-icon-content{display:flex;align-items:center;font-size:3.75em}div:where(.swal2-icon).swal2-error{border-color:#f27474;color:#f27474}div:where(.swal2-icon).swal2-error .swal2-x-mark{position:relative;flex-grow:1}div:where(.swal2-icon).swal2-error [class^=swal2-x-mark-line]{display:block;position:absolute;top:2.3125em;width:2.9375em;height:.3125em;border-radius:.125em;background-color:#f27474}div:where(.swal2-icon).swal2-error [class^=swal2-x-mark-line][class$=left]{left:1.0625em;transform:rotate(45deg)}div:where(.swal2-icon).swal2-error [class^=swal2-x-mark-line][class$=right]{right:1em;transform:rotate(-45deg)}@container swal2-popup style(--swal2-icon-animations:true){div:where(.swal2-icon).swal2-error.swal2-icon-show{animation:swal2-animate-error-icon .5s}div:where(.swal2-icon).swal2-error.swal2-icon-show .swal2-x-mark{animation:swal2-animate-error-x-mark .5s}}div:where(.swal2-icon).swal2-warning{border-color:#f8bb86;color:#f8bb86}@container swal2-popup style(--swal2-icon-animations:true){div:where(.swal2-icon).swal2-warning.swal2-icon-show{animation:swal2-animate-error-icon .5s}div:where(.swal2-icon).swal2-warning.swal2-icon-show .swal2-icon-content{animation:swal2-animate-i-mark .5s}}div:where(.swal2-icon).swal2-info{border-color:#3fc3ee;color:#3fc3ee}@container swal2-popup style(--swal2-icon-animations:true){div:where(.swal2-icon).swal2-info.swal2-icon-show{animation:swal2-animate-error-icon .5s}div:where(.swal2-icon).swal2-info.swal2-icon-show .swal2-icon-content{animation:swal2-animate-i-mark .8s}}div:where(.swal2-icon).swal2-question{border-color:#87adbd;color:#87adbd}@container swal2-popup style(--swal2-icon-animations:true){div:where(.swal2-icon).swal2-question.swal2-icon-show{animation:swal2-animate-error-icon .5s}div:where(.swal2-icon).swal2-question.swal2-icon-show .swal2-icon-content{animation:swal2-animate-question-mark .8s}}div:where(.swal2-icon).swal2-success{border-color:#a5dc86;color:#a5dc86}div:where(.swal2-icon).swal2-success [class^=swal2-success-circular-line]{position:absolute;width:3.75em;height:7.5em;border-radius:50%}div:where(.swal2-icon).swal2-success [class^=swal2-success-circular-line][class$=left]{top:-0.4375em;left:-2.0635em;transform:rotate(-45deg);transform-origin:3.75em 3.75em;border-radius:7.5em 0 0 7.5em}div:where(.swal2-icon).swal2-success [class^=swal2-success-circular-line][class$=right]{top:-0.6875em;left:1.875em;transform:rotate(-45deg);transform-origin:0 3.75em;border-radius:0 7.5em 7.5em 0}div:where(.swal2-icon).swal2-success .swal2-success-ring{position:absolute;z-index:2;top:-0.25em;left:-0.25em;box-sizing:content-box;width:100%;height:100%;border:.25em solid rgba(165,220,134,.3);border-radius:50%}div:where(.swal2-icon).swal2-success .swal2-success-fix{position:absolute;z-index:1;top:.5em;left:1.625em;width:.4375em;height:5.625em;transform:rotate(-45deg)}div:where(.swal2-icon).swal2-success [class^=swal2-success-line]{display:block;position:absolute;z-index:2;height:.3125em;border-radius:.125em;background-color:#a5dc86}div:where(.swal2-icon).swal2-success [class^=swal2-success-line][class$=tip]{top:2.875em;left:.8125em;width:1.5625em;transform:rotate(45deg)}div:where(.swal2-icon).swal2-success [class^=swal2-success-line][class$=long]{top:2.375em;right:.5em;width:2.9375em;transform:rotate(-45deg)}@container swal2-popup style(--swal2-icon-animations:true){div:where(.swal2-icon).swal2-success.swal2-icon-show .swal2-success-line-tip{animation:swal2-animate-success-line-tip .75s}div:where(.swal2-icon).swal2-success.swal2-icon-show .swal2-success-line-long{animation:swal2-animate-success-line-long .75s}div:where(.swal2-icon).swal2-success.swal2-icon-show .swal2-success-circular-line-right{animation:swal2-rotate-success-circular-line 4.25s ease-in}}[class^=swal2]{-webkit-tap-highlight-color:rgba(0,0,0,0)}.swal2-show{animation:var(--swal2-show-animation)}.swal2-hide{animation:var(--swal2-hide-animation)}.swal2-noanimation{transition:none}.swal2-scrollbar-measure{position:absolute;top:-9999px;width:50px;height:50px;overflow:scroll}.swal2-rtl .swal2-close{margin-right:initial;margin-left:0}.swal2-rtl .swal2-timer-progress-bar{right:0;left:auto}.swal2-toast{box-sizing:border-box;grid-column:1/4 !important;grid-row:1/4 !important;grid-template-columns:min-content auto min-content;padding:1em;overflow-y:hidden;border:var(--swal2-toast-border);background:var(--swal2-background);box-shadow:var(--swal2-toast-box-shadow);pointer-events:all}.swal2-toast>*{grid-column:2}.swal2-toast h2:where(.swal2-title){margin:.5em 1em;padding:0;font-size:1em;text-align:initial}.swal2-toast .swal2-loading{justify-content:center}.swal2-toast input:where(.swal2-input){height:2em;margin:.5em;font-size:1em}.swal2-toast .swal2-validation-message{font-size:1em}.swal2-toast div:where(.swal2-footer){margin:.5em 0 0;padding:.5em 0 0;font-size:.8em}.swal2-toast button:where(.swal2-close){grid-column:3/3;grid-row:1/99;align-self:center;width:.8em;height:.8em;margin:0;font-size:2em}.swal2-toast div:where(.swal2-html-container){margin:.5em 1em;padding:0;overflow:initial;font-size:1em;text-align:initial}.swal2-toast div:where(.swal2-html-container):empty{padding:0}.swal2-toast .swal2-loader{grid-column:1;grid-row:1/99;align-self:center;width:2em;height:2em;margin:.25em}.swal2-toast .swal2-icon{grid-column:1;grid-row:1/99;align-self:center;width:2em;min-width:2em;height:2em;margin:0 .5em 0 0}.swal2-toast .swal2-icon .swal2-icon-content{display:flex;align-items:center;font-size:1.8em;font-weight:bold}.swal2-toast .swal2-icon.swal2-success .swal2-success-ring{width:2em;height:2em}.swal2-toast .swal2-icon.swal2-error [class^=swal2-x-mark-line]{top:.875em;width:1.375em}.swal2-toast .swal2-icon.swal2-error [class^=swal2-x-mark-line][class$=left]{left:.3125em}.swal2-toast .swal2-icon.swal2-error [class^=swal2-x-mark-line][class$=right]{right:.3125em}.swal2-toast div:where(.swal2-actions){justify-content:flex-start;height:auto;margin:0;margin-top:.5em;padding:0 .5em}.swal2-toast button:where(.swal2-styled){margin:.25em .5em;padding:.4em .6em;font-size:1em}.swal2-toast .swal2-success{border-color:#a5dc86}.swal2-toast .swal2-success [class^=swal2-success-circular-line]{position:absolute;width:1.6em;height:3em;border-radius:50%}.swal2-toast .swal2-success [class^=swal2-success-circular-line][class$=left]{top:-0.8em;left:-0.5em;transform:rotate(-45deg);transform-origin:2em 2em;border-radius:4em 0 0 4em}.swal2-toast .swal2-success [class^=swal2-success-circular-line][class$=right]{top:-0.25em;left:.9375em;transform-origin:0 1.5em;border-radius:0 4em 4em 0}.swal2-toast .swal2-success .swal2-success-ring{width:2em;height:2em}.swal2-toast .swal2-success .swal2-success-fix{top:0;left:.4375em;width:.4375em;height:2.6875em}.swal2-toast .swal2-success [class^=swal2-success-line]{height:.3125em}.swal2-toast .swal2-success [class^=swal2-success-line][class$=tip]{top:1.125em;left:.1875em;width:.75em}.swal2-toast .swal2-success [class^=swal2-success-line][class$=long]{top:.9375em;right:.1875em;width:1.375em}@container swal2-popup style(--swal2-icon-animations:true){.swal2-toast .swal2-success.swal2-icon-show .swal2-success-line-tip{animation:swal2-toast-animate-success-line-tip .75s}.swal2-toast .swal2-success.swal2-icon-show .swal2-success-line-long{animation:swal2-toast-animate-success-line-long .75s}}.swal2-toast.swal2-show{animation:var(--swal2-toast-show-animation)}.swal2-toast.swal2-hide{animation:var(--swal2-toast-hide-animation)}@keyframes swal2-show{0%{transform:scale(0.7)}45%{transform:scale(1.05)}80%{transform:scale(0.95)}100%{transform:scale(1)}}@keyframes swal2-hide{0%{transform:scale(1);opacity:1}100%{transform:scale(0.5);opacity:0}}@keyframes swal2-animate-success-line-tip{0%{top:1.1875em;left:.0625em;width:0}54%{top:1.0625em;left:.125em;width:0}70%{top:2.1875em;left:-0.375em;width:3.125em}84%{top:3em;left:1.3125em;width:1.0625em}100%{top:2.8125em;left:.8125em;width:1.5625em}}@keyframes swal2-animate-success-line-long{0%{top:3.375em;right:2.875em;width:0}65%{top:3.375em;right:2.875em;width:0}84%{top:2.1875em;right:0;width:3.4375em}100%{top:2.375em;right:.5em;width:2.9375em}}@keyframes swal2-rotate-success-circular-line{0%{transform:rotate(-45deg)}5%{transform:rotate(-45deg)}12%{transform:rotate(-405deg)}100%{transform:rotate(-405deg)}}@keyframes swal2-animate-error-x-mark{0%{margin-top:1.625em;transform:scale(0.4);opacity:0}50%{margin-top:1.625em;transform:scale(0.4);opacity:0}80%{margin-top:-0.375em;transform:scale(1.15)}100%{margin-top:0;transform:scale(1);opacity:1}}@keyframes swal2-animate-error-icon{0%{transform:rotateX(100deg);opacity:0}100%{transform:rotateX(0deg);opacity:1}}@keyframes swal2-rotate-loading{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@keyframes swal2-animate-question-mark{0%{transform:rotateY(-360deg)}100%{transform:rotateY(0)}}@keyframes swal2-animate-i-mark{0%{transform:rotateZ(45deg);opacity:0}25%{transform:rotateZ(-25deg);opacity:.4}50%{transform:rotateZ(15deg);opacity:.8}75%{transform:rotateZ(-5deg);opacity:1}100%{transform:rotateX(0);opacity:1}}@keyframes swal2-toast-show{0%{transform:translateY(-0.625em) rotateZ(2deg)}33%{transform:translateY(0) rotateZ(-2deg)}66%{transform:translateY(0.3125em) rotateZ(2deg)}100%{transform:translateY(0) rotateZ(0deg)}}@keyframes swal2-toast-hide{100%{transform:rotateZ(1deg);opacity:0}}@keyframes swal2-toast-animate-success-line-tip{0%{top:.5625em;left:.0625em;width:0}54%{top:.125em;left:.125em;width:0}70%{top:.625em;left:-0.25em;width:1.625em}84%{top:1.0625em;left:.75em;width:.5em}100%{top:1.125em;left:.1875em;width:.75em}}@keyframes swal2-toast-animate-success-line-long{0%{top:1.625em;right:1.375em;width:0}65%{top:1.25em;right:.9375em;width:0}84%{top:.9375em;right:0;width:1.125em}100%{top:.9375em;right:.1875em;width:1.375em}}</style>
+  
+
+</head>
+<body>
+    
+
+
+
+    <div class="layout-wrapper layout-content-navbar">
+        <div class="layout-container">
+          <!-- Menu -->
+  
+          <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+            <div class="app-brand demo">
+              <a href="http://127.0.0.1:5000/Employee" class="app-brand-link">
+                <span class="app-brand-logo demo">
+                  <img src="./HR - Employee_files/hu.png" alt="DASHBOARD LOGO" class="img-fluid" style="max-width: 180px;">                </span>
+                <!-- <span class="app-brand-text demo menu-text fw-bolder ms-2">Women's Wear</span> -->
+              </a>
+  
+
+              <!-- RESPONSIVE NOT WORKING -->
+              <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+                <i class="bx bx-chevron-left bx-sm align-middle"></i>
+              </a>
+            </div>
+  
+            <div class="menu-inner-shadow"></div>
+  
+            <ul class="menu-inner py-1">
+                
+              <!-- Dashboard -->
+              <li class="menu-item ">
+                <a href="http://127.0.0.1:5000/admin/home" class="menu-link">
+                  <i class="menu-icon tf-icons bi bi-house-door"></i>
+                  <div data-i18n="Analytics">Dashboard</div>
+                </a>
+              </li>
+  
+
+              
+              <!-- Layouts -->
+       
+<!--   
+              <li class="nav-item menu-item ">
+                <a class="nav-link menu-link menu-toggle" href="#manageAccountsMenu" data-bs-toggle="collapse" aria-expanded="false">
+                  <i class="menu-icon bi bi-people"></i> Employees
+                </a>
+              
+                <div class="collapse" id="manageAccountsMenu">
+                    <ul class="nav flex-column mb-3 mb-md-0 menu-sub">
+                    <li class="nav-item menu-item ">
+                      <a class="nav-link menu-link" href="">Department</a>
+                    </li>
+
+           
+                    <li class="nav-item menu-item">
+                        <a class="nav-link menu-link" href="">Individuals</a>
+                    </li>
+
+        
+                  </ul>
+                </div>
+              </li> -->
+
+
+              <li class="menu-item active">
+                <a href="http://127.0.0.1:5000/Employee" class="menu-link">
+                  <i class="menu-icon bi bi-people"></i> Employees
+                </a>
+              </li>
+
+
+              <li class="nav-item menu-item ">
+                <a class="nav-link menu-link menu-toggle" href="http://127.0.0.1:5000/Employee#manageDepartment" data-bs-toggle="collapse" aria-expanded="false">
+                  <i class="menu-icon bi bi-building"></i> Department
+                </a>
+              
+                <!-- Collapsible Manage Accounts Menu -->
+                <div class="collapse " id="manageDepartment">
+                  <ul class="nav flex-column mb-3 mb-md-0 menu-sub">
+                    <li class="nav-item menu-item ">
+                      <a class="nav-link menu-link" href="http://127.0.0.1:5000/Manage/Departments">Department</a>
+                    </li>
+                    <li class="nav-item menu-item ">
+                      <a class="nav-link menu-link" href="http://127.0.0.1:5000/Adding/Departments">Adding Department</a>
+                    </li>
+        
+                  </ul>
+                </div><!-- End .collapse -->
+              </li>
+
+               
+              
+               
+              <li class="nav-item menu-item ">
+                <a class="nav-link menu-link menu-toggle" href="http://127.0.0.1:5000/Employee#manageCourier" data-bs-toggle="collapse" aria-expanded="false">
+                  <i class="menu-icon bi bi-file-earmark-bar-graph"></i> Performance
+                </a>
+              
+                <!-- Collapsible Manage Accounts Menu -->
+                 <div class="collapse " id="manageCourier">
+                  <ul class="nav flex-column mb-3 mb-md-0 menu-sub">
+                    <li class="nav-item menu-item ">
+                      <a class="nav-link menu-link" href="http://127.0.0.1:5000/EvaluationPeriod">Evaluation Period</a>
+                    </li>                    
+                    <li class="nav-item menu-item ">
+                      <a class="nav-link menu-link" href="http://127.0.0.1:5000/Department/OPCR">Department</a>
+                    </li>
+                    <li class="nav-item menu-item ">
+                      <a class="nav-link menu-link" href="http://127.0.0.1:5000/Employee/IPCR">Employees</a>
+                    </li>
+            
+
+  
+        
+                  </ul>
+                </div><!-- End .collapse -->
+              </li>
+
+
+
+              <li class="nav-item menu-item ">
+                <a class="nav-link menu-link menu-toggle" href="http://127.0.0.1:5000/Employee#manageHiring" data-bs-toggle="collapse" aria-expanded="false">
+                  <i class="menu-icon bi bi-person-plus"></i> Hiring
+                </a>
+              
+                <!-- Collapsible Hiring Menu -->
+                <div class="collapse " id="manageHiring">
+                  <ul class="nav flex-column mb-3 mb-md-0 menu-sub">
+                    <li class="nav-item menu-item ">
+                      <a class="nav-link menu-link" href="http://127.0.0.1:5000/Hiring/Postings">Job Postings</a>
+                    </li>
+
+                    <li class="nav-item menu-item ">
+                      <a class="nav-link menu-link" href="http://127.0.0.1:5000/Hiring/ManageApplicants">Applicant Status</a>
+                    </li>
+               
+               
+                  </ul>
+                </div><!-- End .collapse -->
+              </li>
+              
+
+              <!-- <li class="menu-item ">
+                <a href="/Hiring/Postings" class="menu-link">
+                  <i class="menu-icon bi bi-search"></i>
+                  <div data-i18n="Analytics">Hiring</div>
+                </a>
+              </li> -->
+
+              <li class="menu-item ">
+                <a href="http://127.0.0.1:5000/Accounts" class="menu-link">
+                  <i class="menu-icon bi bi-person"></i>
+                  <div data-i18n="Analytics">Accounts</div>
+                </a>
+              </li>
+
+              <li class="menu-item ">
+                <a href="http://127.0.0.1:5000/HR/Permits" class="menu-link">
+                  <i class="menu-icon tf-icons menu-icon bi bi-file-earmark-text"></i>
+                  <div data-i18n="Analytics">Permits</div>
+                </a>
+              </li>
+
+              <li class="menu-item ">
+                <a href="http://127.0.0.1:5000/travel" class="menu-link">
+                  <i class="menu-icon tf-icons menu-icon bi bi-luggage"></i>
+                  <div data-i18n="Analytics">Travel Logs</div>
+                </a>
+              </li>
+
+
+              <li class="menu-item ">
+                <a href="http://127.0.0.1:5000/Employee" class="menu-link">
+                  <i class="menu-icon tf-icons menu-icon bi bi-flag"></i>
+                  <div data-i18n="Analytics">Report Issue</div>
+                </a>
+              </li>
+           
+          
+              <li class="menu-item ">
+                <a href="http://127.0.0.1:5000/Employee" class="menu-link">
+                  <i class="menu-icon tf-icons menu-icon bi bi-envelope"></i>
+                  <div data-i18n="Analytics">Inbox</div>
+                </a>
+              </li>
+      
+
+              <li class="menu-item ">
+                <a href="http://127.0.0.1:5000/MyProfile" class="menu-link">
+                  <i class="menu-icon tf-icons bi bi-person"></i>
+                  <div data-i18n="Analytics">My Profile</div>
+                </a>
+              </li>
+
+              <li class="menu-item">
+                <a href="http://127.0.0.1:5000/logout" class="menu-link">
+                  <i class="menu-icon tf-icons bi bi-box-arrow-left"></i>
+                  <div data-i18n="Analytics">Logout</div>
+                </a>
+              </li>
+
+              
+  
+
+      
+            </ul>
+          </aside>
+          <!-- / Menu -->
+  
+          <!-- Layout container -->
+          <div class="layout-page">
+            <!-- Navbar -->
+            <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
+            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+              <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                <i class="bx bx-menu bx-sm"></i>
+              </a>
+            </div>
+
+            <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+              <ul class="navbar-nav flex-row align-items-center ms-auto">
+                
+                <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-2">
+                  <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <span class="position-relative">
+                      <i class="icon-base bi bi-bell fs-5"></i>
+                      <span class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
+                    </span>
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-end p-0">
+                    <li class="dropdown-menu-header border-bottom">
+                      <div class="dropdown-header d-flex align-items-center py-3">
+                        <h6 class="mb-0 me-auto">Notification</h6>
+                        <div class="d-flex align-items-center h6 mb-0">
+                          <span class="badge bg-label-primary me-2">8 New</span>
+                          <a href="javascript:void(0)" class="dropdown-notifications-all p-2" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Mark all as read" data-bs-original-title="Mark all as read"><i class="icon-base bi bi-envelope-open text-heading"></i></a>
+                        </div>
+                      </div>
+                    </li>
+                    <li class="dropdown-notifications-list scrollable-container ps">
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item list-group-item-action dropdown-notifications-item">
+                          <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                              <div class="avatar">
+                                <img src="./HR - Employee_files/1.png" alt="" class="rounded-circle">
+                              </div>
+                            </div>
+                            <div class="flex-grow-1">
+                              <h6 class="small mb-0">Congratulation Lettie 🎉</h6>
+                              <small class="mb-1 d-block text-body">Won the monthly best seller gold badge</small>
+                              <small class="text-body-secondary">1h ago</small>
+                            </div>
+                            <div class="flex-shrink-0 dropdown-notifications-actions">
+                              <a href="javascript:void(0)" class="dropdown-notifications-read"><span class="badge badge-dot"></span></a>
+                              <a href="javascript:void(0)" class="dropdown-notifications-archive"><span class="icon-base bx bx-x"></span></a>
+                            </div>
+                          </div>
+                        </li>
+                        <li class="list-group-item list-group-item-action dropdown-notifications-item">
+                          <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                              <div class="avatar">
+                                <span class="avatar-initial rounded-circle bg-label-danger">CF</span>
+                              </div>
+                            </div>
+                            <div class="flex-grow-1">
+                              <h6 class="small mb-0">Charles Franklin</h6>
+                              <small class="mb-1 d-block text-body">Accepted your connection</small>
+                              <small class="text-body-secondary">12hr ago</small>
+                            </div>
+                            <div class="flex-shrink-0 dropdown-notifications-actions">
+                              <a href="javascript:void(0)" class="dropdown-notifications-read"><span class="badge badge-dot"></span></a>
+                              <a href="javascript:void(0)" class="dropdown-notifications-archive"><span class="icon-base bx bx-x"></span></a>
+                            </div>
+                          </div>
+                        </li>
+                        <li class="list-group-item list-group-item-action dropdown-notifications-item marked-as-read">
+                          <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                              <div class="avatar">
+                                <img src="./HR - Employee_files/2.png" alt="" class="rounded-circle">
+                              </div>
+                            </div>
+                            <div class="flex-grow-1">
+                              <h6 class="small mb-0">New Message ✉️</h6>
+                              <small class="mb-1 d-block text-body">You have new message from Natalie</small>
+                              <small class="text-body-secondary">1h ago</small>
+                            </div>
+                            <div class="flex-shrink-0 dropdown-notifications-actions">
+                              <a href="javascript:void(0)" class="dropdown-notifications-read"><span class="badge badge-dot"></span></a>
+                              <a href="javascript:void(0)" class="dropdown-notifications-archive"><span class="icon-base bx bx-x"></span></a>
+                            </div>
+                          </div>
+                        </li>
+                      </ul>
+                    <div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; right: 0px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;"></div></div></li>
+                    <li class="border-top">
+                      <div class="d-grid p-2">
+                        <a class="btn btn-primary btn-sm d-flex" href="javascript:void(0);">
+                          <small class="align-middle">View all notifications</small>
+                        </a>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+            
+
+                <!-- User -->
+                <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                  <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                    <div class="avatar avatar-online">
+                      <img src="./HR - Employee_files/w4OHuxBN_rhoieORy0LabFzJ4rB837GmYlqp1P2Q5h8.jpg" alt="" class="rounded-circle w-40 h-40 object-fit-cover">
+                    </div>
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                      <a class="dropdown-item" href="http://127.0.0.1:5000/Employee#">
+                        <div class="d-flex">
+                          <div class="flex-shrink-0 me-3">
+                            <div class="avatar avatar-online">
+                              <img src="./HR - Employee_files/w4OHuxBN_rhoieORy0LabFzJ4rB837GmYlqp1P2Q5h8.jpg" alt="" class="w-px-40 h-40 rounded-circle object-fit-cover">
+                            </div>
+                          </div>
+                          <div class="flex-grow-1">
+                            <span class="fw-semibold d-block">Angelo Sinuhin Javier</span>
+                            <small class="text-muted text-capitalize">HR</small>
+                          </div>
+
+                        </div>
+                      </a>
+                    </li>
+                    <li>
+                      <div class="dropdown-divider"></div>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="http://127.0.0.1:5000/Employee">
+                        <i class="bx bx-user me-2"></i>
+                        <span class="align-middle">My Profile</span>
+                      </a>
+                    </li>
+                    <!-- <li>
+                      <a class="dropdown-item" href="#">
+                        <i class="bx bx-cog me-2"></i>
+                        <span class="align-middle">Settings</span>
+                      </a>
+                    </li> -->
+      
+                    <li>
+                      <div class="dropdown-divider"></div>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="http://127.0.0.1:5000/logout">
+                        <i class="bx bx-power-off me-2"></i>
+                        <span class="align-middle">Log Out</span>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <!--/ User -->
+              </ul>
+            </div>
+          </nav>
+     
+  
+            <!-- / Navbar -->
+  
+            <!-- Content wrapper -->
+            <div class="content-wrapper">
+              <!-- Content -->
+  
+              <div class="container-xxl flex-grow-1 container-p-y">
+                
+              
+                
+                
+            
+
+              
+
+
+<div class="row g-4 mb-4">
+  
+    <div class="col-12 col-sm-6 col-xl-6">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div class="content-left">
+              <span class="text-heading">Total Department</span>
+              <div class="d-flex align-items-center my-1">
+                <h4 class="mb-0 me-2 fs-3 fw-semibold">21</h4>
+              </div>
+            </div>
+            <div class="avatar">
+              <span class="avatar-initial rounded bg-label-primary">
+                <i class="bi bi-building fs-3"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-12 col-sm-6 col-xl-6">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div class="content-left">
+              <span class="text-heading">Total Employees</span>
+              <div class="d-flex align-items-center my-1">
+                <h4 class="mb-0 me-2 fs-3 fw-semibold">4</h4>
+                <!-- <p class="text-success mb-0">(+29%)</p> -->
+              </div>
+            </div>
+            <div class="avatar">
+              <span class="avatar-initial rounded bg-label-primary">
+                <i class="bi bi-people fs-3"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+ 
+  
+</div>
+
+<div class="col-xl-12">
+
+  <div class="nav-align-top mb-4">
+      <ul class="nav nav-pills mb-3" role="tablist">
+
+
+        <li class="nav-item" role="presentation">
+          <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-travel-order" id="travel-order-tab" aria-controls="navs-pills-travel-order" aria-selected="true">
+                  Permanent, Co-Term and Electives
+          </button>
+        </li>
+
+        <li class="nav-item" role="presentation">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-Leave-Credits" id="Leave-Credits-tab" aria-controls="navs-pills-Leave-Credits" aria-selected="false" tabindex="-1">
+                  Casual appointments
+          </button>
+        </li>
+    
+      
+
+        <li class="nav-item" role="presentation">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-JO" id="JO-tab" aria-controls="navs-pills-JO" aria-selected="false" tabindex="-1">
+                  Job Order
+          </button>
+        </li>
+    
+     
+      </ul>
+    
+      <div class="tab-content h-100 min-vh-100">
+
+        <!-- CASUAL EMPLOYEE -->
+        <div class="tab-pane fade " id="navs-pills-Leave-Credits" role="tabpanel" aria-labelledby="Leave-Credits-tab">
+
+        <div class="card-header border-bottom p-0 pb-3">
+          <h5 class="card-title mb-0">Search Filters</h5>
+          <div class="d-flex justify-content-between align-items-center row pt-4 gap-md-0 g-6 ">
+            <div class="col-md-4 user_role">
+              <select id="UserRole" class="form-select text-capitalize">
+                <option value="" disabled="" selected="">Select Organizational Unit</option>
+                <option value="Office of the Municipal Mayor">Office of the Municipal Mayor</option>
+                  <option value="Office of the Municipal Assessor">Office of the Municipal Assessor</option>
+                  <option value="Office of the Municipal Treasurer">Office of the Municipal Treasurer</option>
+                  <option value="Office of the BPLO">Office of the BPLO</option>
+                  <option value="Office of the Municipal Engineer">Office of the Municipal Engineer</option>
+                  <option value="Office of the Municipal Planning and Development Coordinator">Office of the Municipal Planning and Development Coordinator</option>
+
+                  <option value="Office of the Municipal Disaster Risk Reduction Management Officer">Office of the Municipal Disaster Risk Reduction Management Officer</option>
+                  <option value="Office of the Municipal Agriculturist">Office of the Municipal Agriculturist</option>
+                  <option value="Office of the Municipal Social Welfare Development Officer">Office of the Municipal Social Welfare Development Officer</option>
+                  <option value="Office of the Municipal Health Officer">Office of the Municipal Health Officer</option>
+                  <option value="Office of the Municipal Civil Registrar">Office of the Municipal Civil Registrar</option>
+                  <option value="Office of the Municipal Human Resource Management Officer">Office of the Municipal Human Resource Management Officer</option>
+                  <option value="Office of the Municipal Budget Officer">Office of the Municipal Budget Officer</option>
+                  <option value="Office of the Municipal Accountant">Office of the Municipal Accountant</option>
+                  <option value="General Services Office">General Services Office</option>
+                  <option value="Public Employment Services Office">Public Employment Services Office</option>
+                  <option value="Municipal Tourism Office">Municipal Tourism Office</option>
+                  <option value="Office of the Sangguniang Bayan">Office of the Sangguniang Bayan</option>
+                  <option value="Feedback and Complaints Mechanism">Feedback and Complaints Mechanism</option>
+              </select>
+            </div>
+            <div class="col-md-4 user_plan">
+              <select id="UserPlan" class="form-select text-capitalize">
+                  <option value="">Select Position</option>
+                  <option value="Basic">Position 1</option>
+                  <option value="Company">Position 2</option>
+                  <option value="Enterprise">Position 3</option>
+              </select></div>
+            <div class="col-md-4 user_status">
+              <select id="FilterTransaction" class="form-select text-capitalize">
+                  <option value="">Select Status</option>
+                  <option value="Pending" class="text-capitalize">Active</option>
+                  <option value="Active" class="text-capitalize">Vacant</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="card-datable">
+          <div class="row mx-1 my-4 align-items-center justify-content-between">
+            
+            <!-- Left: Length selector -->
+            <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+              <!-- Search -->
+              <div class="dt-search">
+                  <label for="dt-search-0 " class="visually-hidden">Search</label>
+                  <input type="search" id="dt-search-0" class="form-control" placeholder="Search User" aria-controls="DataTables_Table_0">
+                </div>
+            </div>
+        
+            <!-- Right: Search, Export, Add -->
+            <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-md-end justify-content-center">
+                
+                <!-- Export Button -->
+                <div class="btn-group">
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="bi bi-box-arrow-up me-1"></i>
+                      <span class="d-none d-sm-inline-block">Export</span>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                      <li><a class="dropdown-item" href="http://127.0.0.1:5000/Employee#"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Export as Excel</a></li>
+                      <li><a class="dropdown-item" href="http://127.0.0.1:5000/generate_casualjob_pdf"><i class="bi bi-file-pdf me-2"></i>Export as PDF</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="http://127.0.0.1:5000/Employee#"><i class="bi bi-printer me-2"></i>Print</a></li>
+                    </ul>
+                    
+                </div>
+                
+                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addCasualEmployeeModal">
+                  <i class="bi bi-plus me-1"></i>
+                  <span class="d-none d-sm-inline-block">Add Casual Employee</span>
+              </button>
+              
+            </div>
+          </div>
+  
+  
+          <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+              <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                  <table class="datatables-users table border-top dataTable dtr-column collapsed table-bordered" id="DataTables_Table_0" aria-describedby="DataTables_Table_0_info" style="width: 100%; height: 100%;">
+                  
+           
+                  <thead class="table-dark align-middle text-center">
+                    <tr>
+                      <th colspan="3" class="border">Name of Appointees</th>
+                      <th rowspan="2" class="border">Position Title (Do not abbreviate)</th>
+                      <th rowspan="2" class="border">Equivalent Salary/Job/Pay Grade</th>
+                      <th rowspan="2" class="border">Daily Wage</th>
+                      <th colspan="2" class="border">Period of Employment</th>
+                      <th rowspan="2" class="border">Action</th>
+                    </tr>
+                    <tr>
+                      <th class="border">#</th>
+                      <th class="border">Full Name</th>
+                      <th class="border">Name Extension (Jr./III)</th>
+                      <th class="border">From (mm/dd/yyyy)</th>
+                      <th class="border">To (mm/dd/yyyy)</th>
+                    </tr>
+                  </thead>
+                  
+                
+              
+                  <tbody>
+                    
+                    <tr class="text-center">
+                        <td>1</td>
+                        <td>
+                          <div class="d-flex justify-content-start align-items-center user-name">
+                            <div class="d-flex flex-column">
+                              <a href="http://127.0.0.1:5000/Employee/Detail?id=3" class="text-heading text-truncate">
+                                <span class="fw-medium">Heradura Hannah Joinny</span>
+                              </a>
+                            </div>
+                          </div>
+                        </td>
+                        
+                        <td>N/A</td>
+                        <td>ADM. AIDE. I</td>
+                        <td>1</td>
+                        <td>245.0</td>
+                        <td>05/01/2025</td>
+                        <td>05/31/2025</td>
+                    
+                        <td class="text-center">
+                          <div class="d-flex justify-content-center gap-1">
+                            <button class="btn btn-primary editCasualEmployeeBtn" data-id="3" data-last_name="Heradura" data-first_name="Hannah" data-middle_name="Joinny" data-extension_name="" data-status="active" data-position_title="" data-salary_grade="1" data-daily_wage="245.0" data-date_from="2025-05-01" data-date_to="2025-05-31" data-assigned_department_id="None" data-bs-toggle="modal" data-bs-target="#editCasualEmployeeModal">
+                            Edit
+                        </button>
+                          
+
+                              <button type="button" class="btn btn-sm btn-danger">Delete</button>
+                          </div>
+                      </td>
+
+                      </tr>
+                    
+                    <tr class="text-center">
+                        <td>2</td>
+                        <td>
+                          <div class="d-flex justify-content-start align-items-center user-name">
+                            <div class="d-flex flex-column">
+                              <a href="http://127.0.0.1:5000/Employee/Detail?id=10" class="text-heading text-truncate">
+                                <span class="fw-medium">STROUPE DONNA None</span>
+                              </a>
+                            </div>
+                          </div>
+                        </td>
+                        
+                        <td>N/A</td>
+                        <td>LICENSING OFFICER I</td>
+                        <td>N/A</td>
+                        <td></td>
+                        <td>05/17/2025</td>
+                        <td>05/17/2025</td>
+                    
+                        <td class="text-center">
+                          <div class="d-flex justify-content-center gap-1">
+                            <button class="btn btn-primary editCasualEmployeeBtn" data-id="10" data-last_name="STROUPE" data-first_name="DONNA" data-middle_name="None" data-extension_name="None" data-status="active" data-position_title="" data-salary_grade="N/A" data-daily_wage="0.0" data-date_from="2025-05-17" data-date_to="2025-05-17" data-assigned_department_id="1" data-bs-toggle="modal" data-bs-target="#editCasualEmployeeModal">
+                            Edit
+                        </button>
+                          
+
+                              <button type="button" class="btn btn-sm btn-danger">Delete</button>
+                          </div>
+                      </td>
+
+                      </tr>
+                    
+                    
+                    
+                  </tbody>
+                
+            </table>
+          </div>
+      
+      </div>
+        </div>
+
+        </div>
+    
+        <!-- PERMANENT EMPLOYEE -->
+        <div class="tab-pane fade show active" id="navs-pills-travel-order" role="tabpanel" aria-labelledby="travel-order-tab">
+          <div class="card-header border-bottom p-0 pb-3">
+            <h5 class="card-title mb-0">Search Filters</h5>
+            <div class="d-flex justify-content-between align-items-center row pt-4 gap-md-0 g-6 ">
+              <div class="col-md-4 user_role">
+                <select id="UserRole" class="form-select text-capitalize">
+                  <option value="" disabled="" selected="">Select Organizational Unit</option>
+                  <option value="Office of the Municipal Mayor">Office of the Municipal Mayor</option>
+                    <option value="Office of the Municipal Assessor">Office of the Municipal Assessor</option>
+                    <option value="Office of the Municipal Treasurer">Office of the Municipal Treasurer</option>
+                    <option value="Office of the BPLO">Office of the BPLO</option>
+                    <option value="Office of the Municipal Engineer">Office of the Municipal Engineer</option>
+                    <option value="Office of the Municipal Planning and Development Coordinator">Office of the Municipal Planning and Development Coordinator</option>
+  
+                    <option value="Office of the Municipal Disaster Risk Reduction Management Officer">Office of the Municipal Disaster Risk Reduction Management Officer</option>
+                    <option value="Office of the Municipal Agriculturist">Office of the Municipal Agriculturist</option>
+                    <option value="Office of the Municipal Social Welfare Development Officer">Office of the Municipal Social Welfare Development Officer</option>
+                    <option value="Office of the Municipal Health Officer">Office of the Municipal Health Officer</option>
+                    <option value="Office of the Municipal Civil Registrar">Office of the Municipal Civil Registrar</option>
+                    <option value="Office of the Municipal Human Resource Management Officer">Office of the Municipal Human Resource Management Officer</option>
+                    <option value="Office of the Municipal Budget Officer">Office of the Municipal Budget Officer</option>
+                    <option value="Office of the Municipal Accountant">Office of the Municipal Accountant</option>
+                    <option value="General Services Office">General Services Office</option>
+                    <option value="Public Employment Services Office">Public Employment Services Office</option>
+                    <option value="Municipal Tourism Office">Municipal Tourism Office</option>
+                    <option value="Office of the Sangguniang Bayan">Office of the Sangguniang Bayan</option>
+                    <option value="Feedback and Complaints Mechanism">Feedback and Complaints Mechanism</option>
+                </select>
+              </div>
+              <div class="col-md-4 user_plan">
+                <select id="UserPlan" class="form-select text-capitalize">
+                    <option value="">Select Position</option>
+                    <option value="Basic">Position 1</option>
+                    <option value="Company">Position 2</option>
+                    <option value="Enterprise">Position 3</option>
+                </select></div>
+              <div class="col-md-4 user_status">
+                <select id="FilterTransaction" class="form-select text-capitalize">
+                    <option value="">Select Status</option>
+                    <option value="Pending" class="text-capitalize">Active</option>
+                    <option value="Active" class="text-capitalize">Vacant</option>
+                </select>
+              </div>
+            </div>
+            </div>
+          <div class="card-datable">
+            <div class="row mx-1 my-4 align-items-center justify-content-between">
+              
+              <!-- Left: Length selector -->
+              <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+                <!-- Search -->
+                <div class="dt-search">
+                    <label for="dt-search-0 " class="visually-hidden">Search</label>
+                    <input type="search" id="dt-search-0" class="form-control" placeholder="Search User">
+                  </div>
+              </div>
+          
+              <!-- Right: Search, Export, Add -->
+              <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-md-end justify-content-center">
+                  <div class="btn-group">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-box-arrow-up me-1"></i>
+                        <span class="d-none d-sm-inline-block">Export</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                        <li><a class="dropdown-item" href="http://127.0.0.1:5000/Employee#"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Export as Excel</a></li>
+                        <li><a class="dropdown-item" href="http://127.0.0.1:5000/generate_pdf"><i class="bi bi-file-pdf me-2"></i>Export as PDF</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="http://127.0.0.1:5000/Employee#"><i class="bi bi-printer me-2"></i>Print</a></li>
+                      </ul>
+                      
+                  </div>
+                  
+                  <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                    <i class="bi bi-plus me-1"></i>
+                    <span class="d-none d-sm-inline-block">Add Employee</span>
+                </button>
+                
+              </div>
+            </div>
+    
+    
+            <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                    <table class="datatables-users table border-top dataTable dtr-column collapsed table-bordered" id="DataTables_Table_0" aria-describedby="DataTables_Table_0_info" style="width: 100%; height: 100%;">
+                    
+             
+                    <thead class="table-dark align-middle text-center">
+                        <tr>
+                    
+                        <th data-dt-column="1" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">ORGANIZATIONAL UNIT</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="2" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">ITEM NUMBER</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="3" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">POSITION TITLE</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="7" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">STEP</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+               
+                    
+                        <th data-dt-column="10" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">LEVEL</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="11" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">FULL NAME</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                 
+                    
+                        <th data-dt-column="14" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">SEX</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                   
+                    
+                   
+                    
+                        <th data-dt-column="17" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">TIN / UMID NO.</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="18" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">DATE OF ORIGINAL APPOINTMENT</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+               
+                    
+                        <th data-dt-column="20" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">STATUS</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                        <th data-dt-column="20" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                          <span class="dt-column-title" role="button">ACTION</span>
+                      </th>
+    
+                        </tr>
+                    </thead>
+                  
+                
+                    <tbody>
+                      
+                      <tr>
+                          <td>
+                            <div class="d-flex justify-content-start align-items-center user-name"> 
+                              <div class="d-flex flex-column">
+                                <a href="http://127.0.0.1:5000/Department/Detail/15" class="text-heading text-truncate">
+                                  <span class="fw-medium">Office of the Municipal Human Resource Management Officer</span>
+                                </a>
+                              </div>
+                            </div>
+                          </td>
+                          <td>1</td>
+                          <td>MUNICIPAL GOVERNMENT DEPARTMENT HEAD I</td>
+                          <td>2</td>
+                          <td>K</td>
+                          <td>
+                              <div class="d-flex justify-content-start align-items-center user-name">
+                                  <div class="d-flex flex-column">
+                                    <a href="http://127.0.0.1:5000/Employee/Detail?id=1" class="text-heading text-truncate">
+                                      <span class="fw-medium">Javier Angelossss Sinuhin</span>
+                                  </a>
+                                  </div>
+                              </div>
+                          </td>
+                          <td>Male</td>
+                          <td>1234567 </td>
+                          <td>2025-05-01</td>
+                          <td>P</td>
+                          <td class="text-center align-middle">
+                              <div class="d-flex justify-content-center gap-2">
+                                <button type="button" class="btn btn-primary btn-edit" data-id="1" data-organizational_unit="15" data-item_number="1" data-position_title="" data-salary_grade="2" data-authorized_salary="800000" data-actual_salary="800000" data-step="2" data-area_code="" data-area_type="M" data-level="K" data-last_name="Javier" data-first_name="Angelossss" data-middle_name="Sinuhin" data-sex="Male" data-dob="2003-06-05" data-tin="1234567" data-doa="2025-05-01" data-dop="2025-05-09" data-status="P" data-eligibility="" data-comments="" data-bs-toggle="modal" data-bs-target="#editEmployeeModal">
+                                Edit
+                              </button>
+    
+    
+                          
+                              </div>
+                          </td>
+                      </tr>
+                      
+                      <tr>
+                          <td>
+                            <div class="d-flex justify-content-start align-items-center user-name"> 
+                              <div class="d-flex flex-column">
+                                <a href="http://127.0.0.1:5000/Department/Detail/1" class="text-heading text-truncate">
+                                  <span class="fw-medium">Office of the Municipal Mayor</span>
+                                </a>
+                              </div>
+                            </div>
+                          </td>
+                          <td>1</td>
+                          <td>MUNICIPAL MAYOR</td>
+                          <td>23</td>
+                          <td>A</td>
+                          <td>
+                              <div class="d-flex justify-content-start align-items-center user-name">
+                                  <div class="d-flex flex-column">
+                                    <a href="http://127.0.0.1:5000/Employee/Detail?id=2" class="text-heading text-truncate">
+                                      <span class="fw-medium">Doe John Camunias</span>
+                                  </a>
+                                  </div>
+                              </div>
+                          </td>
+                          <td>Male</td>
+                          <td>1234567 </td>
+                          <td>2025-05-21</td>
+                          <td>E</td>
+                          <td class="text-center align-middle">
+                              <div class="d-flex justify-content-center gap-2">
+                                <button type="button" class="btn btn-primary btn-edit" data-id="2" data-organizational_unit="1" data-item_number="1" data-position_title="" data-salary_grade="2" data-authorized_salary="1180116" data-actual_salary="1180116" data-step="23" data-area_code="" data-area_type="M" data-level="A" data-last_name="Doe" data-first_name="John" data-middle_name="Camunias" data-sex="Male" data-dob="2025-05-16" data-tin="1234567" data-doa="2025-05-21" data-dop="2025-06-06" data-status="E" data-eligibility="" data-comments="" data-bs-toggle="modal" data-bs-target="#editEmployeeModal">
+                                Edit
+                              </button>
+    
+    
+                          
+                              </div>
+                          </td>
+                      </tr>
+                      
+                      
+                  </tbody>
+                  
+              </table>
+            </div>
+        
+        </div>
+          </div>
+        </div>
+        
+        <!-- JO EMPLOYEE -->
+        <div class="tab-pane fade" id="navs-pills-JO" role="tabpanel" aria-labelledby="JO-tab">
+          <div class="card-header border-bottom p-0 pb-3">
+            <h5 class="card-title mb-0">Search Filters</h5>
+            <div class="d-flex justify-content-between align-items-center row pt-4 gap-md-0 g-6 ">
+              <div class="col-md-4 user_role">
+                <select id="UserRole" class="form-select text-capitalize">
+                  <option value="" disabled="" selected="">Select Organizational Unit</option>
+                  <option value="Office of the Municipal Mayor">Office of the Municipal Mayor</option>
+                    <option value="Office of the Municipal Assessor">Office of the Municipal Assessor</option>
+                    <option value="Office of the Municipal Treasurer">Office of the Municipal Treasurer</option>
+                    <option value="Office of the BPLO">Office of the BPLO</option>
+                    <option value="Office of the Municipal Engineer">Office of the Municipal Engineer</option>
+                    <option value="Office of the Municipal Planning and Development Coordinator">Office of the Municipal Planning and Development Coordinator</option>
+  
+                    <option value="Office of the Municipal Disaster Risk Reduction Management Officer">Office of the Municipal Disaster Risk Reduction Management Officer</option>
+                    <option value="Office of the Municipal Agriculturist">Office of the Municipal Agriculturist</option>
+                    <option value="Office of the Municipal Social Welfare Development Officer">Office of the Municipal Social Welfare Development Officer</option>
+                    <option value="Office of the Municipal Health Officer">Office of the Municipal Health Officer</option>
+                    <option value="Office of the Municipal Civil Registrar">Office of the Municipal Civil Registrar</option>
+                    <option value="Office of the Municipal Human Resource Management Officer">Office of the Municipal Human Resource Management Officer</option>
+                    <option value="Office of the Municipal Budget Officer">Office of the Municipal Budget Officer</option>
+                    <option value="Office of the Municipal Accountant">Office of the Municipal Accountant</option>
+                    <option value="General Services Office">General Services Office</option>
+                    <option value="Public Employment Services Office">Public Employment Services Office</option>
+                    <option value="Municipal Tourism Office">Municipal Tourism Office</option>
+                    <option value="Office of the Sangguniang Bayan">Office of the Sangguniang Bayan</option>
+                    <option value="Feedback and Complaints Mechanism">Feedback and Complaints Mechanism</option>
+                </select>
+              </div>
+              <div class="col-md-4 user_plan">
+                <select id="UserPlan" class="form-select text-capitalize">
+                    <option value="">Select Position</option>
+                    <option value="Basic">Position 1</option>
+                    <option value="Company">Position 2</option>
+                    <option value="Enterprise">Position 3</option>
+                </select></div>
+              <div class="col-md-4 user_status">
+                <select id="FilterTransaction" class="form-select text-capitalize">
+                    <option value="">Select Status</option>
+                    <option value="Pending" class="text-capitalize">Active</option>
+                    <option value="Active" class="text-capitalize">Vacant</option>
+                </select>
+              </div>
+            </div>
+            </div>
+          <div class="card-datable">
+            <div class="row mx-1 my-4 align-items-center justify-content-between">
+              
+              <!-- Left: Length selector -->
+              <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+                <!-- Search -->
+                <div class="dt-search">
+                    <label for="dt-search-0 " class="visually-hidden">Search</label>
+                    <input type="search" id="dt-search-0" class="form-control" placeholder="Search User" aria-controls="DataTables_Table_0">
+                  </div>
+              </div>
+          
+              <!-- Right: Search, Export, Add -->
+              <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-md-end justify-content-center">
+                
+                
+          
+                <!-- Buttons: Export + Add -->
+                  
+                  <!-- Export Button -->
+                  <div class="btn-group">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-box-arrow-up me-1"></i>
+                        <span class="d-none d-sm-inline-block">Export</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                        <li><a class="dropdown-item" href="http://127.0.0.1:5000/Employee#"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Export as Excel</a></li>
+                        <li><a class="dropdown-item" href="http://127.0.0.1:5000/generate_pdf"><i class="bi bi-file-pdf me-2"></i>Export as PDF</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="http://127.0.0.1:5000/Employee#"><i class="bi bi-printer me-2"></i>Print</a></li>
+                      </ul>
+                      
+                  </div>
+                  
+                  <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addJOEmployeeModal">
+                    <i class="bi bi-plus me-1"></i>
+                    <span class="d-none d-sm-inline-block">Add JO Employee</span>
+                </button>
+                
+              </div>
+            </div>
+    
+    
+            <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                  <table class="datatables-users table border-top dataTable dtr-column collapsed table-bordered" id="DataTables_Table_0" aria-describedby="DataTables_Table_0_info" style="width: 100%; height: 100%;">
+               <thead class="table-dark align-middle text-center">
+                   <tr>
+                       <th data-dt-column="1" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                           <span class="dt-column-title" role="button">ORGANIZATIONAL UNIT</span>
+                           <span class="dt-column-order"></span>
+                       </th>
+           
+                       <th data-dt-column="2" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                           <span class="dt-column-title" role="button">FULL NAME</span>
+                           <span class="dt-column-order"></span>
+                       </th>
+           
+                       <th data-dt-column="3" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                           <span class="dt-column-title" role="button">STATUS</span>
+                           <span class="dt-column-order"></span>
+                       </th>
+           
+                       <th data-dt-column="4" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                           <span class="dt-column-title" role="button">ACTION</span>
+                       </th>
+                   </tr>
+               </thead>
+           
+               <tbody class="text-center">
+                   
+               </tbody>
+           </table>
+           
+            </div>
+        
+        </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+
+</div>
+  
+
+
+
+<!-- ADDING PERMANENT -->
+
+<div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form method="POST" action="http://127.0.0.1:5000/add_employee" novalidate="">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Employment Details -->
+          <div class="row align-items-center">
+            <div class="col-auto">
+                <h6 class="fw-bold mb-3">Employment Details</h6>
+            </div>
+   
+        </div>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Organizational Unit(1)<span class="text-danger">*</span></label>
+                <select class="form-select" id="organizationalUnitSelect" name="organizational_unit" required="">
+                  <option value="" disabled="" selected="">Select Organizational Unit</option>
+                  
+                    <option value="1">Office of the Municipal Mayor</option>
+                  
+                    <option value="2">Office of the Municipal Vice Mayor</option>
+                  
+                    <option value="3">Office of the Sangguniang Bayan</option>
+                  
+                    <option value="4">Office of the Municipal Assessor</option>
+                  
+                    <option value="5">Office of the Municipal Treasurer</option>
+                  
+                    <option value="6">Office of the BPLO</option>
+                  
+                    <option value="7">Office of the Municipal Engineer</option>
+                  
+                    <option value="8">Office of the Municipal Planning and Development Coordinator</option>
+                  
+                    <option value="9">Office of the Municipal Environment and Natural Resources Officer</option>
+                  
+                    <option value="10">Office of the Municipal Disaster Risk Reduction Management Officer</option>
+                  
+                    <option value="11">Office of the Municipal Agriculturist</option>
+                  
+                    <option value="12">Office of the Municipal Social Welfare Development Officer</option>
+                  
+                    <option value="13">Office of the Municipal Health Officer</option>
+                  
+                    <option value="14">Office of the Municipal Civil Registrar</option>
+                  
+                    <option value="15">Office of the Municipal Human Resource Management Officer</option>
+                  
+                    <option value="16">Office of the Municipal Budget Officer</option>
+                  
+                    <option value="17">Office of the Municipal Accountant</option>
+                  
+                    <option value="18">General Services Office</option>
+                  
+                    <option value="19">Public Employment Services Office</option>
+                  
+                    <option value="20">Municipal Tourism Office</option>
+                  
+                    <option value="21">Office of The Secretary to the Sangguniang Bayan</option>
+                  
+                </select>
+                
+              </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Item Number(2)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="item_number" required="">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Position Title(3)<span class="text-danger">*</span></label>
+              <select class="form-select" id="positionTitleSelect" name="position_title" required=""><option value="" disabled="" selected="">Please select an Organizational Unit first</option></select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Salary Grade(4)<span class="text-danger">*</span></label>
+              <input type="number" class="form-control" name="salary_grade">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Authorized Salary(5)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="authorized_salary">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Actual Salary(6)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="actual_salary">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Step(7)<span class="text-danger">*</span></label>
+              <input type="number" class="form-control" name="step">
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Area Details -->
+          <h6 class="fw-bold mb-3 mt-4">Area Details</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Area Code(8)</label>
+              <input type="text" class="form-control" name="area_code">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="areaType">Area Type (9)<span class="text-danger">*</span></label>
+              <select class="form-select" id="areaType" name="area_type">
+                <option value="">Select Area Type</option>
+                <option value="R">R - Region</option>
+                <option value="P">P - Province</option>
+                <option value="D">D - District</option>
+                <option value="M" selected="">M - Municipality</option>
+                <option value="F">F - Foreign Post</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="level">Level (10)<span class="text-danger">*</span></label>
+              <select class="form-select" id="level" name="level">
+                <option value="">Select Level</option>
+                <option value="K">K - Key Positions</option>
+                <option value="A">A - Administrative Positions</option>
+                <option value="S">S - Support to Key Positions</option>
+                <option value="T">T - Technical Positions</option>
+              </select>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Personal Information -->
+          <h6 class="fw-bold mb-3 mt-4">Personal Information</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Last Name(11)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="last_name" required="">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">First Name(12)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="first_name" required="">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Middle Name(13)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="middle_name">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Sex(14)<span class="text-danger">*</span></label>
+              <select class="form-select" name="sex">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date of Birth(15)<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_of_birth">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">TIN(16) / UMID No.(17)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="tin">
+            </div>
+
+         
+            
+          </div>
+
+          <hr>
+
+          <!-- Appointment Info -->
+          <h6 class="fw-bold mb-3 mt-4">Appointment Info</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Date of Original Appointment(18)<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_original_appointment">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date of Last Promotion(19)<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_last_promotion">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="status">Status (20)<span class="text-danger">*</span></label>
+              <select class="form-select" id="status" name="status">
+                <option value="">Select Status</option>
+                <option value="P">P - Permanent</option>
+                <option value="E">E - Electives</option>
+                <option value="T">T - Temporary</option>
+                <option value="CT">CT - Co-Terminous</option>
+                <option value="PA">PA - Presidential Appointee</option>
+              </select>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Other Info -->
+          <h6 class="fw-bold mb-3 mt-4">Other Information</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Civil Service Eligibility(21)</label>
+              <input type="text" class="form-control" name="eligibility">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Comments/Annotation(22)</label>
+              <input type="text" class="form-control" name="comments">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+  
+
+
+
+
+<!-- ADDIGN CASUAL Modal -->
+<div class="modal fade" id="addCasualEmployeeModal" tabindex="-1" aria-labelledby="addCasualEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form method="POST" action="http://127.0.0.1:5000/add_Casual_employee" novalidate="">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Employee Details -->
+          <div class="row g-3">
+        
+            <div class="col-md-12">
+              <label class="form-label">Position Title</label>
+              <input type="text" class="form-control" name="position_title" value="ADM. AIDE. I" readonly="">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Last Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="last_name" required="">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">First Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="first_name" required="">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Name Extension</label>
+              <input type="text" class="form-control" name="name_extension">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" name="middle_name">
+            </div>
+
+         
+          </div>
+
+          <div class="row g-3 mt-3">
+            <div class="col-md-6">
+              <label class="form-label">Salary Grade<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="salary_grade">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Daily Wage<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="daily_wage">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contract From<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="employment_from">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contract To<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="employment_to">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ADDING JO -->
+<div class="modal fade" id="addJOEmployeeModal" tabindex="-1" aria-labelledby="addJOEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="POST" action="http://127.0.0.1:5000/add_jo_employee" novalidate="">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addEmployeeModalLabel">Add JO Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Employee Details -->
+          <div class="row g-3">
+        
+        
+
+            <div class="col-md-4">
+              <label class="form-label">Last Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="last_name" required="">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">First Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="first_name" required="">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Middle Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="middle_name">
+            </div>
+           
+          </div>
+
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add JO Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+  <!-- Edit Permanent Employee Modal -->
+<div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form method="POST" action="http://127.0.0.1:5000/edit_employee" id="editEmployeeForm" novalidate="">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editEmployeeModalLabel">Edit Employee Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+  
+        <div class="modal-body">
+          <!-- Employment Details -->
+          <h6 class="fw-bold mb-3">Employment Details</h6>
+          <div class="row g-3">
+            <input type="hidden" name="employee_id" id="edit-employee-id">
+            <div class="col-md-4">
+              <label class="form-label">Organizational Unit<span class="text-danger">*</span></label>
+              <select class="form-select" id="edit-organizational-unit" name="organizational_unit" required="">
+                <option value="" disabled="">Select Organizational Unit</option>
+                
+                  <option value="1">Office of the Municipal Mayor</option>
+                
+                  <option value="2">Office of the Municipal Vice Mayor</option>
+                
+                  <option value="3">Office of the Sangguniang Bayan</option>
+                
+                  <option value="4">Office of the Municipal Assessor</option>
+                
+                  <option value="5">Office of the Municipal Treasurer</option>
+                
+                  <option value="6">Office of the BPLO</option>
+                
+                  <option value="7">Office of the Municipal Engineer</option>
+                
+                  <option value="8">Office of the Municipal Planning and Development Coordinator</option>
+                
+                  <option value="9">Office of the Municipal Environment and Natural Resources Officer</option>
+                
+                  <option value="10">Office of the Municipal Disaster Risk Reduction Management Officer</option>
+                
+                  <option value="11">Office of the Municipal Agriculturist</option>
+                
+                  <option value="12">Office of the Municipal Social Welfare Development Officer</option>
+                
+                  <option value="13">Office of the Municipal Health Officer</option>
+                
+                  <option value="14">Office of the Municipal Civil Registrar</option>
+                
+                  <option value="15">Office of the Municipal Human Resource Management Officer</option>
+                
+                  <option value="16">Office of the Municipal Budget Officer</option>
+                
+                  <option value="17">Office of the Municipal Accountant</option>
+                
+                  <option value="18">General Services Office</option>
+                
+                  <option value="19">Public Employment Services Office</option>
+                
+                  <option value="20">Municipal Tourism Office</option>
+                
+                  <option value="21">Office of The Secretary to the Sangguniang Bayan</option>
+                
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Item Number<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="item_number" id="edit-item-number" required="">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Position Title<span class="text-danger">*</span></label>
+              <select class="form-select" id="edit-position-title" name="position_title" required="">
+                <option value="" disabled="">Select Position Title</option>
+                
+                  <option value="1">MUNICIPAL MAYOR</option>
+                
+                  <option value="2">EXECUTIVE ASSISTANT V</option>
+                
+                  <option value="3">ADM. ASST. V (PRIVATE SECRETARY</option>
+                
+                  <option value="4">SECURITY AGENT II</option>
+                
+                  <option value="5">LICENSING OFFICER I</option>
+                
+                  <option value="6">LICENSE INSPECTOR I</option>
+                
+                  <option value="7">SUPPLY OFFICER II</option>
+                
+                  <option value="8">ENVIRONMENTAL MANAGEMENT SPECIALIST II</option>
+                
+                  <option value="9">ADM. ASST. IV (BOOKBINDER IV)</option>
+                
+                  <option value="10">ADM. ASST. III (BOOKBINDER III)</option>
+                
+                  <option value="11">ADM. AIDE. III (DRIVER I)</option>
+                
+                  <option value="12">ADM. AIDE. I (UTILITY WORKER I)</option>
+                
+                  <option value="13">ADM. AIDE. III (UTILITY WORKER II)</option>
+                
+                  <option value="14">MUNICIPAL VICE MAYOR</option>
+                
+                  <option value="15">ADM. ASST. V (PRIVATE SECRETARY</option>
+                
+                  <option value="16">SANGGUNIANG BAYAN MEMBER</option>
+                
+                  <option value="17">SANGGUNIANG BAYAN MEMBER (LNB President)</option>
+                
+                  <option value="18">SANGGUNIANG BAYAN MEMBER (SK President)</option>
+                
+                  <option value="19">SECRETARY TO THE SANGGUNIANG BAYAN I</option>
+                
+                  <option value="20">LOCAL LEGISLATIVE STAFF OFFICER I</option>
+                
+                  <option value="21">ADMINISTRATIVE AIDE VI (Clerk III)</option>
+                
+                  <option value="22">Local LEGISLATIVE STAFF Employee II</option>
+                
+                  <option value="23">ADMINISTRATIVE AIDE IV (Driver II)</option>
+                
+                  <option value="24">ADMINISTRATIVE AIDE III (Driver I)</option>
+                
+                  <option value="25">ADMINISTRATIVE AIDE III (Utility Worker II)</option>
+                
+                  <option value="26">ADMINISTRATIVE AIDE II (Bookbinder I)</option>
+                
+                  <option value="27">ADMINISTRATIVE AIDE I  (Utility Worker I)</option>
+                
+                  <option value="28">MUNICIPAL ASSESSOR</option>
+                
+                  <option value="29">ASSISTANT MUNICIPAL ASSESSOR</option>
+                
+                  <option value="30">LOCAL ASSESSMENT OPERATIONS OFFICER I</option>
+                
+                  <option value="31">LOCAL ASSESSMENT OPERATIONS OFFICER III</option>
+                
+                  <option value="32">ASSESSMENT CLERK III</option>
+                
+                  <option value="33">ASSESSMENT CLERK III</option>
+                
+                  <option value="34">ASSESSMENT CLERK II</option>
+                
+                  <option value="35">ADMINISTRATIVE AIDE VI (CLERK II)</option>
+                
+                  <option value="36">ADM. AIDE. I (UTILITY WORKER I)</option>
+                
+                  <option value="37">MUNICIPAL TREASURER</option>
+                
+                  <option value="38">Municipal Treasurer assistant</option>
+                
+                  <option value="39">Local revenue Collection Officer II</option>
+                
+                  <option value="40">Local revenue Collection Officer I</option>
+                
+                  <option value="41">Revenue Collection Clerk II</option>
+                
+                  <option value="42">Revenue Collection Clerk III</option>
+                
+                  <option value="43">ADMINISTRATIVE AIDE VI (Clerk III)</option>
+                
+                  <option value="44">ADMINISTRATIVE AIDE IV (Cash Clerk I)</option>
+                
+                  <option value="45">ADMINISTRATIVE Aide III (Utility Worker II)</option>
+                
+                  <option value="46">ADMINISTRATIVE AIDE II (Bookbinder I)</option>
+                
+                  <option value="47">ADMINISTRATIVE AIDE I (Utility Worker I)</option>
+                
+                  <option value="48">BPLO HEAD / BUSINESS PERMITS AND LICENSING OFFICER</option>
+                
+                  <option value="49">ASSISTANT BPLO HEAD</option>
+                
+                  <option value="50">LICENSING OFFICER I</option>
+                
+                  <option value="51">LICENSING OFFICER II</option>
+                
+                  <option value="52">BUSINESS PERMIT EVALUATOR</option>
+                
+                  <option value="53">BUSINESS PERMIT INSPECTOR</option>
+                
+                  <option value="54">REVENUE COLLECTION CLERK</option>
+                
+                  <option value="55">ADMINISTRATIVE OFFICER</option>
+                
+                  <option value="56">ADMINISTRATIVE ASSISTANT I</option>
+                
+                  <option value="57">ADMINISTRATIVE ASSISTANT II</option>
+                
+                  <option value="58">ADMINISTRATIVE AIDE I</option>
+                
+                  <option value="59">ADMINISTRATIVE AIDE II</option>
+                
+                  <option value="60">DATA ENCODER (COS/JO)</option>
+                
+                  <option value="61">CUSTOMER RELATIONS ASSISTANT (COS/JO)</option>
+                
+                  <option value="62">UTILITY WORKER (COS/JO)</option>
+                
+                  <option value="63">MESSENGER (COS/JO)</option>
+                
+                  <option value="64">MUNICIPAL ENGINEER</option>
+                
+                  <option value="65">ENGINEER I</option>
+                
+                  <option value="66">Engineering Assistant</option>
+                
+                  <option value="67">DRAFTSMAN  I</option>
+                
+                  <option value="68">ADMINISTRATIVE AIDE VI (Utility Foreman)</option>
+                
+                  <option value="69">Engineering Aide</option>
+                
+                  <option value="70">ADMINISTRATIVE AIDE III (Driver I)</option>
+                
+                  <option value="71">ADMINISTRATIVE AIDE I (Utility Worker I)</option>
+                
+                  <option value="72">MUNICIPAL PLANNING AND DEVELOPMENT COORDINATOR I</option>
+                
+                  <option value="73">Economic Researcher</option>
+                
+                  <option value="74">ADMINISTRATIVE ASSISTANT I (Bookbinder III)</option>
+                
+                  <option value="75">ADMINISTRATIVE AIDE VI (Clerk III)</option>
+                
+                  <option value="76">ADMINISTRATIVE AIDE II (Bookbinder I)</option>
+                
+                  <option value="77">ADMINISTRATIVE AIDE I (Utility Worker I)</option>
+                
+                  <option value="78">MUNICIPAL ENVIRONMENT AND NATURAL RESOURCES OFFICER</option>
+                
+                  <option value="79">ASSISTANT MUNICIPAL ENVIRONMENT AND NATURAL RESOURCES OFFICER</option>
+                
+                  <option value="80">ENVIRONMENTAL MANAGEMENT SPECIALIST I</option>
+                
+                  <option value="81">ENVIRONMENTAL MANAGEMENT SPECIALIST II</option>
+                
+                  <option value="82">ENVIRONMENTAL MANAGEMENT SPECIALIST II ENVIRONMENTAL MANAGEMENT SPECIALIST III</option>
+                
+                  <option value="83">FORESTER</option>
+                
+                  <option value="84">WASTE MANAGEMENT COORDINATOR</option>
+                
+                  <option value="85">RESEARCH ASSISTANT / RESEARCHER</option>
+                
+                  <option value="86">TECHNICAL STAFF (COS/JO)</option>
+                
+                  <option value="87">ENVIRONMENTAL PLANNER (IF APPLICABLE)</option>
+                
+                  <option value="88">GIS SPECIALIST / TECHNICIAN</option>
+                
+                  <option value="89">ADMINISTRATIVE OFFICER</option>
+                
+                  <option value="90">ADMINISTRATIVE ASSISTANT I</option>
+                
+                  <option value="91">ADMINISTRATIVE ASSISTANT II</option>
+                
+                  <option value="92">ADMINISTRATIVE AIDE I</option>
+                
+                  <option value="93">ADMINISTRATIVE AIDE II</option>
+                
+                  <option value="94">DATA ENCODER (COS/JO)</option>
+                
+                  <option value="95">UTILITY WORKER (COS/JO)</option>
+                
+                  <option value="96">MESSENGER (COS/JO)</option>
+                
+                  <option value="97">ADM. AIDE. I</option>
+                
+                  <option value="98">MUNICIPAL GOVERNMENT DEPARTMENT HEAD I</option>
+                
+                  <option value="99">ADM. ASST. V (DATA CONTROLLER  III)</option>
+                
+                  <option value="100">ADM. ASST. II (HRMA)</option>
+                
+                  <option value="101">ADM. AIDE. VI (UTILITY FOREMAN)</option>
+                
+                  <option value="102">ADM. AIDE. III (UTILITY WORKER II)</option>
+                
+                  <option value="103">ADM. AIDE. I (UTILITY WORKER I)</option>
+                
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Salary Grade<span class="text-danger">*</span></label>
+              <input type="number" class="form-control" name="salary_grade" id="edit-salary-grade">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Authorized Salary<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="authorized_salary" id="edit-authorized-salary">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Actual Salary<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="actual_salary" id="edit-actual-salary">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Step<span class="text-danger">*</span></label>
+              <input type="number" class="form-control" name="step" id="edit-step">
+            </div>
+          </div>
+  
+          <!-- Area Details -->
+          <h6 class="fw-bold mb-3 mt-4">Area Details</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Area Code</label>
+              <input type="text" class="form-control" name="area_code" id="edit-area-code">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="areaType">Area Type (9)<span class="text-danger">*</span></label>
+              <select class="form-select" id="edit-area-type" name="area_type">
+                <option value="">Select Area Type</option>
+                <option value="R">R - Region</option>
+                <option value="P">P - Province</option>
+                <option value="D">D - District</option>
+                <option value="M">M - Municipality</option>
+                <option value="F">F - Foreign Post</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="level">Level (10)<span class="text-danger">*</span></label>
+              <select class="form-select" id="edit-level" name="level">
+                <option value="">Select Level</option>
+                <option value="K">K - Key Positions</option>
+                <option value="A">A - Administrative Positions</option>
+                <option value="S">S - Support to Key Positions</option>
+                <option value="T">T - Technical Positions</option>
+              </select>
+            </div>
+          </div>
+  
+          <!-- Personal Information -->
+          <h6 class="fw-bold mb-3 mt-4">Personal Information</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Last Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="last_name" id="edit-last-name" required="">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">First Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="first_name" id="edit-first-name" required="">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Middle Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="middle_name" id="edit-middle-name">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Sex<span class="text-danger">*</span></label>
+              <select class="form-select" name="sex" id="edit-sex">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Date of Birth<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_of_birth" id="edit-dob">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">TIN<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="tin" id="edit-tin">
+            </div>
+           
+          </div>
+  
+          <!-- Appointment Info -->
+          <h6 class="fw-bold mb-3 mt-4">Appointment Info</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Date of Original Appointment<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_original_appointment" id="edit-date-original-appointment">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date of Last Promotion</label>
+              <input type="date" class="form-control" name="date_last_promotion" id="edit-date-last-promotion">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="status">Status (20)<span class="text-danger">*</span></label>
+              <select class="form-select" id="edit-status" name="status">
+                <option value="">Select Status</option>
+                <option value="P">P - Permanent</option>
+                <option value="E">E - Electives</option>
+                <option value="T">T - Temporary</option>
+                <option value="CT">CT - Co-Terminous</option>
+                <option value="PA">PA - Presidential Appointee</option>
+              </select>
+            </div>
+          </div>
+  
+          <!-- Other Info -->
+          <h6 class="fw-bold mb-3 mt-4">Other Information</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Civil Service Eligibility</label>
+              <input type="text" class="form-control" name="eligibility" id="edit-eligibility">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Comments/Annotation</label>
+              <input type="text" class="form-control" name="comments" id="edit-comments">
+            </div>
+          </div>
+        </div>
+  
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="editCasualEmployeeModal" tabindex="-1" aria-labelledby="editCasualEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form method="POST" action="http://127.0.0.1:5000/edit_Casual_employee" id="editCasualEmployeeForm" novalidate="">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editCasualEmployeeModalLabel">Edit Casual Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Hidden ID -->
+          <input type="hidden" name="employee_id" id="edit-casual-employee-id">
+
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label">Last Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="last_name" id="edit-casual-last-name" required="">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">First Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="first_name" id="edit-casual-first-name" required="">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" name="middle_name" id="edit-casual-middle-name">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Name Extension</label>
+              <input type="text" class="form-control" name="name_extension" id="edit-casual-name-extension">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Assigned Department</label>
+              <select name="assigned_department_id" id="edit-casual-assigned-department" class="form-control" required="">
+                
+                  <option value="1">Office of the Municipal Mayor</option>
+                
+                  <option value="2">Office of the Municipal Vice Mayor</option>
+                
+                  <option value="3">Office of the Sangguniang Bayan</option>
+                
+                  <option value="4">Office of the Municipal Assessor</option>
+                
+                  <option value="5">Office of the Municipal Treasurer</option>
+                
+                  <option value="6">Office of the BPLO</option>
+                
+                  <option value="7">Office of the Municipal Engineer</option>
+                
+                  <option value="8">Office of the Municipal Planning and Development Coordinator</option>
+                
+                  <option value="9">Office of the Municipal Environment and Natural Resources Officer</option>
+                
+                  <option value="10">Office of the Municipal Disaster Risk Reduction Management Officer</option>
+                
+                  <option value="11">Office of the Municipal Agriculturist</option>
+                
+                  <option value="12">Office of the Municipal Social Welfare Development Officer</option>
+                
+                  <option value="13">Office of the Municipal Health Officer</option>
+                
+                  <option value="14">Office of the Municipal Civil Registrar</option>
+                
+                  <option value="15">Office of the Municipal Human Resource Management Officer</option>
+                
+                  <option value="16">Office of the Municipal Budget Officer</option>
+                
+                  <option value="17">Office of the Municipal Accountant</option>
+                
+                  <option value="18">General Services Office</option>
+                
+                  <option value="19">Public Employment Services Office</option>
+                
+                  <option value="20">Municipal Tourism Office</option>
+                
+                  <option value="21">Office of The Secretary to the Sangguniang Bayan</option>
+                
+              </select> 
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Status</label>
+              <select name="employment_status" id="employment_status" class="form-control" required="">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="terminated">Terminated</option>
+              </select>
+            </div>
+            
+
+            <div class="col-md-6">
+              <label class="form-label">Salary Grade<span class="text-danger">*</span></label>
+              <input type="number" class="form-control" name="salary_grade" id="edit-casual-salary-grade">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Daily Wage<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="daily_wage" id="edit-casual-daily-wage">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contract From<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_from" id="edit-casual-date-from">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contract To<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_to" id="edit-casual-date-to">
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Casual Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="editJOEmployeeModal" tabindex="-1" aria-labelledby="editJOEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <form method="POST" action="http://127.0.0.1:5000/edit_JO_employee" novalidate="">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="editEmployeeModalLabel">Edit JO Employee</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+
+              <div class="modal-body">
+                  <!-- Employee Details -->
+                  <div class="row g-3">
+                      <div class="col-md-12">
+                          <label class="form-label">Organizational Unit<span class="text-danger">*</span></label>
+                          <select id="editOrganizationalUnit" name="organizational_unit" class="form-select text-capitalize" required="">
+                              <option value="" disabled="">Select Organizational Unit</option>
+                              <option value="Office of the Municipal Mayor">Office of the Municipal Mayor</option>
+                              <option value="Office of the Municipal Assessor">Office of the Municipal Assessor</option>
+                              <option value="Office of the Municipal Treasurer">Office of the Municipal Treasurer</option>
+                              <option value="Office of the BPLO">Office of the BPLO</option>
+                              <option value="Office of the Municipal Engineer">Office of the Municipal Engineer</option>
+                              <!-- Add other options as needed -->
+                          </select>
+                      </div>
+
+                      <div class="col-md-4">
+                          <label class="form-label">First Name<span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" name="first_name" id="editFirstName" required="">
+                      </div>
+
+                      <div class="col-md-4">
+                          <label class="form-label">Middle Name<span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" name="middle_name" id="editMiddleName">
+                      </div>
+
+                      <div class="col-md-4">
+                          <label class="form-label">Last Name<span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" name="last_name" id="editLastName" required="">
+                      </div>
+
+                 
+
+                      <input type="hidden" id="editEmployeeId" name="employee_id">
+
+                  </div>
+              </div>
+
+              <div class="modal-footer mt-3">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Save Changes</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+
+
+<!-- SAVING TABS -->
+<script src="./HR - Employee_files/savingtabs.js.download"></script>
+
+
+<!-- <script src="/static/js/loadingtitle.js"></script> -->
+
+<!-- FOR POPULATING THE JO EDIT -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      var editButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
+
+      editButtons.forEach(function(button) {
+          button.addEventListener('click', function() {
+              // Get data attributes from the button
+              var employeeId = button.getAttribute('data-id');
+              var firstName = button.getAttribute('data-first-name');
+              var middleName = button.getAttribute('data-middle-name');
+              var lastName = button.getAttribute('data-last-name');
+              var organizationalUnit = button.getAttribute('data-organizational-unit');
+              var status = button.getAttribute('data-status');
+
+              // Set the values in the modal
+              document.getElementById('editEmployeeId').value = employeeId;
+              document.getElementById('editOrganizationalUnit').value = organizationalUnit;
+              document.getElementById('editFirstName').value = firstName;
+              document.getElementById('editMiddleName').value = middleName;
+              document.getElementById('editLastName').value = lastName;
+              document.getElementById('editStatus').value = status;
+          });
+      });
+  });
+</script>
+
+
+<script>
+  // Wait for the DOM to be ready
+  document.addEventListener('DOMContentLoaded', function () {
+    // Get all the edit buttons
+    const editButtons = document.querySelectorAll('.editCasualEmployeeBtn');
+
+    // Add click event listener to each edit button
+    editButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        // Get data attributes from the button
+        const employeeId = button.getAttribute('data-id');
+        const lastName = button.getAttribute('data-last_name');
+        const firstName = button.getAttribute('data-first_name');
+        const middleName = button.getAttribute('data-middle_name');
+        const extension = button.getAttribute('data-extension_name');
+        const status = button.getAttribute('data-status');
+        const positionTitle = button.getAttribute('data-position_title');
+        const salaryGrade = button.getAttribute('data-salary_grade');
+        const dailyWage = button.getAttribute('data-daily_wage');
+        const dateFrom = button.getAttribute('data-date_from');
+        const dateTo = button.getAttribute('data-date_to');
+        console.log('Data:', { employeeId, lastName, firstName, middleName, extension, status, positionTitle, salaryGrade, dailyWage, dateFrom, dateTo });
+
+        
+        // Populate the modal form fields
+        document.getElementById('edit-casual-employee-id').value = employeeId;
+        document.getElementById('edit-casual-last-name').value = lastName;
+        document.getElementById('edit-casual-first-name').value = firstName;
+        document.getElementById('edit-casual-middle-name').value = middleName;
+        document.getElementById('edit-casual-name-extension').value = extension;
+        document.getElementById('edit-casual-status').value = status;
+        document.getElementById('edit-casual-position-title').value = positionTitle;
+        document.getElementById('edit-casual-salary-grade').value = salaryGrade;
+        document.getElementById('edit-casual-daily-wage').value = dailyWage;
+        document.getElementById('edit-casual-date-from').value = dateFrom;
+        document.getElementById('edit-casual-date-to').value = dateTo;
+      });
+    });
+  });
+</script>
+
+  
+
+<!-- EDITING PERMANENT -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const editButtons = document.querySelectorAll('.btn-edit');
+
+    editButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        // Fill static fields
+        document.getElementById('edit-employee-id').value = this.dataset.id;
+        document.getElementById('edit-item-number').value = this.dataset.item_number;
+        document.getElementById('edit-salary-grade').value = this.dataset.salary_grade;
+        document.getElementById('edit-authorized-salary').value = this.dataset.authorized_salary;
+        document.getElementById('edit-actual-salary').value = this.dataset.actual_salary;
+        document.getElementById('edit-step').value = this.dataset.step;
+        document.getElementById('edit-area-code').value = this.dataset.area_code;
+        document.getElementById('edit-area-type').value = this.dataset.area_type;
+        document.getElementById('edit-level').value = this.dataset.level;
+        document.getElementById('edit-last-name').value = this.dataset.last_name;
+        document.getElementById('edit-first-name').value = this.dataset.first_name;
+        document.getElementById('edit-middle-name').value = this.dataset.middle_name;
+        document.getElementById('edit-sex').value = this.dataset.sex;
+        document.getElementById('edit-dob').value = this.dataset.dob;
+        document.getElementById('edit-tin').value = this.dataset.tin;
+        document.getElementById('edit-date-original-appointment').value = this.dataset.doa;
+        document.getElementById('edit-date-last-promotion').value = this.dataset.dop;
+        document.getElementById('edit-status').value = this.dataset.status;
+        document.getElementById('edit-eligibility').value = this.dataset.eligibility;
+        document.getElementById('edit-comments').value = this.dataset.comments;
+
+        // Get department and position ID from data attributes
+        const departmentId = this.dataset.organizational_unit;
+        const positionId = this.dataset.position_title;
+
+        // Set department dropdown value
+        const departmentSelect = document.getElementById('edit-organizational-unit');
+        departmentSelect.value = departmentId;
+
+        // Trigger change event to load positions dynamically
+        loadPositions(departmentId, positionId);
+      });
+    });
+
+    function loadPositions(departmentId, selectedPositionId = null) {
+      const positionSelect = document.getElementById('edit-position-title');
+      positionSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
+
+      fetch(`/get_positions/${departmentId}`)
+        .then(response => response.json())
+        .then(data => {
+          positionSelect.innerHTML = '<option value="" disabled>Select Position Title</option>';
+          data.forEach(position => {
+            const opt = document.createElement('option');
+            opt.value = position.id;
+            opt.textContent = position.title;
+            positionSelect.appendChild(opt);
+          });
+
+          if (selectedPositionId) {
+            positionSelect.value = selectedPositionId;
+          }
+        })
+        .catch(error => {
+          console.error('Error loading positions:', error);
+          positionSelect.innerHTML = '<option value="" disabled>Error loading positions</option>';
+        });
+    }
+
+    // Hook department change to dynamically load positions
+    document.getElementById('edit-organizational-unit').addEventListener('change', function () {
+      const departmentId = this.value;
+      loadPositions(departmentId);
+    });
+  });
+</script>
+
+
+
+
+    
+
+
+  <!-- ADDING VALIDATIONS -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // --- Common Functions ---
+        function showError(inputElement, message) {
+            const errorMessage = document.createElement('div');
+            errorMessage.classList.add('invalid-feedback');
+            errorMessage.textContent = message;
+            inputElement.classList.add('is-invalid');
+            inputElement.parentElement.appendChild(errorMessage);
+        }
+    
+        function clearErrors(form) {
+            form.querySelectorAll('.invalid-feedback').forEach(e => e.remove());
+            form.querySelectorAll('.is-invalid').forEach(e => e.classList.remove('is-invalid'));
+        }
+    
+        function addRealTimeValidation(inputElement, validatorFn, message) {
+            inputElement.addEventListener('input', function () {
+                const existingError = inputElement.parentElement.querySelector('.invalid-feedback');
+                if (!validatorFn(inputElement)) {
+                    if (!existingError) showError(inputElement, message);
+                } else {
+                    inputElement.classList.remove('is-invalid');
+                    if (existingError) existingError.remove();
+                }
+            });
+        }
+    
+        function validateRequired(input) {
+            return input && input.value.trim() !== "";
+        }
+    
+        function validateNumber(input) {
+            return input && !isNaN(input.value) && input.value.trim() !== "";
+        }
+    
+        function validateForm(form, fields) {
+          let isValid = true;
+          fields.forEach(({ input, validator, fieldName }) => {
+              if (!input) {
+                  console.warn(`Field '${fieldName}' is missing in form with action: ${form.getAttribute('action')}`);
+                  return;
+              }
+      
+              if (!validator(input)) {
+                  showError(input, `Please enter/select a valid ${fieldName}.`);
+                  isValid = false;
+              }
+      
+              addRealTimeValidation(input, validator, `Please enter/select a valid ${fieldName}.`);
+          });
+          return isValid;
+      }
+      
+    
+        // --- Form Handlers ---
+        const formConfigs = [
+            {
+                selector: 'form[action="/add_jo_employee"]',
+                fields: (form) => [
+                    { input: form.querySelector('[name="department_id"]'), validator: validateRequired, fieldName: "Organizational Unit" },
+                    { input: form.querySelector('[name="last_name"]'), validator: validateRequired, fieldName: "Last Name" },
+                    { input: form.querySelector('[name="first_name"]'), validator: validateRequired, fieldName: "First Name" }
+                    // Middle Name optional
+                ]
+            },
+            {
+                selector: 'form[action="/add_Casual_employee"]',
+                fields: (form) => [
+                    { input: form.querySelector('[name="last_name"]'), validator: validateRequired, fieldName: "Last Name" },
+                    { input: form.querySelector('[name="first_name"]'), validator: validateRequired, fieldName: "First Name" },
+                    { input: form.querySelector('[name="position_title"]'), validator: validateRequired, fieldName: "Position Title" },
+                    { input: form.querySelector('[name="salary_grade"]'), validator: validateNumber, fieldName: "Salary Grade" },
+                    { input: form.querySelector('[name="daily_wage"]'), validator: validateNumber, fieldName: "Daily Wage" },
+                    { input: form.querySelector('[name="employment_from"]'), validator: validateRequired, fieldName: "Employment From" },
+                    { input: form.querySelector('[name="employment_to"]'), validator: validateRequired, fieldName: "Employment To" }
+                    // Middle Name and Name Extension optional
+                ]
+            },
+            {
+              selector: 'form[action="/add_employee"]',
+              fields: (form) => [
+                    { input: document.getElementById('organizationalUnitSelect'), validator: validateRequired, fieldName: "Organizational Unit" },
+                    { input: document.getElementById('positionTitleSelect'), validator: validateRequired, fieldName: "Position Title" },
+                    { input: form.querySelector('[name="item_number"]'), validator: validateNumber, fieldName: "Item Number" },
+                    { input: form.querySelector('[name="salary_grade"]'), validator: validateNumber, fieldName: "Salary Grade" },
+                    { input: form.querySelector('[name="authorized_salary"]'), validator: validateNumber, fieldName: "Authorized Salary" },
+                    { input: form.querySelector('[name="actual_salary"]'), validator: validateNumber, fieldName: "Actual Salary" },
+                    { input: form.querySelector('[name="step"]'), validator: validateNumber, fieldName: "Step" },
+                    { input: form.querySelector('[name="area_type"]'), validator: validateRequired, fieldName: "Area Type" },
+                    { input: form.querySelector('[name="level"]'), validator: validateRequired, fieldName: "Level" },
+                    { input: form.querySelector('[name="last_name"]'), validator: validateRequired, fieldName: "Last Name" },
+                    { input: form.querySelector('[name="first_name"]'), validator: validateRequired, fieldName: "First Name" },
+                    { input: form.querySelector('[name="middle_name"]'), validator: validateRequired, fieldName: "Middle Name" },
+                    { input: form.querySelector('[name="sex"]'), validator: validateRequired, fieldName: "Sex" },
+                    { input: form.querySelector('[name="date_of_birth"]'), validator: validateRequired, fieldName: "Date of Birth" },
+                    { input: form.querySelector('[name="tin"]'), validator: validateRequired, fieldName: "TIN / UMID NO" },
+                    { input: form.querySelector('[name="date_original_appointment"]'), validator: validateRequired, fieldName: "Date of Original Appointment" },
+                    { input: form.querySelector('[name="date_last_promotion"]'), validator: validateRequired, fieldName: "Date of Last Promotion" },
+                    { input: form.querySelector('[name="status"]'), validator: validateRequired, fieldName: "Status" }
+                ]
+            }
+        ];
+    
+        formConfigs.forEach(({ selector, fields }) => {
+            const form = document.querySelector(selector);
+            if (!form) return;
+    
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                clearErrors(form);
+                const isValid = validateForm(form, fields(form));
+                if (isValid) {
+                    form.submit();
+                }
+            });
+        });
+    });
+    </script>
+    
+        
+  
+
+  
+
+<!-- EDITING CASUAL -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const editButtons = document.querySelectorAll('.editCasualEmployeeBtn');
+    
+    editButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        const employeeId = this.getAttribute('data-id');
+        const lastName = this.getAttribute('data-last_name');
+        const firstName = this.getAttribute('data-first_name');
+        const middleName = this.getAttribute('data-middle_name');
+        const extensionName = this.getAttribute('data-extension_name');
+        const status = this.getAttribute('data-status');
+        const salaryGrade = this.getAttribute('data-salary_grade');
+        const dailyWage = this.getAttribute('data-daily_wage');
+        const dateFrom = this.getAttribute('data-date_from');
+        const dateTo = this.getAttribute('data-date_to');
+        const assignedDeptId = this.getAttribute('data-assigned_department_id');
+  
+        document.getElementById('edit-casual-employee-id').value = employeeId;
+        document.getElementById('edit-casual-last-name').value = lastName;
+        document.getElementById('edit-casual-first-name').value = firstName;
+        document.getElementById('edit-casual-middle-name').value = middleName;
+        document.getElementById('edit-casual-name-extension').value = extensionName;
+        document.getElementById('employment_status').value = status;
+        document.getElementById('edit-casual-salary-grade').value = salaryGrade;
+        document.getElementById('edit-casual-daily-wage').value = dailyWage;
+        document.getElementById('edit-casual-date-from').value = dateFrom;
+        document.getElementById('edit-casual-date-to').value = dateTo;
+  
+        const deptSelect = document.getElementById('edit-casual-assigned-department');
+        if (deptSelect) {
+          deptSelect.value = assignedDeptId;
+        }
+      });
+    });
+  });
+  
+</script>
+
+
+
+
+<!-- AUTOMOTATIC ORG AND POSITIONS -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const orgUnitSelect = document.getElementById('organizationalUnitSelect');
+    const positionSelect = document.getElementById('positionTitleSelect');
+  
+    orgUnitSelect.addEventListener('change', function () {
+      const departmentId = this.value;
+  
+      // If no department selected, clear position select
+      if (!departmentId) {
+        positionSelect.innerHTML = '<option value="" disabled selected>Please select an Organizational Unit first</option>';
+        return;
+      }
+  
+      // Show loading message
+      positionSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
+  
+      fetch(`/get_positions/${departmentId}`)
+        .then(response => response.json())
+        .then(data => {
+          positionSelect.innerHTML = '<option value="" disabled selected>Select Position Title</option>';
+          data.forEach(position => {
+            const opt = document.createElement('option');
+            opt.value = position.id;
+            opt.textContent = position.title;
+            positionSelect.appendChild(opt);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching positions:', error);
+          positionSelect.innerHTML = '<option value="" disabled selected>Error loading positions</option>';
+        });
+    });
+  
+    // On page load, clear position select initially
+    positionSelect.innerHTML = '<option value="" disabled selected>Please select an Organizational Unit first</option>';
+  });
+  </script>
+  
+    
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("dt-search-0");
+    const table = document.getElementById("DataTables_Table_0");
+    const rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+
+    searchInput.addEventListener("keyup", function () {
+      const filter = searchInput.value.toLowerCase();
+
+      for (let i = 0; i < rows.length; i++) {
+        const rowText = rows[i].textContent.toLowerCase();
+        rows[i].style.display = rowText.includes(filter) ? "" : "none";
+      }
+    });
+  });
+</script>
+
+
+
+          
+              </div>
+           
+  
+  
+              <div class="content-backdrop fade"></div>
+            </div>
+            <!-- Content wrapper -->
+          </div>
+          <!-- / Layout page -->
+        </div>
+  
+        <!-- Overlay -->
+        <div class="layout-overlay layout-menu-toggle"></div>
+      </div>
+
+
+
+      <script src="./HR - Employee_files/leaflet.js.download" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+      <script src="./HR - Employee_files/leaflet.draw.js.download"></script>
+      <script src="./HR - Employee_files/leaflet.offline.js.download"></script>
+
+
+      <script src="./HR - Employee_files/bootstrap.bundle.min.js.download" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+      <script src="./HR - Employee_files/jquery.min.js.download"></script>
+
+
+      <!-- <script src="/static/apex-charts/apexcharts.js"></script> -->
+
+      <script src="./HR - Employee_files/dashboards-analytics.js.download"></script>
+
+      <script src="./HR - Employee_files/main.js.download"></script>
+      <script src="./HR - Employee_files/load_address.js.download"></script>
+
+
+       <!-- FullCalendar core -->
+    <link href="./HR - Employee_files/index.global.min.css" rel="stylesheet">
+    <script src="./HR - Employee_files/index.global.min.js.download"></script>
+
+
+
+
+
+
+</body></html>

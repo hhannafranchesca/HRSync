@@ -1,0 +1,387 @@
+{% extends "base/SuperAdmin.html" %}
+
+{% block content %}
+
+<div class="col-xl-12 h-100 ">
+
+  <!-- Second Card for Submission, Search, Department Filter, and Table -->
+<div class="card h-100">
+
+
+  <!-- Tab Content -->
+  <div class="tab-content" id="submission-tabContent">
+
+    <!-- OPCR Tab -->
+ <div class="tab-pane fade show active" id="pills-opcr" role="tabpanel" aria-labelledby="pills-opcr-tab">
+
+  <!-- Filter Row -->
+<div class="row align-items-center mb-1 border-bottom pb-4">
+
+  <!-- Search Input (Left) -->
+  <div class="col-md-6 col-lg-4">
+    <h5 class="card-title mb-0">Evaluation Period Record</h5>
+  </div>
+
+  <!-- Spacer (Center) -->
+  <div class="col d-none d-lg-block"></div>
+
+  {% if current_user.has_permission('write_performance') %}
+  <!-- Button (Right) -->
+  <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-end mt-3 mt-md-0">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#notifModal">
+      <i class="bi bi-bell me-1"></i> Set Evaluation Period
+    </button>
+</div>
+  {% endif %}
+
+</div>
+
+</div>
+
+      
+
+      
+      
+
+      <!-- Table for OPCR -->
+      <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+             <table class="table table-bordered align-middle border-top dataTable dtr-column collapsed"  id="evaltbl" style="width: 100%; height: 100%;">
+            <thead class="table-dark text-center">
+              <tr>
+                <th>Period Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>IPCR Completion</th>
+                <th>Action</th> 
+              </tr>
+            </thead>
+              <tbody class="text-center">
+                {% for entry in period_data %}
+                <tr>
+                  <td class="fw-semibold">
+                    {{ entry.period.name }}
+                    {% if loop.first %}
+                      <span class="badge bg-info ms-1"></span>
+                    {% endif %}
+                  </td>
+                  <td>{{ entry.period.start_date.strftime('%B %d, %Y') }}</td>
+                  <td>{{ entry.period.end_date.strftime('%B %d, %Y') }}</td>
+                  <td>
+                    {% if entry.period.is_active %}
+                      <span class="badge bg-success">Active</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                  </td>
+
+                  <td class="fw-medium">
+                    {{ entry.ipcr_submitted }} / {{ entry.ipcr_total }} submitted
+                  </td>
+
+                  <td class="text-center align-middle">
+                    <div class="d-flex justify-content-center gap-2">
+                    <a href="{{ url_for('DepartmentOPCR') }}?period_id={{ entry.period.id }}" class="btn btn-sm btn-primary w-100">View</a>
+
+                    {% if entry.period.is_active %}
+                      <!-- Edit Button -->
+                      <a href="#" class="btn btn-sm btn-warning w-100" data-bs-toggle="modal" data-bs-target="#editModal-{{ entry.period.id }}">Edit</a>
+
+                      <!-- Close Button -->
+                      <button type="button" class="btn btn-sm btn-danger w-100"
+                              data-bs-toggle="modal"
+                              data-bs-target="#closeModal"
+                              data-period-id="{{ entry.period.id }}"
+                              data-period-name="{{ entry.period.name }}"
+                              data-ipcr="{{ entry.ipcr_submitted }} / {{ entry.ipcr_total }}">
+                        Close
+                      </button>
+                    {% else %}
+                    <button type="button" class="btn btn-sm btn-info w-100" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#activateModal-{{ entry.period.id }}">
+                      Reactivate
+                    </button>
+                    {% endif %}
+                    </div>
+                  </td>
+                </tr>
+
+                {% if entry.period.is_active %}
+                <!-- ✅ Edit Modal INSIDE loop -->
+                <div class="modal fade" id="editModal-{{ entry.period.id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ entry.period.id }}" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <form method="POST" action="{{ url_for('edit_evaluation_period') }}">
+                      <input type="hidden" name="period_id" value="{{ entry.period.id }}">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="editModalLabel-{{ entry.period.id }}">Edit Evaluation Period</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body">
+                          <div class="row g-3">
+                            <div class="col-12">
+                              <label class="form-label">Period Name</label>
+                              <input type="text" name="name" value="{{ entry.period.name }}" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label">Start Date</label>
+                              <input type="date" name="start_date" value="{{ entry.period.start_date.strftime('%Y-%m-%d') }}" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label">End Date</label>
+                              <input type="date" name="end_date" value="{{ entry.period.end_date.strftime('%Y-%m-%d') }}" class="form-control" required>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="modal-footer">
+                          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                {% endif %}
+
+                <!-- Activate Confirmation Modal -->
+                <div class="modal fade" id="activateModal-{{ entry.period.id }}" tabindex="-1" aria-labelledby="activateModalLabel-{{ entry.period.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <form method="POST" action="{{ url_for('activate_evaluation_period') }}">
+                      <input type="hidden" name="period_id" value="{{ entry.period.id }}">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="activateModalLabel-{{ entry.period.id }}">Confirm Activation</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          Are you sure you want to activate the evaluation period "<strong>{{ entry.period.name }}</strong>"?
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-success">Yes, Activate</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+
+                {% endfor %}
+
+                {% if period_data|length == 0 %}
+                <tr>
+                  <td colspan="7">No evaluation periods found.</td>
+                </tr>
+                {% endif %}
+              </tbody>
+
+
+
+          </table>
+
+
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Evaluation Period Modal -->
+<div class="modal fade" id="notifModal" tabindex="-1" aria-labelledby="notifModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('create_evaluation_period') }}">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="notifModalLabel">Set Evaluation Period</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row g-3">
+
+            <div class="col-12">
+              <label for="periodName" class="form-label">Period Name</label>
+              <input type="text" id="periodName" name="name" class="form-control" placeholder="e.g., 1st Semester 2025" required>
+            </div>
+
+            <div class="col-md-6">
+              <label for="notifStartDate" class="form-label">Start Date</label>
+              <input type="date" id="notifStartDate" name="start_date" class="form-control" required>
+            </div>
+
+            <div class="col-md-6">
+              <label for="notifEndDate" class="form-label">End Date</label>
+              <input type="date" id="notifEndDate" name="end_date" class="form-control" required>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-1"></i> Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle me-1"></i> Create Period
+          </button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Close Evaluation Period Modal -->
+<div class="modal fade" id="closeModal" tabindex="-1" aria-labelledby="closeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" id="closePeriodForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="closeModalLabel">Confirm Close</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <p class="mb-3">
+              You're about to <strong>close</strong> the evaluation period: 
+              <span class="text-primary ps-2 fs-6"><i class="bi bi-calendar-check me-1"></i><span id="modalPeriodName"></span></span>
+            </p>
+          </div>
+
+          <div class="bg-light p-3 rounded">
+
+            <p class="mb-1"><strong>IPCR Submission:</strong></p>
+            <div class="progress" style="height: 40px;">
+              <div class="progress-bar bg-primary" id="modalIpcrProgress" role="progressbar"></div>
+            </div>
+            <p class="text-muted small text-end" id="modalIpcrCount"></p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Yes, Close</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+
+
+<script>
+
+  function enableTableSearch(inputId, tableId) {
+    const searchInput = document.getElementById(inputId);
+    const table = document.getElementById(tableId);
+
+    if (!searchInput || !table) {
+      console.warn(`Search input or table not found: #${inputId}, #${tableId}`);
+      return;
+    }
+
+    const tbody = table.querySelector("tbody");
+    const rows = tbody.getElementsByTagName("tr");
+
+    searchInput.addEventListener("input", function () {
+      const filter = searchInput.value.toLowerCase();
+      Array.from(rows).forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
+    });
+  }
+
+  // Example usage after DOM is loaded
+  document.addEventListener("DOMContentLoaded", function () {
+    enableTableSearch("evalsearch", "evaltbl");
+
+  });
+</script>
+
+
+<!-- COutnign  -->
+<script>
+  const closeModal = document.getElementById('closeModal');
+  closeModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const periodId = button.getAttribute('data-period-id');
+    const periodName = button.getAttribute('data-period-name');
+    const ipcrText = button.getAttribute('data-ipcr');
+
+    const [ipcrSubmitted, ipcrTotal] = ipcrText.split('/').map(x => parseInt(x.trim()));
+    const ipcrPercent = ipcrTotal ? Math.round((ipcrSubmitted / ipcrTotal) * 100) : 0;
+
+    document.getElementById('modalPeriodName').textContent = periodName;
+    document.getElementById('modalIpcrCount').textContent = `${ipcrSubmitted} of ${ipcrTotal} submitted (${ipcrPercent}%)`;
+
+    const ipcrBar = document.getElementById('modalIpcrProgress');
+    ipcrBar.style.width = `${ipcrPercent}%`;
+    ipcrBar.textContent = `${ipcrPercent}%`;
+
+    const form = document.getElementById('closePeriodForm');
+    form.action = `/close_evaluation_period/${periodId}`;
+  });
+</script>
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+    // Force table layout fixed for all DataTables
+    $('#evaltbl').css({
+        'table-layout': 'fixed',
+        'width': '100%'
+    });
+
+    // Initialize evaltbl with DataTables
+    var evalTable = $('#evaltbl').DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        responsive: true,
+        autoWidth: false,
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50, 100],
+        columnDefs: [
+            { targets: 0, width: "20%", className: "text-start" }, // Period Name
+            { targets: 1, width: "15%" }, // Start Date
+            { targets: 2, width: "15%" }, // End Date
+            { targets: 3, width: "10%" }, // Status
+            { targets: 4, width: "15%", className: "text-center" }, // IPCR Completion
+            { targets: 5, width: "25%", orderable: false, className: "text-center" } // Actions
+        ],
+        order: [[1, 'desc']], // default sort by Start Date
+        dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>' +
+             't' +
+             '<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search Evaluation Periods..."
+        }
+    });
+
+    // Style search input
+    $(".dataTables_filter input")
+        .addClass("form-control form-control-lg w-auto")
+        .css("margin-left", "0");
+
+    // Style entries dropdown
+    $(".dataTables_length select")
+        .addClass("form-select form-select-lg")
+        .css("min-width", "80px");
+});
+</script>
+{% endblock %}
+
+
+{% endblock content %}

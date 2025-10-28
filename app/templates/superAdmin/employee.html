@@ -1,0 +1,2205 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+
+
+
+<div class="row g-4 mb-4">
+  
+    <div class="col-12 col-sm-6 col-xl-6">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div class="content-left">
+              <span class="text-heading">Total Department</span>
+              <div class="d-flex align-items-center my-1">
+                <h4 class="mb-0 me-2 fs-3 fw-semibold">{{ total_departments or 0 }}</h4>
+              </div>
+            </div>
+            <div class="avatar">
+              <span class="avatar-initial rounded bg-label-primary">
+                <i class="bi bi-building fs-3"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-12 col-sm-6 col-xl-6">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex align-items-start justify-content-between">
+            <div class="content-left">
+              <span class="text-heading">Active Employees</span>
+              <div class="d-flex align-items-center my-1">
+                <h4 class="mb-0 me-2 fs-3 fw-semibold">{{ total_employee or 0 }}</h4>
+                <!-- <p class="text-success mb-0">(+29%)</p> -->
+              </div>
+            </div>
+            <div class="avatar">
+              <span class="avatar-initial rounded bg-label-primary">
+                <i class="bi bi-people fs-3"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+ 
+  
+</div>
+
+<div class="col-xl-12">
+
+  <div class="nav-align-top mb-4">
+     <ul class="nav nav-pills mb-3 flex-nowrap overflow-auto" role="tablist" style="white-space: nowrap;">
+
+
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                  data-bs-target="#navs-pills-travel-order" id="travel-order-tab" 
+                  aria-controls="navs-pills-travel-order" aria-selected="true">
+                  Permanent, Co-Term and Elective
+          </button>
+        </li>
+
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                  data-bs-target="#navs-pills-Leave-Credits" id="Leave-Credits-tab" 
+                  aria-controls="navs-pills-Leave-Credits" aria-selected="false">
+                  Casual appointments
+          </button>
+        </li>
+    
+      
+
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                  data-bs-target="#navs-pills-JO" id="JO-tab" 
+                  aria-controls="navs-pills-JO" aria-selected="false">
+                  Job Order
+          </button>
+        </li>
+    
+     
+      </ul>
+    
+      <div class="tab-content h-100 min-vh-100">
+
+        <!-- CASUAL EMPLOYEE -->
+        <div class="tab-pane fade " id="navs-pills-Leave-Credits" role="tabpanel" aria-labelledby="Leave-Credits-tab">
+
+        <div class="card-header border-bottom p-0 pb-3 mb-4">
+          <h5 class="card-title mb-0">Casual Employees</h5>
+          <div class="d-flex justify-content-between align-items-center row pt-4  g-6">
+            
+             <div class="col-md-6 user_role">
+              <select id="casualtOrg" class="form-select text-capitalize">
+                <option value="" selected>All Departments</option>
+                {% for dept in departments %}
+                  <option value="{{ dept.name }}">{{ dept.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6 d-flex justify-content-end gap-2">
+                 <!-- Export Button -->
+            <div class="btn-group flex-shrink-0">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-box-arrow-up me-1"></i>
+                    <span>Export</span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                    <li><a class="dropdown-item" href="{{ url_for('generate_casualjob_pdf') }}"><i class="bi bi-file-pdf me-2"></i>Export as PDF</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('print_casualjob') }}" target="_blank"><i class="bi bi-printer me-2"></i>Print</a></li>
+                </ul>
+            </div>
+
+            <!-- Add Button -->
+            <button class="btn btn-primary flex-shrink-0" type="button" data-bs-toggle="modal" data-bs-target="#addCasualEmployeeModal">
+                <i class="bi bi-plus me-1"></i>
+                <span>Add Casual Employee</span>
+            </button>
+            </div>
+
+           
+          </div>
+        </div>
+        <div class="card-datable">
+       
+  
+  
+          <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+              <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                  <table class="datatables-users table border-top dataTable dtr-column collapsed table-bordered" 
+                  id="casualtbl" 
+                  aria-describedby="DataTables_Table_0_info" 
+                  style="width: 100%; height: 100%;">
+                  
+           
+                  <thead class="table-dark align-middle text-center">
+                    <tr>
+                      <th colspan="3" class="border" style="width: 40%;">Name of Appointees</th>
+                      <th rowspan="2" class="border">Position Title</th>
+                      <th rowspan="2" class="border">Job/Pay Grade</th>
+                      <th rowspan="2" class="border">Daily Wage</th>
+                      <th colspan="2" class="border">Period of Employment</th>
+                      <th rowspan="2" class="border">Assigned Department</th>
+                      <th rowspan="2" class="border">Action</th>
+                    </tr>
+                    <tr>
+                      <th class="col-num border border" >#</th>
+                      <th class="col-name border" >Full Name</th>
+                      <th class="col-ext border" >Name Extension (Jr./III)</th>
+                      <th class="border">From (mm/dd/yyyy)</th>
+                      <th class="border">To (mm/dd/yyyy)</th>
+                    </tr>
+                  </thead>
+                  
+                
+              
+               <tbody>
+              {% if casual_employees %}
+                {% for emp in casual_employees %}
+                  <tr class="text-center {% if emp.casual_details.contract_end and emp.casual_details.contract_end < today %}table-danger{% endif %}">
+
+                      <td>{{ loop.index }}</td>
+                      <td>
+                        <div class="d-flex justify-content-start align-items-center user-name">
+                          <div class="d-flex flex-column">
+                            <a href="{{ url_for('EmployeeDetail', id=emp.id) }}" class="text-heading text-wrap">
+                              <span class="fw-medium">{{ emp.last_name }} {{ emp.first_name }} {{ emp.middle_name }}</span>
+                            </a>
+                          </div>
+                        </div>
+                      </td>
+                      
+                      <td>{{ emp.casual_details.name_extension or 'N/A' }}</td>
+                      <td>{{ emp.casual_details.position.title }}</td>
+                      <td>{{ emp.casual_details.equivalent_salary or '' }}</td>
+                      <td>{{ emp.casual_details.daily_wage or '' }}</td>
+                      <td>{{ emp.casual_details.contract_start.strftime('%m/%d/%Y') if emp.casual_details.contract_start else '' }}</td>
+                      <td>{{ emp.casual_details.contract_end.strftime('%m/%d/%Y') if emp.casual_details.contract_end else '' }}</td>
+                      <td>{{ emp.casual_details.assigned_department.name if emp.casual_details.assigned_department else '-' }}</td>
+
+                      <td class="align-middle">
+                        <div class="d-flex flex-column gap-2">
+                          <button 
+                          class="btn btn-sm btn-primary editCasualEmployeeBtn"
+                          data-id="{{ emp.id }}" 
+                          data-last_name="{{ emp.last_name }}"
+                          data-first_name="{{ emp.first_name }}"
+                          data-middle_name="{{ emp.middle_name }}"
+                          data-extension_name="{{ emp.casual_details.name_extension }}"
+                          data-status="{{ emp.employment_status }}"
+                          data-position_title="{{ emp.casual_details.position_title }}"
+                          data-salary_grade="{{ emp.casual_details.equivalent_salary }}"
+                          data-daily_wage="{{ emp.casual_details.daily_wage }}"
+                          data-date_from="{{ emp.casual_details.contract_start.strftime('%Y-%m-%d') if emp.casual_details.contract_start else '' }}"
+                          data-date_to="{{ emp.casual_details.contract_end.strftime('%Y-%m-%d') if emp.casual_details.contract_end else '' }}"
+                          data-assigned_department_id="{{ emp.casual_details.assigned_department_id }}"
+                          data-bs-toggle="modal"
+                          data-bs-target="#editCasualEmployeeModal">
+                          Edit
+                          </button>
+
+                          <button type="button"
+                                  class="btn btn-sm btn-danger btn-terminate"
+                                  data-id="{{ emp.id }}"
+                                  data-name="{{ emp.last_name }} {{ emp.first_name }} {{ emp.middle_name }}"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#terminateEmployeeModal">
+                            End Contract
+                          </button>
+                        </div>
+                      </td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                    <td colspan="10" class="text-center">No casual employee records found.</td>
+                </tr>
+              {% endif %}
+            </tbody>
+
+                
+            </table>
+          </div>
+      
+      </div>
+        </div>
+
+        </div>
+    
+        <!-- PERMANENT EMPLOYEE -->
+        <div class="tab-pane fade show " id="navs-pills-travel-order" role="tabpanel" aria-labelledby="travel-order-tab">
+          <div class="card-header border-bottom p-0 pb-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+               <h5 class="card-title mb-0">Permanent, Co-Term and Electives Employees</h5>
+              <div class="d-flex align-items-center gap-2">
+                         <!-- Export Dropdown Button -->
+                  <div class="btn-group">
+                      <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                          <i class="bi bi-box-arrow-up me-1"></i>
+                          <span>Export</span>
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                          <li>
+                              <a class="dropdown-item" href="{{ url_for('generate_pdf') }}">
+                                  <i class="bi bi-file-pdf me-2"></i>Export as PDF
+                              </a>
+                          </li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li>
+                              <a class="dropdown-item" href="{{ url_for('print_employee_report') }}" target="_blank">
+                                  <i class="bi bi-printer me-2"></i>Print
+                              </a>
+                          </li>
+                      </ul>
+                  </div>
+
+                  <!-- Add Employee Button -->
+                  <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                      <i class="bi bi-plus me-1"></i>
+                      <span>Add Employee</span>
+                  </button>
+              </div>
+            </div>
+
+            <div class="row pt-1  g-3">
+              <div class="col-12 col-md-6">
+                <select id="permanentOrg" class="form-select text-capitalize">
+                  <option value="">All Organizational Units</option>
+                  {% for dept in departments %}
+                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <select id="positionOrg" class="form-select text-capitalize">
+                  <option value="">Select Position</option>
+                </select>
+              </div>
+            </div>
+
+            </div>
+          <div class="card-datable">
+ 
+    
+    
+            <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                    <table class="datatables-users table border-top dataTable dtr-column collapsed table-bordered" 
+                    id="employeeTable" 
+                    aria-describedby="DataTables_Table_0_info" 
+                    style="width: 100%; height: 100%;">
+                    
+             
+                    <thead class="table-dark align-middle text-center">
+                        <tr>
+                        <th class="d-none">Dept ID</th>
+                        <th data-dt-column="1" class="dt-orderable-asc dt-orderable-desc" tabindex="0" >
+                            <span class="dt-column-title" role="button">ORGANIZATIONAL UNIT</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="2" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">ITEM NUMBER</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="3" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">POSITION TITLE</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="7" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">STEP</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+               
+                    
+                        <th data-dt-column="10" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">LEVEL</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="11" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">FULL NAME</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="17" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">TIN / UMID NO.</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+
+                    
+                        <th data-dt-column="19" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">DATE OF ORIGINAL APPOINTMENT</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+               
+                    
+                        <th data-dt-column="20" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">STATUS</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                        <th data-dt-column="20" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                          <span class="dt-column-title" role="button">ACTION</span>
+                      </th>
+    
+                        </tr>
+                    </thead>
+                  
+                
+                  <tbody>
+                    {% for dept in departments if positions_by_dept.get(dept.name) %}
+                   
+
+                      {% set dept_positions = positions_by_dept.get(dept.name, []) %}
+                      {% set dept_emps = permanent_by_dept.get(dept.name, []) %}
+                      {% for position in dept_positions %}
+                        {% set assigned_emps = dept_emps | selectattr("permanent_details.position_id", "equalto", position.id) | list %}
+                        {% for i in range(position.number_of_positions) %}
+                          {% set emp = assigned_emps[i] if i < assigned_emps | length else None %}
+
+                          <tr>
+                            <td class="d-none">{{ dept.id }}</td>
+                            <td>{{ dept.name }}</td>
+                            <td>{{ emp.permanent_details.item_number if emp else '-' }}</td>
+                            <td>{{ position.title }}</td>
+                            <td>{{ emp.permanent_details.step if emp else '-' }}</td>
+                            <td>{{ emp.permanent_details.level if emp else '-' }}</td>
+                            <td>
+                              {% if emp %}
+                                <a href="{{ url_for('EmployeeDetail', id=emp.id) }}" class="text-heading text-wrap">
+                                  {{ emp.last_name }} {{ emp.first_name }} {{ emp.middle_name }}
+                                </a>
+                              {% else %}
+                                <span class="text-muted">No employee assigned</span>
+                              {% endif %}
+                            </td>
+                            <td>{{ emp.permanent_details.tin ~ ' ' ~ emp.umid_no if emp else '-' }}</td>
+                          
+                            <td>
+                              {{ emp.permanent_details.date_original_appointment.strftime('%Y-%m-%d') if emp and emp.permanent_details.date_original_appointment else '-' }}
+                            </td>
+
+                            <td>{{ emp.status if emp else 'Vacant' }}</td>
+                            <td class="text-center align-middle">
+                              {% if emp %}
+                                <div class="d-flex flex-column justify-content-center gap-2">
+                                  <button type="button" class="btn btn-sm btn-primary btn-edit"
+                                          data-id="{{ emp.id }}"
+                                          data-organizational_unit="{{ emp.department_id }}"
+                                          data-item_number="{{ emp.permanent_details.item_number }}"
+                                          data-position_title="{{ position.id }}"
+                                          data-salary_grade="{{ emp.permanent_details.salary_grade }}"
+                                          data-authorized_salary="{{ emp.permanent_details.authorized_salary }}"
+                                          data-actual_salary="{{ emp.permanent_details.actual_salary }}"
+                                          data-step="{{ emp.permanent_details.step }}"
+                                          data-area_code="{{ emp.permanent_details.area_code }}"
+                                          data-area_type="{{ emp.permanent_details.area_type }}"
+                                          data-level="{{ emp.permanent_details.level }}"
+                                          data-last_name="{{ emp.last_name }}"
+                                          data-first_name="{{ emp.first_name }}"
+                                          data-middle_name="{{ emp.middle_name }}"
+                                          data-sex="{{ emp.permanent_details.sex }}"
+                                          data-dob="{{ emp.permanent_details.date_of_birth.strftime('%Y-%m-%d') if emp.permanent_details.date_of_birth else '' }}"
+                                          data-tin="{{ emp.permanent_details.tin }}"
+                                          data-doa="{{ emp.permanent_details.date_original_appointment.strftime('%Y-%m-%d') if emp.permanent_details.date_original_appointment else '' }}"
+                                          data-dop="{{ emp.permanent_details.date_last_promotion.strftime('%Y-%m-%d') if emp.permanent_details.date_last_promotion else '' }}"
+                                          data-status="{{ emp.status }}"
+                                          data-eligibility="{{ emp.permanent_details.eligibility }}"
+                                          data-comments="{{ emp.permanent_details.comments }}"
+                                          data-bs-toggle="modal" data-bs-target="#editEmployeeModal">
+                                    Edit
+                                  </button>
+                                  <button type="button" class="btn btn-sm btn-danger btn-terminate"
+                                          data-id="{{ emp.id }}"
+                                          data-name="{{ emp.last_name }} {{ emp.first_name }} {{ emp.middle_name }}"
+                                          data-bs-toggle="modal"
+                                          data-bs-target="#terminateEmployeeModal">
+                                   Deactivate Employee
+                                  </button>
+                                  
+                                  {% if current_user.employee 
+                                  and current_user.employee.permanent_details 
+                                  and current_user.employee.permanent_details.position 
+                                  and current_user.employee.permanent_details.position.type == 'Head' %}
+
+                                  {% if emp and emp.is_step_eligible_now %}
+                                      <button type="button"
+                                            class="btn btn-sm btn-info"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#salaryStepModal"
+                                            data-emp-id="{{ emp.id }}"
+                                            data-emp-name="{{ emp.last_name }} {{ emp.first_name }}"
+                                            data-emp-current-salary="{{ emp.permanent_details.actual_salary }}"
+                                            data-emp-position="{{ emp.permanent_details.position.title if emp.permanent_details.position else '' }}">
+                                        Step Increase
+                                    </button>
+                                    {% endif %}
+
+                                  {% if emp and eligible_for_benefits.get(emp.id) %}
+                                    <button type="button"
+                                            class="btn btn-sm btn-success"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#grantBenefitModal"
+                                            data-emp-id="{{ emp.id }}"
+                                            data-emp-name="{{ emp.last_name }} {{ emp.first_name }}"
+                                            data-milestone="{{ eligible_for_benefits[emp.id] }}">
+                                      Grant {{ eligible_for_benefits[emp.id] }}-Year Benefit
+                                    </button>
+                                  {% endif %}
+                                  {% endif %}
+
+                                </div>
+                              {% endif %}
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      {% endfor %}
+                    {% endfor %}
+                  </tbody>
+
+
+
+                    </table>
+            </div>
+        
+        </div>
+          </div>
+        </div>
+        
+        <!-- JO EMPLOYEE -->
+        <div class="tab-pane fade" id="navs-pills-JO" role="tabpanel" aria-labelledby="JO-tab">
+          <div class="card-header border-bottom p-0  pb-3 mb-4">
+          <h5 class="card-title mb-0">JO Employees</h5>
+          <div class="d-flex justify-content-between align-items-center row pt-4  g-6">
+            
+            <div class="col-md-6 user_role">
+              <select id="joOrg" class="form-select text-capitalize">
+                <option value="" selected>All Departments</option>
+                {% for dept in departments %}
+                  <option value="{{ dept.name }}">{{ dept.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6 d-flex justify-content-end gap-2">
+                   <!-- Export Button -->
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-box-arrow-up me-1"></i>
+                        <span>Export</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('generate_jo_pdf') }}">
+                                <i class="bi bi-file-pdf me-2"></i>Export as PDF
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('print_jo') }}" target="_blank">
+                                <i class="bi bi-printer me-2"></i>Print
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Add JO Employee Button -->
+              <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addJOEmployeeModal" style="max-width: 180px; white-space: nowrap;">
+                <i class="bi bi-plus me-1"></i>
+                <span>Add JO Employee</span>
+            </button>
+            </div>
+          </div>
+
+        </div>
+          <div class="card-datable">
+      
+    
+            <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                  <table class="datatables-users table border-top dataTable dtr-column collapsed table-bordered" 
+                  id="JOtbl" 
+                  aria-describedby="DataTables_Table_0_info" 
+                  style="width: 100%; height: 100%;">
+               <thead class="table-dark align-middle text-center">
+                   <tr>
+                       <th data-dt-column="1" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                           <span class="dt-column-title" role="button">ORGANIZATIONAL UNIT</span>
+                           <span class="dt-column-order"></span>
+                       </th>
+           
+                       <th data-dt-column="2" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                           <span class="dt-column-title" role="button">FULL NAME</span>
+                           <span class="dt-column-order"></span>
+                       </th>
+
+                       <th data-dt-column="6" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                        <span class="dt-column-title" role="button">CONTRACT</span>
+                        <span class="dt-column-order"></span>
+                      </th>
+
+                       <th data-dt-column="3" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                           <span class="dt-column-title" role="button">ASSIGNED DEPARTMENT</span>
+                           <span class="dt-column-order"></span>
+                       </th>
+           
+                       <th data-dt-column="4" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                           <span class="dt-column-title" role="button">EMPLOYMENT STATUS</span>
+                           <span class="dt-column-order"></span>
+                       </th>
+           
+                       <th data-dt-column="5" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                           <span class="dt-column-title" role="button">ACTION</span>
+                       </th>
+                   </tr>
+               </thead>
+           
+            <tbody class="text-center">
+                {% if job_order_employees %}
+                  {% for employee in job_order_employees %}
+                    <tr>
+                      <td>
+                        {% if employee.job_order_details %}
+                          {{ employee.department.name }}
+                        {% else %}
+                          N/A
+                        {% endif %}
+                      </td>
+                      <td>
+                      <div class="d-flex justify-content-center align-items-center user-name">
+                        <div class="d-flex flex-column">
+                          <a href="#"
+                              class="fw-medium text-primary viewJobOrderHistory"
+                              data-id="{{ employee.id }}"
+                              data-name="{{ employee.first_name }} {{ employee.middle_name }} {{ employee.last_name }}">
+                              {{ employee.first_name }} {{ employee.middle_name }} {{ employee.last_name }}
+                            </a>
+                        </div>
+                      </div>
+                    </td>
+
+                      <td>
+                        {% if employee.job_order_details and employee.job_order_details.contract_start and employee.job_order_details.contract_end %}
+                          {{ employee.job_order_details.contract_start.strftime('%B %d, %Y') }} 
+                          to 
+                          {{ employee.job_order_details.contract_end.strftime('%B %d, %Y') }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </td>                                             
+                      <td>{{ employee.job_order_details.assigned_department.name if employee.job_order_details and employee.job_order_details.assigned_department else '-' }}</td>
+                      <td>{{ employee.status }}</td>
+                      <td class="align-middle">
+                         <div class="d-flex flex-column gap-2">
+                        <!-- Action buttons (Edit, Delete, etc.) -->
+                        <button class="btn btn-sm btn-primary editJOEmployeeBtn"
+                              data-bs-toggle="modal"
+                              data-bs-target="#editJOEmployeeModal"
+                              data-id="{{ employee.id }}"  
+                              data-first-name="{{ employee.first_name }}"
+                              data-middle-name="{{ employee.middle_name }}"
+                              data-last-name="{{ employee.last_name }}"
+                              data-organizational-unit="{{ employee.organizational_unit }}"
+                              data-status="{{ employee.status }}"
+                              data-date-hired="{{ employee.job_order_details.date_hired.strftime('%Y-%m-%d') if employee.job_order_details and employee.job_order_details.date_hired else '' }}"
+                              data-assigned-department-id="{{ employee.job_order_details.assigned_department_id if employee.job_order_details else '' }}"
+                              data-contract-start="{{ employee.job_order_details.contract_start.strftime('%Y-%m-%d') if employee.job_order_details and employee.job_order_details.contract_start else '' }}"
+                              data-contract-end="{{ employee.job_order_details.contract_end.strftime('%Y-%m-%d') if employee.job_order_details and employee.job_order_details.contract_end else '' }}">
+                          Edit
+                        </button>
+                                  <button type="button"
+                                  class="btn btn-sm btn-danger btn-terminate"
+                                  data-id="{{ employee.id }}"
+                                  data-name="{{ employee.last_name }} {{ employee.first_name }} {{ employee.middle_name }}"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#terminateEmployeeModal">
+                           End Contract
+                          </button>
+                          </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="5" class="text-center">No job order employee records found.</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+
+
+           </table>
+           
+            </div>
+        
+        </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+
+</div>
+  
+
+<!-- Modal for Benefit -->
+<div class="modal fade" id="grantBenefitModal" tabindex="-1" aria-labelledby="grantBenefitModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('grant_benefit') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="grantBenefitModalLabel">Confirm Granting of Benefit</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="employee_id" id="benefit-emp-id">
+          <input type="hidden" name="milestone" id="benefit-milestone">
+
+          <p>Are you sure you want to grant the <strong><span id="benefit-milestone-label"></span>-Year Benefit</strong> to <strong><span id="benefit-emp-name"></span></strong>?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Confirm</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<!-- Moda for Step Increase -->
+<div class="modal fade" id="salaryStepModal" tabindex="-1" aria-labelledby="salaryStepModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('process_step_increase') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="salaryStepModalLabel">Confirm Step Increase</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="employee_id" id="modal-emp-id">
+
+          <div class="mb-3">
+            <label for="modal-emp-name" class="form-label">Employee</label>
+            <input type="text" class="form-control" id="modal-emp-name" readonly>
+          </div>
+
+          <div class="mb-3">
+            <label for="modal-prev-salary" class="form-label">Previous Salary</label>
+            <input type="text" class="form-control" id="modal-prev-salary" name="previous_salary" readonly>
+          </div>
+
+          <div class="mb-3">
+            <label for="new_salary" class="form-label">New Salary</label>
+            <input type="text" class="form-control" id="new_salary" name="new_salary" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="effective_date" class="form-label">Effective  Promotion Date</label>
+            <input type="date" class="form-control" name="effective_date" required>
+          </div>
+
+        
+
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Confirm</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<!-- Termination Confirmation Modal -->
+<div class="modal fade" id="terminateEmployeeModal" tabindex="-1" aria-labelledby="terminateEmployeeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger">
+      <form id="terminateEmployeeForm" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title" id="terminateEmployeeLabel">Confirm End of Employment</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to End the Employment of <strong id="terminateEmployeeName"></strong>?</p>
+          <input type="hidden" name="employee_id" id="terminateEmployeeId">
+
+           <div class="mb-3">
+            <label for="terminateReason" class="form-label">Reason for Termination</label>
+            <textarea 
+              class="form-control" 
+              id="terminateReason" 
+              name="reason" 
+              rows="3" 
+              placeholder="Enter reason here..." 
+              required></textarea>
+          </div>
+
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Yes, End Employment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<!-- ADDING PERMANENT -->
+<div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form method="POST" action="/add_employee" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Employment Details -->
+          <div class="row align-items-center">
+            <div class="col-auto">
+                <h6 class="fw-bold mb-3">Employment Details</h6>
+            </div>
+   
+        </div>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Organizational Unit(1)<span class="text-danger">*</span></label>
+                <select class="form-select" id="organizationalUnitSelect" name="organizational_unit" required>
+                  <option value="" disabled selected>Select Organizational Unit</option>
+                  {% for department in departments %}
+                    <option value="{{ department.id }}">{{ department.name }}</option>
+                  {% endfor %}
+                </select>
+                
+              </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Item Number(2)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="item_number" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Position Title(3)<span class="text-danger">*</span></label>
+              <select class="form-select" id="positionTitleSelect" name="position_title" required>
+                <option value="" disabled selected>Select Position Title</option>
+                {% for position in positions %}
+                  <option value="{{ position.id }}">{{ position.title }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Salary Grade(4)<span class="text-danger">*</span></label>
+              <input type="number" class="form-control" name="salary_grade">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Authorized Salary(5)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="authorized_salary">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Actual Salary(6)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="actual_salary">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Step(7)<span class="text-danger">*</span></label>
+              <input type="number" class="form-control" name="step">
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Area Details -->
+          <h6 class="fw-bold mb-3 mt-4">Area Details</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Area Code(8)</label>
+              <input type="text" class="form-control" name="area_code">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="areaType">Area Type (9)<span class="text-danger">*</span></label>
+              <select class="form-select" id="areaType" name="area_type">
+                <option value="">Select Area Type</option>
+                <option value="R">R - Region</option>
+                <option value="P">P - Province</option>
+                <option value="D">D - District</option>
+                <option value="M" selected>M - Municipality</option>
+                <option value="F">F - Foreign Post</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="level">Level (10)<span class="text-danger">*</span></label>
+              <select class="form-select" id="level" name="level">
+                <option value="">Select Level</option>
+                <option value="K">K - Key Positions</option>
+                <option value="A">A - Administrative Positions</option>
+                <option value="S">S - Support to Key Positions</option>
+                <option value="T">T - Technical Positions</option>
+              </select>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Personal Information -->
+          <h6 class="fw-bold mb-3 mt-4">Personal Information</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Last Name(11)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="last_name" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">First Name(12)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="first_name" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Middle Name(13)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="middle_name">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Sex(14)<span class="text-danger">*</span></label>
+              <select class="form-select" name="sex">
+              <option value="">Select Sex</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date of Birth(15)<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_of_birth">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">TIN(16) / UMID No.(17)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="tin">
+            </div>
+
+         
+            
+          </div>
+
+          <hr>
+
+          <!-- Appointment Info -->
+          <h6 class="fw-bold mb-3 mt-4">Appointment Info</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Date of Original Appointment(18)<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_original_appointment">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date of Last Promotion(19)<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_last_promotion">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="status">Status (20)<span class="text-danger">*</span></label>
+              <select class="form-select" id="status" name="status">
+                <option value="">Select Status</option>
+                <option value="P">P - Permanent</option>
+                <option value="E">E - Electives</option>
+                <option value="T">T - Temporary</option>
+                <option value="CT">CT - Co-Terminous</option>
+                <option value="PA">PA - Presidential Appointee</option>
+              </select>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Other Info -->
+          <h6 class="fw-bold mb-3 mt-4">Other Information</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Civil Service Eligibility(21)</label>
+              <input type="text" class="form-control" name="eligibility">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Comments/Annotation(22)</label>
+              <input type="text" class="form-control" name="comments">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+  
+
+
+
+
+<!-- ADDIGN CASUAL Modal -->
+<div class="modal fade" id="addCasualEmployeeModal" tabindex="-1" aria-labelledby="addCasualEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form method="POST" action="/add_Casual_employee" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Employee Details -->
+          <div class="row g-3">
+        
+            <div class="col-md-12">
+              <label class="form-label">Position Title</label>
+              <input type="text" class="form-control" name="position_title" value="ADM. AIDE. I" readonly>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Last Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="last_name" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">First Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="first_name" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Name Extension</label>
+              <input type="text" class="form-control" name="name_extension">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" name="middle_name">
+            </div>
+
+         
+          </div>
+
+          <div class="row g-3 mt-3">
+            <div class="col-md-6">
+              <label class="form-label">Salary Grade<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="salary_grade">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Daily Wage<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="daily_wage">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contract From<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="employment_from">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contract To<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="employment_to">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ADDING JO -->
+<div class="modal fade" id="addJOEmployeeModal" tabindex="-1" aria-labelledby="addJOEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="POST" action="/add_jo_employee" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="addEmployeeModalLabel">Add JO Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Employee Details -->
+          <div class="row g-3">
+        
+        
+
+            <div class="col-md-4">
+              <label class="form-label">Last Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="last_name" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">First Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="first_name" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Middle Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="middle_name">
+            </div>
+
+             <div class="col-md-12">
+              <label class="form-label">Date Hired<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_hired" required>
+            </div>
+
+                        <!-- Contract Start -->
+            <div class="col-md-6">
+              <label class="form-label">Contract Start<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="contract_start" required>
+            </div>
+
+            <!-- Contract End -->
+            <div class="col-md-6">
+              <label class="form-label">Contract End<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="contract_end" required>
+            </div>
+           
+          </div>
+
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add JO Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+  <!-- Edit Permanent Employee Modal -->
+<div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form method="POST" action="/edit_employee" id="editEmployeeForm" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="editEmployeeModalLabel">Edit Employee Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+  
+        <div class="modal-body">
+          <!-- Employment Details -->
+          <h6 class="fw-bold mb-3">Employment Details</h6>
+          <div class="row g-3">
+            <input type="hidden" name="employee_id" id="edit-employee-id">
+            <div class="col-md-4">
+              <label class="form-label">Organizational Unit<span class="text-danger">*</span></label>
+              <select class="form-select" id="edit-organizational-unit" name="organizational_unit" required>
+                <option value="" disabled>Select Organizational Unit</option>
+                {% for department in departments %}
+                  <option value="{{ department.id }}">{{ department.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Item Number<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="item_number" id="edit-item-number" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Position Title<span class="text-danger">*</span></label>
+              <select class="form-select" id="edit-position-title" name="position_title" required>
+                <option value="" disabled>Select Position Title</option>
+                {% for position in positions %}
+                  <option value="{{ position.id }}">{{ position.title }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Salary Grade<span class="text-danger">*</span></label>
+              <input type="number" class="form-control" name="salary_grade" id="edit-salary-grade">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Authorized Salary<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="authorized_salary" id="edit-authorized-salary">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Actual Salary<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="actual_salary" id="edit-actual-salary">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Step<span class="text-danger">*</span></label>
+              <input type="number" class="form-control" name="step" id="edit-step">
+            </div>
+          </div>
+  
+          <!-- Area Details -->
+          <h6 class="fw-bold mb-3 mt-4">Area Details</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Area Code</label>
+              <input type="text" class="form-control" name="area_code" id="edit-area-code">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="areaType">Area Type (9)<span class="text-danger">*</span></label>
+              <select class="form-select" id="edit-area-type" name="area_type">
+                <option value="">Select Area Type</option>
+                <option value="R">R - Region</option>
+                <option value="P">P - Province</option>
+                <option value="D">D - District</option>
+                <option value="M">M - Municipality</option>
+                <option value="F">F - Foreign Post</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="level">Level (10)<span class="text-danger">*</span></label>
+              <select class="form-select" id="edit-level" name="level">
+                <option value="">Select Level</option>
+                <option value="K">K - Key Positions</option>
+                <option value="A">A - Administrative Positions</option>
+                <option value="S">S - Support to Key Positions</option>
+                <option value="T">T - Technical Positions</option>
+              </select>
+            </div>
+          </div>
+  
+          <!-- Personal Information -->
+          <h6 class="fw-bold mb-3 mt-4">Personal Information</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Last Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="last_name" id="edit-last-name" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">First Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="first_name" id="edit-first-name" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Middle Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="middle_name" id="edit-middle-name">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Sex<span class="text-danger">*</span></label>
+              <select class="form-select" name="sex" id="edit-sex">
+                <option value="" >Select Sex</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date of Birth<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_of_birth" id="edit-dob">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">TIN<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="tin" id="edit-tin">
+            </div>
+           
+          </div>
+  
+          <!-- Appointment Info -->
+          <h6 class="fw-bold mb-3 mt-4">Appointment Info</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Date of Original Appointment<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_original_appointment" id="edit-date-original-appointment">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date of Last Promotion</label>
+              <input type="date" class="form-control" name="date_last_promotion" id="edit-date-last-promotion">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="status">Status (20)<span class="text-danger">*</span></label>
+              <select class="form-select" id="edit-status" name="status">
+                <option value="">Select Status</option>
+                <option value="P">P - Permanent</option>
+                <option value="E">E - Electives</option>
+                <option value="T">T - Temporary</option>
+                <option value="CT">CT - Co-Terminous</option>
+                <option value="PA">PA - Presidential Appointee</option>
+              </select>
+            </div>
+          </div>
+  
+          <!-- Other Info -->
+          <h6 class="fw-bold mb-3 mt-4">Other Information</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Civil Service Eligibility</label>
+              <input type="text" class="form-control" name="eligibility" id="edit-eligibility">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Comments/Annotation</label>
+              <input type="text" class="form-control" name="comments" id="edit-comments">
+            </div>
+          </div>
+        </div>
+  
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="editCasualEmployeeModal" tabindex="-1" aria-labelledby="editCasualEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form method="POST" action="/edit_Casual_employee" id="editCasualEmployeeForm" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="editCasualEmployeeModalLabel">Edit Casual Employee</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Hidden ID -->
+          <input type="hidden" name="employee_id" id="edit-casual-employee-id">
+
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label">Last Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="last_name" id="edit-casual-last-name" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">First Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="first_name" id="edit-casual-first-name" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" name="middle_name" id="edit-casual-middle-name">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Name Extension</label>
+              <input type="text" class="form-control" name="name_extension" id="edit-casual-name-extension">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="edit-casual-assigned-department">Assign Department</label>
+              <select name="assigned_department_id" id="edit-casual-assigned-department" class="form-control" required>
+                {% for dept in departments %}
+                  <option value="{{ dept.id }}">{{ dept.name }}</option>
+                {% endfor %}
+              </select> 
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Status</label>
+              <select name="employment_status" id="employment_status" class="form-control" required>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="terminated"> End Contract</option>
+              </select>
+            </div>
+            
+
+            <div class="col-md-6">
+              <label class="form-label">Salary Grade<span class="text-danger">*</span></label>
+              <input type="number" class="form-control" name="salary_grade" id="edit-casual-salary-grade">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Daily Wage<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="daily_wage" id="edit-casual-daily-wage">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contract From<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_from" id="edit-casual-date-from">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contract To<span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="date_to" id="edit-casual-date-to">
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Casual Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="editJOEmployeeModal" tabindex="-1" aria-labelledby="editJOEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <form method="POST" action="/edit_JO_employee" novalidate>
+              <div class="modal-header">
+                  <h5 class="modal-title" id="editEmployeeModalLabel">Edit JO Employee</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+
+              <div class="modal-body">
+                  <!-- Employee Details -->
+                  <div class="row g-3">
+                      <div class="col-md-12">
+                          <label class="form-label" for="edit-casual-assigned-department">Assign Department</label>
+                          <select name="assigned_department_id" id="edit-casual-assigned-department" class="form-control" required>
+                            {% for dept in departments %}
+                              <option value="{{ dept.id }}">{{ dept.name }}</option>
+                            {% endfor %}
+                          </select> 
+                      </div>
+
+                      <div class="col-md-4">
+                          <label class="form-label">First Name<span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" name="first_name" id="editFirstName" required>
+                      </div>
+
+                      <div class="col-md-4">
+                          <label class="form-label">Middle Name<span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" name="middle_name" id="editMiddleName">
+                      </div>
+
+                      <div class="col-md-4">
+                          <label class="form-label">Last Name<span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" name="last_name" id="editLastName" required>
+                      </div>
+
+                        <div class="col-md-12">
+                          <label class="form-label">Date Hired<span class="text-danger">*</span></label>
+                          <input type="date" class="form-control" name="date_hired" id="editDateHired" required>
+                      </div>
+
+                       <div class="col-md-6">
+                          <label class="form-label">Contract Start<span class="text-danger">*</span></label>
+                          <input type="date" class="form-control" name="contract_start" id="editContractStart" required>
+                        </div>
+
+                        <div class="col-md-6">
+                          <label class="form-label">Contract End<span class="text-danger">*</span></label>
+                          <input type="date" class="form-control" name="contract_end" id="editContractEnd" required>
+                        </div>
+
+                 
+
+                      <input type="hidden" id="editEmployeeId" name="employee_id">
+
+                  </div>
+              </div>
+
+              <div class="modal-footer mt-3">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Save Changes</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+<div class="modal fade" id="jobOrderHistoryModal" tabindex="-1" aria-labelledby="jobOrderHistoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="jobOrderHistoryModalLabel">Job Order History</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="jobOrderHistoryBody">
+        <!-- Cards will be inserted here dynamically -->
+        <div class="text-center text-muted">Loading...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.viewJobOrderHistory').forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      const employeeId = this.dataset.id;
+      const employeeName = this.dataset.name;
+      const modalTitle = document.getElementById('jobOrderHistoryModalLabel');
+      const body = document.getElementById('jobOrderHistoryBody');
+
+      modalTitle.textContent = employeeName + " - Job Order History";
+      body.innerHTML = "<div class='text-center text-muted'>Loading...</div>";
+
+      fetch(`/job_order_history/${employeeId}`)
+        .then(response => response.json())
+        .then(data => {
+          body.innerHTML = "";
+
+          if (data.current) {
+            // Current record
+            body.innerHTML += `
+              <div class="timeline-item mb-4">
+                <div class="p-3 border rounded bg-light">
+                  <h6 class="mb-2">
+                    <i class="bi bi-briefcase-fill text-secondary me-2"></i>
+                    ${data.current.position_title || "N/A"} 
+                    <span class="badge bg-success ms-2">Current</span>
+                  </h6>
+                  <p class="mb-1"><i class="bi bi-building me-2"></i><strong>Department:</strong> ${data.current.department || "N/A"}</p>
+                  <p class="mb-1"><i class="bi bi-calendar-event me-2"></i><strong>Contract:</strong> ${data.current.contract_start || "N/A"} → ${data.current.contract_end || "N/A"}</p>
+                   <p class="mb-1">
+                      <i class="bi bi-person-lines-fill me-2"></i>
+                      <strong>Date Hired:</strong> ${data.current.date_hired || "N/A"}
+                    </p>
+                </div>
+              </div>`;
+          }
+
+          if (data.history && data.history.length > 0) {
+            // Past history
+            data.history.forEach(history => {
+              body.innerHTML += `
+                <div class="timeline-item mb-4">
+                  <div class="p-3 border rounded">
+                    <h6 class="mb-2">
+                      <i class="bi bi-briefcase-fill text-secondary me-2"></i>
+                      ${history.position_title || "N/A"} 
+                      <span class="badge bg-secondary ms-2">Past</span>
+                    </h6>
+                    <p class="mb-1"><i class="bi bi-building me-2"></i><strong>Department:</strong> ${history.department || "N/A"}</p>
+                    <p class="mb-1"><i class="bi bi-calendar-event me-2"></i><strong>Contract:</strong> ${history.contract_start || "N/A"} → ${history.contract_end || "N/A"}</p>
+                    <p class="mb-1"><i class="bi bi-arrow-return-left me-2"></i><strong>Return Date:</strong> ${history.return_date || "N/A"}</p>
+                    <p class="mb-0"><i class="bi bi-chat-left-text me-2"></i><strong>Reason:</strong> ${history.reason || "N/A"}</p>
+                  </div>
+                </div>`;
+            });
+          }
+
+          if (!data.current && (!data.history || data.history.length === 0)) {
+            body.innerHTML = "<div class='text-center text-muted'>No job order history available.</div>";
+          }
+        })
+        .catch(() => {
+          body.innerHTML = "<div class='text-center text-danger'>Error loading history</div>";
+        });
+
+      new bootstrap.Modal(document.getElementById('jobOrderHistoryModal')).show();
+    });
+  });
+});
+
+</script>
+
+
+
+<!-- SAVING TABS -->
+<script src="{{ url_for('static', filename='js/savingtabs.js') }}"></script>
+
+
+<!-- js for benefit -->
+<script>
+  const grantBenefitModal = document.getElementById('grantBenefitModal');
+  grantBenefitModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const empId = button.getAttribute('data-emp-id');
+    const empName = button.getAttribute('data-emp-name');
+    const milestone = button.getAttribute('data-milestone');
+
+    grantBenefitModal.querySelector('#benefit-emp-id').value = empId;
+    grantBenefitModal.querySelector('#benefit-emp-name').textContent = empName;
+    grantBenefitModal.querySelector('#benefit-milestone').value = milestone;
+    grantBenefitModal.querySelector('#benefit-milestone-label').textContent = milestone;
+  });
+</script>
+
+
+<!-- JS FOR STEP INCREASE -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const salaryModal = document.getElementById('salaryStepModal');
+
+  salaryModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const empId = button.getAttribute('data-emp-id');
+    const empName = button.getAttribute('data-emp-name');
+    const currentSalary = button.getAttribute('data-emp-current-salary');
+
+    document.getElementById('modal-emp-id').value = empId;
+    document.getElementById('modal-emp-name').value = empName;
+    document.getElementById('modal-prev-salary').value = currentSalary;
+  });
+});
+</script>
+
+
+
+<!-- FOR POPULATING THE JO EDIT -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      var editButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
+
+      editButtons.forEach(function(button) {
+          button.addEventListener('click', function() {
+              // Get data attributes from the button
+              var employeeId = button.getAttribute('data-id');
+              var firstName = button.getAttribute('data-first-name');
+              var middleName = button.getAttribute('data-middle-name');
+              var lastName = button.getAttribute('data-last-name');
+              var organizationalUnit = button.getAttribute('data-organizational-unit');
+              var status = button.getAttribute('data-status');
+              var dateHired = button.getAttribute('data-date-hired');
+              var contractStart = button.getAttribute('data-contract-start');
+              var contractEnd = button.getAttribute('data-contract-end');
+
+              // Set the values in the modal
+              document.getElementById('editEmployeeId').value = employeeId;
+              document.getElementById('editOrganizationalUnit').value = organizationalUnit;
+              document.getElementById('editFirstName').value = firstName;
+              document.getElementById('editMiddleName').value = middleName;
+              document.getElementById('editLastName').value = lastName;
+              document.getElementById('editStatus').value = status;
+              document.getElementById('editDateHired').value = dateHired;
+              document.getElementById('editContractStart').value = contractStart;
+              document.getElementById('editContractEnd').value = contractEnd;
+          });
+      });
+  });
+</script>
+
+
+
+
+  
+
+<!-- EDITING PERMANENT -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const editButtons = document.querySelectorAll('.btn-edit');
+
+    editButtons.forEach(button => {
+      button.addEventListener('click', function () {
+
+
+        // Fill static fields
+        document.getElementById('edit-employee-id').value = this.dataset.id;
+        document.getElementById('edit-item-number').value = this.dataset.item_number;
+        document.getElementById('edit-salary-grade').value = this.dataset.salary_grade;
+        document.getElementById('edit-authorized-salary').value = this.dataset.authorized_salary;
+        document.getElementById('edit-actual-salary').value = this.dataset.actual_salary;
+        document.getElementById('edit-step').value = this.dataset.step;
+        document.getElementById('edit-area-code').value = this.dataset.area_code;
+        document.getElementById('edit-area-type').value = this.dataset.area_type;
+        document.getElementById('edit-level').value = this.dataset.level;
+        document.getElementById('edit-last-name').value = this.dataset.last_name;
+        document.getElementById('edit-first-name').value = this.dataset.first_name;
+        document.getElementById('edit-middle-name').value = this.dataset.middle_name;
+        document.getElementById('edit-sex').value = this.dataset.sex;
+        document.getElementById('edit-dob').value = this.dataset.dob;
+        document.getElementById('edit-tin').value = this.dataset.tin;
+        document.getElementById('edit-date-original-appointment').value = this.dataset.doa;
+        document.getElementById('edit-date-last-promotion').value = this.dataset.dop;
+        document.getElementById('edit-status').value = this.dataset.status;
+        document.getElementById('edit-eligibility').value = this.dataset.eligibility;
+        document.getElementById('edit-comments').value = this.dataset.comments;
+
+        // Get department and position ID from data attributes
+        const departmentId = this.dataset.organizational_unit;
+        const positionId = this.dataset.position_title;
+
+        // Set department dropdown value
+        const departmentSelect = document.getElementById('edit-organizational-unit');
+        departmentSelect.value = departmentId;
+
+        // Trigger change event to load positions dynamically
+        loadPositions(departmentId, positionId);
+      });
+    });
+
+    function loadPositions(departmentId, selectedPositionId = null) {
+      const positionSelect = document.getElementById('edit-position-title');
+      positionSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
+
+      fetch(`/get_positions/${departmentId}`)
+        .then(response => response.json())
+        .then(data => {
+          positionSelect.innerHTML = '<option value="" disabled >Select Position Title</option>';
+          data.forEach(position => {
+            const opt = document.createElement('option');
+            opt.value = position.id;
+            opt.textContent = position.title;
+            positionSelect.appendChild(opt);
+          });
+
+          if (selectedPositionId) {
+            positionSelect.value = selectedPositionId;
+          }
+        })
+        .catch(error => {
+          console.error('Error loading positions:', error);
+          positionSelect.innerHTML = '<option value="" disabled>Error loading positions</option>';
+        });
+    }
+
+    // Hook department change to dynamically load positions
+    document.getElementById('edit-organizational-unit').addEventListener('change', function () {
+      const departmentId = this.value;
+      loadPositions(departmentId);
+    });
+  });
+</script>
+
+
+<!-- EDITING JO -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const editButtons = document.querySelectorAll('.editJOEmployeeBtn');
+
+    editButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            // Get values from the button's data attributes
+            const employeeId = button.getAttribute('data-id');
+            const firstName = button.getAttribute('data-first-name');
+            const middleName = button.getAttribute('data-middle-name');
+            const lastName = button.getAttribute('data-last-name');
+            const assignedDeptId = button.getAttribute('data-assigned-department-id');
+            const dateHired = button.getAttribute('data-date-hired');
+            const contractStart = button.getAttribute('data-contract-start');
+            const contractEnd = button.getAttribute('data-contract-end');
+            const organizationalUnit = button.getAttribute('data-organizational-unit');
+            const status = button.getAttribute('data-status');
+
+            // Set values into the modal's input fields
+            document.getElementById('editEmployeeId').value = employeeId;
+            document.getElementById('editFirstName').value = firstName;
+            document.getElementById('editMiddleName').value = middleName;
+            document.getElementById('editLastName').value = lastName;
+            document.getElementById('edit-casual-assigned-department').value = assignedDeptId;
+            document.getElementById('editDateHired').value = dateHired;
+            document.getElementById('editContractStart').value = contractStart;
+            document.getElementById('editContractEnd').value = contractEnd;
+            document.getElementById('editOrganizationalUnit').value = organizationalUnit;
+            document.getElementById('editStatus').value = status;
+        });
+    });
+});
+</script>
+
+
+    
+
+<!-- EDITING CASUAL -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const editButtons = document.querySelectorAll('.editCasualEmployeeBtn');
+    
+    editButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        const employeeId = this.getAttribute('data-id');
+        const lastName = this.getAttribute('data-last_name');
+        const firstName = this.getAttribute('data-first_name');
+        const middleName = this.getAttribute('data-middle_name');
+        const extensionName = this.getAttribute('data-extension_name');
+        const status = this.getAttribute('data-status');
+        const salaryGrade = this.getAttribute('data-salary_grade');
+        const dailyWage = this.getAttribute('data-daily_wage');
+        const dateFrom = this.getAttribute('data-date_from');
+        const dateTo = this.getAttribute('data-date_to');
+        const assignedDeptId = this.getAttribute('data-assigned_department_id');
+  
+        document.getElementById('edit-casual-employee-id').value = employeeId;
+        document.getElementById('edit-casual-last-name').value = lastName;
+        document.getElementById('edit-casual-first-name').value = firstName;
+        document.getElementById('edit-casual-middle-name').value = middleName;
+        document.getElementById('edit-casual-name-extension').value = extensionName;
+        document.getElementById('employment_status').value = status;
+        document.getElementById('edit-casual-salary-grade').value = salaryGrade;
+        document.getElementById('edit-casual-daily-wage').value = dailyWage;
+        document.getElementById('edit-casual-date-from').value = dateFrom;
+        document.getElementById('edit-casual-date-to').value = dateTo;
+  
+        const deptSelect = document.getElementById('edit-casual-assigned-department');
+        if (deptSelect) {
+          deptSelect.value = assignedDeptId;
+        }
+      });
+    });
+  });
+  
+</script>
+
+
+
+
+<!-- AUTOMOTATIC ORG AND POSITIONS -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const orgUnitSelect = document.getElementById('organizationalUnitSelect');
+    const positionSelect = document.getElementById('positionTitleSelect');
+  
+    orgUnitSelect.addEventListener('change', function () {
+      const departmentId = this.value;
+  
+      // If no department selected, clear position select
+      if (!departmentId) {
+        positionSelect.innerHTML = '<option value="" disabled selected>Please select an Organizational Unit first</option>';
+        return;
+      }
+  
+      // Show loading message
+      positionSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
+  
+      fetch(`/get_positions/${departmentId}`)
+        .then(response => response.json())
+        .then(data => {
+          positionSelect.innerHTML = '<option value="" disabled selected>Select Position Title</option>';
+          data.forEach(position => {
+            const opt = document.createElement('option');
+            opt.value = position.id;
+            opt.textContent = position.title;
+            positionSelect.appendChild(opt);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching positions:', error);
+          positionSelect.innerHTML = '<option value="" disabled selected>Error loading positions</option>';
+        });
+    });
+  
+    // On page load, clear position select initially
+    positionSelect.innerHTML = '<option value="" disabled selected>Please select an Organizational Unit first</option>';
+  });
+  </script>
+  
+
+<script>
+
+  function enableTableSearch(inputId, tableId) {
+    const searchInput = document.getElementById(inputId);
+    const table = document.getElementById(tableId);
+
+    if (!searchInput || !table) {
+      console.warn(`Search input or table not found: #${inputId}, #${tableId}`);
+      return;
+    }
+
+    const tbody = table.querySelector("tbody");
+    const rows = tbody.getElementsByTagName("tr");
+
+    searchInput.addEventListener("input", function () {
+      const filter = searchInput.value.toLowerCase();
+      Array.from(rows).forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
+    });
+  }
+
+  // Example usage after DOM is loaded
+  document.addEventListener("DOMContentLoaded", function () {
+    enableTableSearch("searchInput", "employeeTable");
+    enableTableSearch("searchCasual", "casualtbl");
+    enableTableSearch("searchJO", "JOtbl");
+
+  });
+</script>
+
+
+<!-- FILTER PERMANET (FOR NOW) AUTO -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const orgSelect = document.getElementById("permanentOrg");
+    const posSelect = document.getElementById("positionOrg");
+    const table = document.getElementById("employeeTable");
+    const rows = table.querySelectorAll("tbody tr");
+
+    // Helper: Get trimmed lowercase text from cell
+    function getCellText(row, index) {
+      return row.cells[index]?.innerText.trim().toLowerCase();
+    }
+
+    // Filter the table
+  function filterTable() {
+    const selectedOrgText = orgSelect.selectedIndex > 0 ? orgSelect.options[orgSelect.selectedIndex].text.toLowerCase() : '';
+
+    const selectedPosText = posSelect.value.toLowerCase();  // use value instead of text
+
+    rows.forEach(row => {
+      const orgText = getCellText(row, 0);  // Organizational Unit column
+      const posText = getCellText(row, 2);  // Position Title column
+
+      const matchesOrg = !selectedOrgText || orgText === selectedOrgText;
+      // If no position selected (empty string), ignore position filter (always true)
+      const matchesPos = !selectedPosText || posText === selectedPosText;
+
+      row.style.display = (matchesOrg && matchesPos) ? "" : "none";
+    });
+  }
+
+
+    // 1. When org changes, load positions via AJAX and then filter table
+    orgSelect.addEventListener("change", function () {
+      const departmentId = this.value;
+
+
+      if (!departmentId) {
+        posSelect.innerHTML = '<option value="">Select Position</option>';
+        filterTable(); // Show all
+        return;
+      }
+
+      // Show loading message
+      posSelect.innerHTML = '<option value="">Loading...</option>';
+
+      fetch(`/get_positions/${departmentId}`)
+        .then(response => response.json())
+        .then(data => {
+          // Reset positions
+          posSelect.innerHTML = '<option value="">Select Position</option>';
+
+          if (data.length > 0) {
+            data.forEach(position => {
+              const option = document.createElement("option");
+              option.value = position.title; // Use title as value for matching
+              option.textContent = position.title;
+              posSelect.appendChild(option);
+            });
+          } else {
+            posSelect.innerHTML += '<option disabled>No positions found</option>';
+          }
+
+          // After loading positions, filter by selected org
+          filterTable();
+        })
+        .catch(error => {
+          console.error("Error fetching positions:", error);
+          posSelect.innerHTML = '<option disabled>Error loading positions</option>';
+        });
+    });
+
+    // 2. When position changes, filter the table
+    posSelect.addEventListener("change", filterTable);
+  });
+  </script>
+
+
+
+
+
+  <!-- ADDING VALIDATIONS -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // --- Common Functions ---
+        function showError(inputElement, message) {
+            const errorMessage = document.createElement('div');
+            errorMessage.classList.add('invalid-feedback');
+            errorMessage.textContent = message;
+            inputElement.classList.add('is-invalid');
+            inputElement.parentElement.appendChild(errorMessage);
+        }
+    
+        function clearErrors(form) {
+            form.querySelectorAll('.invalid-feedback').forEach(e => e.remove());
+            form.querySelectorAll('.is-invalid').forEach(e => e.classList.remove('is-invalid'));
+        }
+    
+        function addRealTimeValidation(inputElement, validatorFn, message) {
+            inputElement.addEventListener('input', function () {
+                const existingError = inputElement.parentElement.querySelector('.invalid-feedback');
+                if (!validatorFn(inputElement)) {
+                    if (!existingError) showError(inputElement, message);
+                } else {
+                    inputElement.classList.remove('is-invalid');
+                    if (existingError) existingError.remove();
+                }
+            });
+        }
+    
+        function validateRequired(input) {
+            return input && input.value.trim() !== "";
+        }
+    
+        function validateNumber(input) {
+            return input && !isNaN(input.value) && input.value.trim() !== "";
+        }
+    
+        function validateForm(form, fields) {
+          let isValid = true;
+          fields.forEach(({ input, validator, fieldName }) => {
+              if (!input) {
+                  console.warn(`Field '${fieldName}' is missing in form with action: ${form.getAttribute('action')}`);
+                  return;
+              }
+      
+              if (!validator(input)) {
+                  showError(input, `Please enter/select a valid ${fieldName}.`);
+                  isValid = false;
+              }
+      
+              addRealTimeValidation(input, validator, `Please enter/select a valid ${fieldName}.`);
+          });
+          return isValid;
+      }
+      
+    
+        // --- Form Handlers ---
+        const formConfigs = [
+            {
+                selector: 'form[action="/add_jo_employee"]',
+                fields: (form) => [
+                    { input: form.querySelector('[name="department_id"]'), validator: validateRequired, fieldName: "Organizational Unit" },
+                    { input: form.querySelector('[name="last_name"]'), validator: validateRequired, fieldName: "Last Name" },
+                    { input: form.querySelector('[name="first_name"]'), validator: validateRequired, fieldName: "First Name" }
+                    // Middle Name optional
+                ]
+            },
+            {
+                selector: 'form[action="/add_Casual_employee"]',
+                fields: (form) => [
+                    { input: form.querySelector('[name="last_name"]'), validator: validateRequired, fieldName: "Last Name" },
+                    { input: form.querySelector('[name="first_name"]'), validator: validateRequired, fieldName: "First Name" },
+                    { input: form.querySelector('[name="position_title"]'), validator: validateRequired, fieldName: "Position Title" },
+                    { input: form.querySelector('[name="salary_grade"]'), validator: validateNumber, fieldName: "Salary Grade" },
+                    { input: form.querySelector('[name="daily_wage"]'), validator: validateNumber, fieldName: "Daily Wage" },
+                    { input: form.querySelector('[name="employment_from"]'), validator: validateRequired, fieldName: "Employment From" },
+                    { input: form.querySelector('[name="employment_to"]'), validator: validateRequired, fieldName: "Employment To" }
+                    // Middle Name and Name Extension optional
+                ]
+            },
+            {
+              selector: 'form[action="/add_employee"]',
+              fields: (form) => [
+                    { input: document.getElementById('organizationalUnitSelect'), validator: validateRequired, fieldName: "Organizational Unit" },
+                    { input: document.getElementById('positionTitleSelect'), validator: validateRequired, fieldName: "Position Title" },
+                    { input: form.querySelector('[name="item_number"]'), validator: validateNumber, fieldName: "Item Number" },
+                    { input: form.querySelector('[name="salary_grade"]'), validator: validateNumber, fieldName: "Salary Grade" },
+                    { input: form.querySelector('[name="authorized_salary"]'), validator: validateNumber, fieldName: "Authorized Salary" },
+                    { input: form.querySelector('[name="actual_salary"]'), validator: validateNumber, fieldName: "Actual Salary" },
+                    { input: form.querySelector('[name="step"]'), validator: validateNumber, fieldName: "Step" },
+                    { input: form.querySelector('[name="area_type"]'), validator: validateRequired, fieldName: "Area Type" },
+                    { input: form.querySelector('[name="level"]'), validator: validateRequired, fieldName: "Level" },
+                    { input: form.querySelector('[name="last_name"]'), validator: validateRequired, fieldName: "Last Name" },
+                    { input: form.querySelector('[name="first_name"]'), validator: validateRequired, fieldName: "First Name" },
+                    { input: form.querySelector('[name="middle_name"]'), validator: validateRequired, fieldName: "Middle Name" },
+                    { input: form.querySelector('[name="sex"]'), validator: validateRequired, fieldName: "Sex" },
+                    { input: form.querySelector('[name="date_of_birth"]'), validator: validateRequired, fieldName: "Date of Birth" },
+                    { input: form.querySelector('[name="tin"]'), validator: validateRequired, fieldName: "TIN / UMID NO" },
+                    { input: form.querySelector('[name="date_original_appointment"]'), validator: validateRequired, fieldName: "Date of Original Appointment" },
+                    { input: form.querySelector('[name="date_last_promotion"]'), validator: validateRequired, fieldName: "Date of Last Promotion" },
+                    { input: form.querySelector('[name="status"]'), validator: validateRequired, fieldName: "Status" }
+                ]
+            }
+        ];
+    
+        formConfigs.forEach(({ selector, fields }) => {
+            const form = document.querySelector(selector);
+            if (!form) return;
+    
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                clearErrors(form);
+                const isValid = validateForm(form, fields(form));
+                if (isValid) {
+                    form.submit();
+                }
+            });
+        });
+    });
+    </script>
+    
+
+
+<!-- JS FOR TERMINATION -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const buttons = document.querySelectorAll('.btn-terminate');
+    const modalForm = document.getElementById('terminateEmployeeForm');
+    const employeeName = document.getElementById('terminateEmployeeName');
+    const employeeIdInput = document.getElementById('terminateEmployeeId');
+    const reasonInput = document.getElementById('terminateReason');
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const empId = button.getAttribute('data-id');
+        const name = button.getAttribute('data-name');
+        employeeName.textContent = name;
+        employeeIdInput.value = empId;
+        modalForm.action = `/employee/terminate/${empId}`;
+      });
+    });
+  });
+</script>
+
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+    const tableConfigs = {
+        '#employeeTable': { 
+            org: '#permanentOrg', 
+            pos: '#positionOrg', 
+            orgCol: 0, 
+            posCol: 3,
+            columnDefs: [
+                { targets: 0, visible: false },
+                { targets: 1, width: "8%" },
+                { targets: 2, width: "4%" },
+                { targets: 3, width: "8%" },
+                { targets: 4, width: "4%" },
+                { targets: 5, width: "4%" },
+                { targets: 6, width: "12%" },
+                { targets: [4, 5], width: "6%", className: "text-center" }
+            ]
+        },
+        '#casualtbl': { 
+            org: '#casualtOrg',
+            pos: null,
+            orgCol: 8,
+            columnDefs: [
+                { targets: 1, width: "25%" },
+                { targets: [0, 2, 6, 7], width: "6%", className: "text-center" }
+            ]
+        },
+        '#JOtbl': { 
+            org: '#joOrg',
+            pos: null,
+            orgCol: 3,
+            columnDefs: [
+                { targets: 1, width: "25%" }
+            ]
+        }
+    };
+
+    Object.entries(tableConfigs).forEach(([selector, config]) => {
+        const table = $(selector).DataTable({
+            paging: true,
+            searching: true,
+            ordering: true,
+            responsive: true,
+            autoWidth: false,
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50, 100],
+            dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>' +
+                 't' +
+                 '<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+            language: {
+                search: "",
+                searchPlaceholder: "Search..."
+            },
+            columnDefs: config.columnDefs || []
+        });
+
+        // Style inputs
+        $(".dataTables_filter input", table.table().container())
+            .addClass("form-control form-control-lg w-auto")
+            .css("margin-left", "0");
+
+        $(".dataTables_length select", table.table().container())
+            .addClass("form-select form-select-lg")
+            .css("min-width", "80px");
+
+        // --- Filtering Logic ---
+        let currentDept = "";
+        let currentPos = "";
+
+        function escapeRegex(text) {
+            return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function applyFilters() {
+            table.column(config.orgCol).search(
+                currentDept ? "^" + escapeRegex(currentDept) + "$" : "",
+                true, false
+            );
+
+            if (config.pos) {
+                table.column(config.posCol).search(
+                    currentPos ? "^" + escapeRegex(currentPos) + "$" : "",
+                    true, false
+                );
+            }
+
+            table.draw();
+        }
+
+        // --- Department filter handler ---
+        if (config.org) {
+            $(config.org).on("change", function () {
+                const deptId = $(this).val();
+                currentDept = deptId || "";
+
+                if (config.pos) {
+                    const posSelect = $(config.pos);
+
+                    // 🔹 Always reset position dropdown and filter when department changes
+                    posSelect.html('<option value="">Select Position</option>');
+                    currentPos = "";
+                    applyFilters();
+
+                    if (!deptId) return;
+
+                    posSelect.html('<option value="">Loading positions...</option>');
+
+                    fetch(`/get_positions/${deptId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            posSelect.html('<option value="">Select Position</option>');
+                            if (data.length > 0) {
+                                data.forEach(pos => {
+                                    const opt = $("<option>").val(pos.title).text(pos.title);
+                                    posSelect.append(opt);
+                                });
+                            } else {
+                                posSelect.append('<option disabled>No positions found</option>');
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Error fetching positions:", err);
+                            posSelect.html('<option disabled>Error loading positions</option>');
+                        });
+                } else {
+                    applyFilters();
+                }
+            });
+        }
+
+        // --- Position filter handler ---
+        if (config.pos) {
+            $(config.pos).on("change", function () {
+                currentPos = $(this).val() || "";
+                applyFilters();
+            });
+        }
+    });
+
+    // Fix responsive redraw when switching tabs
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        const target = $(e.target).attr("data-bs-target");
+        $(target).find('table.dataTable').each(function() {
+            $(this).DataTable().columns.adjust().responsive.recalc();
+        });
+    });
+});
+</script>
+{% endblock %}
+
+
+
+
+{% endblock content %}

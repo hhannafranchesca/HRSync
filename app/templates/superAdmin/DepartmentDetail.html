@@ -1,0 +1,272 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+<div class="row">
+    <div class="col-xl-4 col-lg-5 order-1 order-md-0">
+        <!-- User Card -->
+        <div class="card mb-6">
+          <div class="card-body pt-12">
+            <div class="user-avatar-section">
+              <div class=" d-flex align-items-center flex-column pt-3">
+                <div class="user-info text-center">
+                  <h3 class="fw-bolder">{{ department.name }}</h3>
+                  <p class="fs-5">{{ department.description }}</p>
+                </div>
+              </div>
+            </div>
+      
+            <h4 class="fw-medium mt-4 mb-2">List of Services</h4>
+            <div class="info-container">
+              <ul class="list-group list-group-flush mb-4">
+                {% if department.service %}
+                    {% for service in department.service.split(',') %}
+                    <li class="list-group-item d-flex align-items-start gap-2">
+                        <i class="bi bi-check-circle-fill text-primary mt-1"></i>
+                        <span class="fw-semibold fs-5">{{ service.strip() }}</span>
+                    </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item">No services available.</li>
+                {% endif %}
+            </ul>
+
+
+            <h4 class="fw-medium border-top mt-4 pt-4 pb-1">Employee List</h4>
+
+            {% for employee in employees %}
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="d-flex align-items-center">
+                <div class="avatar avatar me-4">
+                  <!-- Just use a default image for now, unless you have an avatar field -->
+            <img src="{{ url_for('static', filename='img/avatars/' + (employee.image_file if employee.image_file else 'default.png')) }}"
+                  alt="Avatar"
+                  class="rounded-circle border border-1 border-secondary">             
+               </div>
+                <div>
+                  <div>
+                    <h6 class="mb-0 text-truncate fs-5">{{ employee.first_name }} {{ employee.last_name }}</h6>
+                    <small class="text-truncate text-body">
+                      {% if employee.permanent_details %}
+                        {{ employee.permanent_details.position.title }}
+                      {% elif employee.casual_details %}
+                        {{ employee.casual_details.position.title }}
+                      {% elif employee.job_order_details %}
+                        JO Employee
+                      {% else %}
+                        No position available
+                      {% endif %}
+                    </small>
+                    
+                  </div>
+                </div>
+              </div>
+              <div class="add-btn">
+                  <a href="{{ url_for('EmployeeDetail') }}?id={{ employee.id }}" class="btn btn-primary btn-sm">View</a>
+              </div>
+            </div>
+            {% else %}
+            <p class="text-muted">No employees found for this department.</p>
+            {% endfor %}
+            
+            </div>
+          </div>
+
+          
+        </div>
+
+        
+    </div>
+
+    <div class="col-xl-8 col-lg-5 order-1 order-md-0 ">
+
+        <div class="col-12 col-sm-6 col-xl-12 mb-3">
+            <div class="card">
+                <div class="card-widget-separator-wrapper">
+                  <div class="card-body card-widget-separator">
+                    <div class="row gy-4 gy-sm-1">
+                      <div class="col-sm-12 col-lg-6">
+                        <div class="d-flex justify-content-between align-items-center card-widget-1 border-end pb-4 pb-sm-0">
+                          <div>
+                            <h4 class="mb-0">{{ employees|length }}</h4>
+                            <p class="mb-0">Employees</p>
+                          </div>
+                          <div class="avatar me-sm-4">
+                            <span class="avatar-initial rounded bg-label-primary text-heading">
+                              <i class="icon-base bi bi-person fs-3"></i>
+                            </span>
+                          </div>
+                        </div>
+                        <hr class="d-none d-sm-block d-lg-none me-6">
+                      </div>
+                    
+                    
+                      <div class="col-sm-12 col-lg-6">
+                        <div class="d-flex justify-content-between align-items-center">
+                          {% if performance_percentage %}
+                            <div>
+                              <h4 class="mb-0">{{ performance_percentage }}%</h4>
+                              <p class="mb-0">Performance</p>
+                              <p class="mb-0 text-muted">Rating: {{ average_rating }} ({{ adjective_rating }})</p>
+                            </div>
+                            {% else %}
+                            <div>
+                              <p class="mb-0">No OPCR data available</p>
+                            </div>
+                            {% endif %}
+
+                          <div class="avatar me-sm-4">
+                            <span class="avatar-initial rounded bg-label-primary text-heading">
+                              <i class="icon-base bi bi-bar-chart-line fs-3"></i>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+
+        
+          <div class="card mt-4">
+          <div class="card-header">
+            <h4 class="mb-0"><i class="bi bi-bar-chart me-2"></i>OPCR Performance Trend</h4>
+          </div>
+          <div class="card-body">
+            <div id="opcr-performance-chart"></div>
+          </div>
+        </div>
+
+
+        <div class="card mb-6 h-100 min-vh-100">
+          <div class="card-header d-flex justify-content-between align-items-center pb-0">
+            <h3 class="mb-0 text-md-start text-center">Performance Overview</h3>
+            {% if latest_opcr %}
+              <a href="{{ url_for('hrview_opcr', opcr_id=latest_opcr.id) }}" class="btn btn-sm btn-outline-primary">
+                View OPCR
+              </a>
+            {% endif %}
+          </div>
+
+               <!-- AI Insight Section -->
+{% if ai_summary or ai_suggestions or ai_training_recommendations %}
+  <div class="card shadow-sm mt-4">
+    <div class="card-header d-flex align-items-center">
+      <i class="bi bi-robot fs-4 me-2"></i>
+      <h4 class="mb-0">AI Evaluation Insight</h4>
+    </div>
+    <div class="card-body">
+      {% if ai_summary %}
+        <div class="mb-5">
+          <h5 class="fs-5 fw-bold text-primary">
+            <i class="bi bi-chat-left-text me-2"></i>Summary
+          </h5>
+          <p class="fs-5">{{ ai_summary }}</p>
+        </div>
+      {% endif %}
+
+      {% if ai_suggestions %}
+        <div class="mb-5">
+          <h5 class="fs-5 fw-bold text-primary">
+            <i class="bi bi-lightbulb me-2"></i>Suggestions for Improvement
+          </h5>
+          <ul class="list-group list-group-flush">
+            {% for suggestion in ai_suggestions %}
+              <li class="fs-6 list-group-item">
+                <i class="bi bi-check-circle-fill text-info me-2"></i>{{ suggestion }}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {% if ai_training_recommendations %}
+        <div>
+          <h5 class="fs-5 fw-bold text-primary">
+            <i class="bi bi-journal-medical me-2"></i>Recommended Trainings & Certifications
+          </h5>
+          <ul class="list-group list-group-flush">
+            {% for training in ai_training_recommendations %}
+              <li class="fs-6 list-group-item">
+                <i class="bi bi-award-fill text-success me-2"></i>{{ training }}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% else %}
+  <h3 class="text-center mt-5 border p-5 mx-5">No AI insights available for this employee.</h3>
+{% endif %}
+
+
+        </div>
+
+
+    </div>
+
+
+    <script id="opcr-chart-data" type="application/json">
+  {{ opcr_chart_data | tojson }}
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const chartDataEl = document.getElementById("opcr-chart-data");
+    if (!chartDataEl) return;
+
+    const rawData = JSON.parse(chartDataEl.textContent);
+    const periodMap = new Map();
+    rawData.forEach(entry => {
+      periodMap.set(entry.period, entry.rating_a);
+    });
+
+    const periods = Array.from(periodMap.keys());
+    const ratings = Array.from(periodMap.values());
+
+    const options = {
+      chart: {
+        type: 'bar',
+        height: 350,
+        toolbar: { show: false }
+      },
+      series: [{
+        name: 'Average Rating (A)',
+        data: ratings
+      }],
+      xaxis: {
+        categories: periods,
+        title: { text: 'Evaluation Period' },
+        labels: {
+          rotate: -45
+        }
+      },
+      yaxis: {
+        min: 0,
+        max: 5,
+        title: { text: 'Rating (1-5)' }
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: function (val) {
+          return val.toFixed(2);
+        }
+      },
+      plotOptions: {
+        bar: {
+          borderRadius: 5,
+          columnWidth: '50%'
+        }
+      },
+      colors: ['#198754']  // Bootstrap green
+    };
+
+    const chartEl = document.querySelector("#opcr-performance-chart");
+    if (chartEl) {
+      new ApexCharts(chartEl, options).render();
+    }
+  });
+</script>
+
+{% endblock content %}

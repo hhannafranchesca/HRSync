@@ -1,0 +1,93 @@
+{% extends "base/landingBase.html" %}
+{% block content %}
+
+    <!-- Page Title -->
+    <div class="page-title">
+      <div class="container d-lg-flex justify-content-between align-items-center">
+        <h1 class="mb-2 mb-lg-0">Emergency & Disaster Response</h1>
+        <nav class="breadcrumbs">
+          <ol>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li class="current">Emergency & Disaster Response</li>
+          </ol>
+        </nav>
+      </div>
+    </div><!-- End Page Title -->
+
+    <!-- Service Details Section -->
+    <section id="service-details" class="service-details section">
+
+      <div class="container">
+
+        <div class="row gy-5">
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="service-box">
+                <h4>Emergency & Disaster Response Services</h4>
+                <div class="services-list">
+                  <a href="#"><i class="bi bi-check-circle"></i><span>24/7 Emergency Response Coordination (MDRRMO)</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Fire and Rescue Services (BFP Victoria)</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Ambulance and Medical Transport Services</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Flood Monitoring and Evacuation Assistance</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Earthquake and Typhoon Preparedness Programs</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Emergency Shelter and Relief Distribution</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Search and Rescue Operations</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Public Safety Announcements and Alerts</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Disaster Risk Reduction Training and Drills</span></a>
+                  <a href="#"><i class="bi bi-check-circle"></i><span>Coordination with National Agencies during Calamities</span></a>
+                </div>
+
+            </div>
+              
+<!-- 
+            <div class="service-box">
+              <h4>Download Catalog</h4>
+              <div class="download-catalog">
+                <a href="#"><i class="bi bi-filetype-pdf"></i><span>Catalog PDF</span></a>
+                <a href="#"><i class="bi bi-file-earmark-word"></i><span>Catalog DOC</span></a>
+              </div>
+            </div>End Services List -->
+
+            <div class="help-box d-flex flex-column justify-content-center align-items-center">
+              <i class="bi bi-headset help-icon"></i>
+              <h4>Have a Question?</h4>
+              <p class="d-flex align-items-center mt-2 mb-0"><i class="bi bi-telephone me-2"></i> <span>+1 5589 55488 55</span></p>
+              <p class="d-flex align-items-center mt-1 mb-0"><i class="bi bi-envelope me-2"></i> <a href="mailto:contact@example.com">contact@example.com</a></p>
+            </div>
+
+          </div>
+
+          <div class="col-lg-8 ps-lg-5" data-aos="fade-up" data-aos-delay="200">
+            <img src="{{ url_for('static', filename='img/landing/emergncy.JPG') }}" alt="Victoria Laguna Emergency Services" class="img-fluid services-img">
+
+            <h3>Ensuring Safety and Preparedness Through Emergency and Disaster Response in Victoria, Laguna</h3>
+            <p>
+              The Municipal Disaster Risk Reduction and Management Office (MDRRMO) of Victoria, Laguna is committed to ensuring the safety, preparedness, and resilience of the community during times of emergency and disaster. Whether facing natural calamities, accidents, or public health emergencies, the MDRRMO and its partners work around the clock to provide fast, efficient, and coordinated responses.
+            </p>
+            <p>
+              With a proactive approach to disaster risk reduction, the municipality conducts regular disaster preparedness drills, community education campaigns, and emergency response training. The goal is to empower residents with the knowledge and tools to stay safe and respond effectively during emergencies.
+            </p>
+            <ul>
+              <li><i class="bi bi-check-circle"></i> <span>24/7 Emergency Response Team through the MDRRMO hotline.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Rapid response to floods, typhoons, earthquakes, and fire incidents.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Well-equipped ambulances and trained first responders available anytime.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Ongoing community disaster preparedness education and drills.</span></li>
+            </ul>
+            <p>
+              In partnership with barangay officials, local health workers, and emergency units, the Victoria LGU aims to reduce the risks and impact of disasters. The MDRRMO also coordinates evacuation efforts and ensures the availability of relief goods and temporary shelters for affected families.
+            </p>
+            <p>
+              Victoria, Laguna continues to strengthen its disaster preparedness and response capabilities to safeguard the lives and welfare of its residents. With dedicated personnel, modern equipment, and a community-centered approach, the municipality is ready to face emergencies head-on and recover stronger.
+            </p>
+          </div>
+          
+          
+
+        </div>
+
+      </div>
+
+    </section><!-- /Service Details Section -->
+
+    {% endblock content %}

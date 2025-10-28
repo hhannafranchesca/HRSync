@@ -1,0 +1,531 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+<style>
+  .timeline-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Hide scrollbar but keep functionality */
+.timeline-scroll::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+.timeline-scroll {
+  scrollbar-width: none; /* Firefox */
+}
+
+</style>
+<div class="card shadow rounded-2 overflow-hidden" style="max-width: 100%;">
+  <!-- Colored Banner -->
+  <div style="background: linear-gradient(135deg, #67c3c0, #c2e2db, #fbe3db, #fcb6b2); height: 180px;"></div>
+
+  <!-- White Content Section pulled up -->
+  <div class="d-flex align-items-center px-4 pb-4" style="margin-top: -25px;">
+    <!-- Image -->
+    <div class="ms-3" style="width: 140px; height: 140px; border-radius: 50%; overflow: hidden; border: 5px solid white;">
+      <img src="{% if employee.user.image_file and employee.user.image_file != 'default.jpg' %}
+                  {{ url_for('static', filename='img/avatars/' ~ employee.user.image_file) }}
+                {% else %}
+                  {{ url_for('static', filename='img/avatars/default.png') }}
+                {% endif %}
+                "
+          style="width: 100%; height: 100%; object-fit: cover;" alt="Employee">
+    </div>
+
+
+    <!-- Text beside image -->
+    <div class="ms-4 mt-2">
+      <h4 class="fw-bold mb-2">{{ employee.last_name }}, {{ employee.first_name }} {{ employee.middle_name or '' }}</h4>
+      <p class="mb-1 text-muted">
+        <i class="bi bi-building me-2"></i>
+        {% if casual_details and casual_details.assigned_department %}
+          {{ casual_details.assigned_department.name }}
+        {% elif employee.department %}
+          {{ employee.department.name }}
+        {% else %}
+          N/A
+        {% endif %}
+      </p>
+      {% if permanent_details %}
+        <p class="mb-0 text-muted"><i class="bi bi-person-badge me-2"></i>{{ permanent_details.position.title }}</p>
+      {% elif casual_details %}
+       <p class="mb-0 text-muted"><i class="bi bi-person-badge me-2"></i>{{ casual_details.position.title }}</p>
+
+      {% elif job_order_details %}
+        <p class="mb-0 text-muted"><i class="bi bi-person-badge me-2"></i>{{ job_order_details.position_title }}</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <!-- Left Column -->
+  <div class="col-xl-4 col-lg-5">
+    <!-- Employee Details Card -->
+    <div class="card mb-4">
+      <div class="card-body pt-4">
+        <h5 class="pb-3 border-bottom mb-4">
+          <i class="bi-info-circle-fill text-primary me-2"></i>Employee Details
+        </h5>
+        <ul class="list-unstyled">
+          {% if permanent_details %}
+            <li class="mb-3"><i class="bi bi-hash me-2"></i><span class="h6">Item Number:</span> {{ permanent_details.item_number or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-bar-chart-line me-2"></i><span class="h6">Salary Grade:</span> {{ permanent_details.salary_grade or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-cash-coin me-2"></i><span class="h6">Authorized Annual Salary:</span> {{ permanent_details.authorized_salary or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-currency-dollar me-2"></i><span class="h6">Actual Annual Salary:</span> {{ permanent_details.actual_salary or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-ladder me-2"></i><span class="h6">Step:</span> {{ permanent_details.step or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-geo-alt me-2"></i><span class="h6">Area Type:</span> {{ permanent_details.area_type or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-layers me-2"></i><span class="h6">Level:</span> {{ permanent_details.level or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-gender-ambiguous me-2"></i><span class="h6">Sex:</span> {{ permanent_details.sex or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-calendar-heart me-2"></i><span class="h6">Date of Birth:</span> {{ permanent_details.date_of_birth.strftime('%Y-%m-%d') if permanent_details.date_of_birth else "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-file-earmark-text me-2"></i><span class="h6">TIN:</span> {{ permanent_details.tin or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-credit-card-2-front me-2"></i><span class="h6">UMID No:</span> {{ permanent_details.umid_no or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-calendar-check me-2"></i><span class="h6">Original Appointment:</span> {{ permanent_details.date_original_appointment.strftime('%Y-%m-%d') if permanent_details.date_original_appointment else "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-award me-2"></i><span class="h6">Last Promotion:</span> {{ permanent_details.date_last_promotion.strftime('%Y-%m-%d') if permanent_details.date_last_promotion else "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-patch-check me-2"></i><span class="h6">Eligibility:</span> {{ permanent_details.eligibility or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-chat-left-text me-2"></i><span class="h6">Comments:</span> {{ permanent_details.comments or "N/A" }}</li>
+          {% elif casual_details %}
+            <li class="mb-3"><i class="bi bi-person-badge me-2"></i><span class="h6">Name Extension:</span> {{ casual_details.name_extension or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-briefcase me-2"></i><span class="h6">Position Title:</span> {{ casual_details.position.title }}</li>
+            <li class="mb-3"><i class="bi bi-cash-coin me-2"></i><span class="h6">Equivalent Salary:</span> {{ casual_details.equivalent_salary or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-wallet2 me-2"></i><span class="h6">Daily Wage:</span> {{ casual_details.daily_wage or "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-calendar-event me-2"></i><span class="h6">Contract Start:</span> {{ casual_details.contract_start.strftime('%Y-%m-%d') if casual_details.contract_start else "N/A" }}</li>
+            <li class="mb-3"><i class="bi bi-calendar-x me-2"></i><span class="h6">Contract End:</span> {{ casual_details.contract_end.strftime('%Y-%m-%d') if casual_details.contract_end else "N/A" }}</li>
+          {% elif job_order_details %}
+            <li class="mb-3"><i class="bi bi-briefcase me-2"></i><span class="h6">Position Title:</span> {{ job_order_details.position_title or "N/A" }}</li>
+          {% else %}
+            <li class="mb-3"><i class="bi bi-exclamation-triangle me-2"></i> No detailed information available.</li>
+          {% endif %}
+          <li class="mb-3"><i class="bi bi-clipboard-check me-2"></i><span class="h6">Status:</span> {{ employee.status or "N/A" }}</li>
+        </ul>
+      </div>
+    </div>
+
+
+  <div class="card mb-4">
+  <div class="card-body pt-4">
+    <h5 class="pb-3 border-bottom mb-4">
+      <i class="bi bi-person-x text-danger me-2"></i>Employment Status
+    </h5>
+
+    <!-- Current Status -->
+    <p class="mb-3">
+      {% if employee.employment_status == 'active' %}
+        <i class="bi bi-check-circle-fill text-success fw-bold me-2"></i>
+        Currently employed — <strong>{{ employee.employment_status | capitalize }}</strong>
+      {% else %}
+        <i class="bi bi-x-circle-fill text-danger fw-bold me-2"></i>
+        Currently <strong>terminated</strong>
+        {% if termination_history and termination_history|length > 0 %}
+          (since {{ termination_history[0].terminated_at.strftime('%B %d, %Y') }})
+        {% endif %}
+      {% endif %}
+    </p>
+
+    <!-- Termination History -->
+    <h6 class="mt-4 mb-3">Termination History</h6>
+    <ul class="list-unstyled">
+      {% if termination_history %}
+        {% for record in termination_history %}
+          <li class="mb-3">
+            <i class="bi bi-x-circle-fill text-danger fw-bold me-2"></i>
+            {{ record.reason }} — Terminated on {{ record.terminated_at.strftime('%B %d, %Y') }}
+            <br>
+            <small class="text-muted">
+              Processed by {{ record.user.name }}
+            </small>
+          </li>
+        {% endfor %}
+      {% else %}
+        <li class="mb-3 text-muted">
+          <i class="bi bi-info-circle me-2"></i>No termination records available.
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
+
+
+
+
+
+
+    {% if not casual_details %}
+    <!-- Salary History -->
+<div class="card mb-4">
+  <div class="card-body pt-4">
+    <h5 class="pb-3 border-bottom mb-4">
+      <i class="bi bi-cash-stack text-primary me-2"></i>Salary History
+    </h5>
+
+    <!-- Current Salary -->
+    <p class="mb-3">
+  <i class="bi bi-currency-exchange text-success fw-bold me-2"></i>
+  Current Salary: 
+  <strong>
+    ₱{{ "{:,.2f}".format(current_salary|float) if current_salary else "0.00" }}
+  </strong>
+</p>
+
+
+    <!-- Salary Change History -->
+    <h6 class="mt-4 mb-3">Previous Salary Adjustments</h6>
+    <ul class="list-unstyled">
+      {% if salary_history %}
+        {% for record in salary_history %}
+          <li class="mb-3">
+            <i class="bi bi-arrow-up-circle-fill text-primary fw-bold me-2"></i>
+            From <strong>{{ "{:,.2f}".format(record.previous_salary|float) }}</strong>
+            → <strong>{{ "{:,.2f}".format(record.new_salary|float) }}</strong>
+            <br>
+            <small class="text-muted">
+              Effective on {{ record.effective_date.strftime('%B %d, %Y') }}
+              {% if record.reason %} — {{ record.reason }}{% endif %}
+              <br>
+              Updated by {{ record.updated_by }} on {{ record.created_at.strftime('%B %d, %Y') }}
+            </small>
+          </li>
+        {% endfor %}
+      {% else %}
+        <li class="mb-3 text-muted">
+          <i class="bi bi-info-circle me-2"></i>No salary history available.
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
+    <!-- Benefits Card -->
+   <div class="card mb-4">
+  <div class="card-body pt-4">
+    <h5 class="pb-3 border-bottom mb-4">
+      <i class="bi bi-gift text-success me-2"></i>Benefits
+    </h5>
+    <ul class="list-unstyled">
+      {% if benefits %}
+        {% for benefit in benefits %}
+          <li class="mb-3">
+            <i class="bi bi-check-circle-fill text-success fw-bold me-2"></i>
+            {{ benefit.benefit_name }} — 
+            Granted on {{ benefit.eligible_since.strftime('%B %d, %Y') }}
+            <br>
+            <small class="text-muted">Checked by {{ benefit.checked_by }} on {{ benefit.checked_at.strftime('%B %d, %Y') }}</small>
+          </li>
+        {% endfor %}
+      {% endif %}
+
+      {% if eligible_for_bonus %}
+        <li class="mb-3">
+          <i class="bi bi-check-circle-fill text-success fw-bold me-2"></i>
+          Performance Bonus — <strong>{{ bonus_period_name }}</strong> IPCR period.
+          <br>
+          <small class="text-muted">This benefit is auto-evaluated from the latest IPCR results.</small>
+        </li>
+      {% endif %}
+
+      {% if not benefits and not eligible_for_bonus %}
+        <li class="mb-3 text-muted">
+          <i class="bi bi-info-circle me-2"></i>No benefits information available.
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
+
+    <!-- Awards Card -->
+    <div class="card mb-4">
+      <div class="card-body pt-4">
+        <h5 class="pb-3 border-bottom mb-4">
+          <i class="bi bi-trophy text-warning me-2"></i>Awards & Recognitions
+        </h5>
+        <ul class="list-unstyled">
+          <li class="mb-3 text-muted">
+            <i class="bi bi-info-circle me-2"></i>No awards or recognitions available.
+          </li>
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+
+
+<!-- Casual History Card -->
+{% if casual_details %}
+  {% if casual_history %}
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body pt-4">
+      <h5 class="pb-3 border-bottom mb-4">
+        <i class="bi bi-clock-history text-info me-2"></i> Casual Employment History
+      </h5>
+
+  <div class="timeline timeline-scroll">
+        {% for history in casual_history %}
+          <div class="timeline-item mb-4">
+            <div class="p-3 border rounded {% if loop.first %}bg-light{% endif %}">
+              <h6 class="mb-2">
+                <i class="bi bi-briefcase-fill text-secondary me-2"></i>
+                {{ history.position.title if history.position else "N/A" }}
+                {% if loop.first %}
+                  <span class="badge bg-success ms-2">Current</span>
+                {% else %}
+                  <span class="badge bg-secondary ms-2">Past</span>
+                {% endif %}
+              </h6>
+              
+              <p class="mb-1">
+                <i class="bi bi-building me-2"></i>
+                <strong>Department:</strong> {{ history.department.name if history.department else "N/A" }}
+              </p>
+              <p class="mb-1">
+                <i class="bi bi-wallet2 me-2"></i>
+                <strong>Daily Wage:</strong> {{ history.daily_wage or "N/A" }}
+              </p>
+              <p class="mb-1">
+                <i class="bi bi-calendar-event me-2"></i>
+                <strong>Contract:</strong> 
+                {{ history.contract_start.strftime('%Y-%m-%d') if history.contract_start else "N/A" }}
+                → 
+                {{ history.contract_end.strftime('%Y-%m-%d') if history.contract_end else "N/A" }}
+              </p>
+              <p class="mb-1">
+                <i class="bi bi-arrow-return-left me-2"></i>
+                <strong>Return Date:</strong> {{ history.return_date.strftime('%Y-%m-%d') if history.return_date else "N/A" }}
+              </p>
+              <p class="mb-0">
+                <i class="bi bi-chat-left-text me-2"></i>
+                <strong>Reason:</strong> {{ history.reason or "N/A" }}
+              </p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="card mb-4">
+    <div class="card-body text-muted">
+      <i class="bi bi-info-circle me-2"></i>No casual employment history available.
+    </div>
+  </div>
+  {% endif %}
+{% endif %}
+
+
+    
+  
+  </div>
+
+   <!-- RIGHT COLUMN -->
+    <div class="col-xl-8 col-lg-7">
+      <!-- Performance Trend Card -->
+      <div class="card mb-4">
+      <div class="card-header">
+        <h4 class="mb-0"><i class="bi bi-graph-up me-2"></i>Performance Trend</h4>
+      </div>
+      <div class="card-body">
+        <div id="ipcr-performance-chart"></div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>IPCR QETA Performance</h5>
+        {% if latest_ipcr %}
+        <a href="{{ url_for('HRIpcrView', ipcr_id=latest_ipcr.id) }}" class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-eye me-1"></i>View IPCR
+        </a>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        {% if latest_ipcr %}
+          <div id="ipcr-chart-mfo"></div>
+        {% else %}
+          <p class="text-muted text-center">No IPCR record submitted yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+
+
+    <!-- AI Evaluation Insight -->
+<!-- AI Evaluation Insight -->
+<div class="card mb-4">
+  <div class="card-header d-flex align-items-center">
+    <i class="bi bi-robot fs-4 me-2"></i>
+    <h4 class="mb-0">AI Evaluation Insight</h4>
+  </div>
+  <div class="card-body">
+    {% if ai_summary or ai_suggestions or ai_training_recommendations %}
+      <div class="row g-4">
+        {% if ai_summary %}
+        <!-- Full width summary -->
+        <div class="col-12">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <h5 class="text-primary fw-bold mb-3">
+                <i class="bi bi-chat-left-text me-2"></i>Summary
+              </h5>
+              <p class="mb-0">{{ ai_summary }}</p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if ai_suggestions %}
+        <!-- Suggestions column -->
+        <div class="col-md-6">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <h5 class="text-primary fw-bold mb-3">
+                <i class="bi bi-lightbulb me-2"></i>Suggestions for Improvement
+              </h5>
+              <ul class="list-group list-group-flush">
+                {% for suggestion in ai_suggestions %}
+                <li class="list-group-item">
+                  <i class="bi bi-check-circle-fill text-info me-2"></i>{{ suggestion }}
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if ai_training_recommendations %}
+        <!-- Training column -->
+        <div class="col-md-6">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <h5 class="text-primary fw-bold mb-3">
+                <i class="bi bi-journal-medical me-2"></i>Recommended Trainings & Certifications
+              </h5>
+              <ul class="list-group list-group-flush">
+                {% for training in ai_training_recommendations %}
+                <li class="list-group-item">
+                  <i class="bi bi-award-fill text-success me-2"></i>{{ training }}
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="text-center p-5">
+        <h5>No AI insights available for this employee.</h5>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+
+    <!-- Attendance -->
+    <!-- <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Attendance</h5>
+      </div>
+      <div class="card-body text-center text-muted">
+        <p class="mb-0">No attendance data available yet.</p>
+      </div>
+    </div> -->
+
+  </div>
+</div>
+
+
+
+<!-- Chart Script -->
+<script id="chart-data" type="application/json">
+  {{ chart_data | tojson }}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const chartDataElement = document.getElementById("chart-data");
+  if (!chartDataElement) return;
+
+  let rawData = JSON.parse(chartDataElement.textContent);
+
+  const periodMap = new Map();
+  rawData.forEach(entry => {
+    periodMap.set(entry.period, entry.rating_a);
+  });
+
+  const periods = Array.from(periodMap.keys());
+  const ratings = Array.from(periodMap.values());
+
+  const options = {
+    chart: { type: 'bar', height: 350, toolbar: { show: false } },
+    series: [{ name: 'Average Rating (A)', data: ratings }],
+    xaxis: {
+      categories: periods,
+      title: { text: 'Evaluation Period' },
+      labels: { rotate: -45 }
+    },
+    yaxis: { min: 0, max: 5, title: { text: 'Rating (1-5)' } },
+    dataLabels: { enabled: true, formatter: val => val.toFixed(2) },
+    plotOptions: { bar: { borderRadius: 5, columnWidth: '50%' } },
+    colors: ['#0d6efd']
+  };
+
+  const chartEl = document.querySelector("#ipcr-performance-chart");
+  if (chartEl) {
+    new ApexCharts(chartEl, options).render();
+  }
+});
+</script>
+
+
+<!--IPCR -->
+<script id="chart-data-mfo" type="application/json">
+  {{ chart_data_mfo | tojson }}
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const data = JSON.parse(document.getElementById("chart-data-mfo").textContent);
+
+    const options = {
+      series: data.series,
+      chart: { type: 'bar', height: 400 },
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          columnWidth: '60%',
+          borderRadius: 4
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: function (val) {
+          return val.toFixed(1);
+        }
+      },
+      xaxis: {
+        categories: data.categories
+      },
+      yaxis: {
+        min: 1,
+        max: 5,
+        tickAmount: 4,
+        title: { text: 'QETA Rating' }
+      },
+      colors: ['#1E90FF', '#28a745', '#ffc107', '#6f42c1'],
+      tooltip: {
+        y: {
+          formatter: function (val) {
+            return "Rating: " + val.toFixed(2);
+          }
+        }
+      }
+    };
+
+    const chart = new ApexCharts(document.querySelector("#ipcr-chart-mfo"), options);
+    chart.render();
+  });
+</script>
+
+{% endblock content %}

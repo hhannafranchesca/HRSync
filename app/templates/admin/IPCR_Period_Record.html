@@ -1,0 +1,173 @@
+{% extends "base/AdminDashboard.html" %}
+{% block content %}
+
+
+
+  <div class="nav-align-top mb-4">
+   
+    
+      <div class="tab-content h-100 min-vh-100">
+
+        
+
+          <div class="card-datable ">
+            <div class="row mx-1 my-4 align-items-center justify-content-between border-bottom pb-3 mb-3">
+              
+             <!-- Left: Length selector -->
+              <div class="col-12 col-md-auto mb-3 mb-md-0  ps-0">
+                <h5 class="card-title mb-0">Evaluation Period Record</h5>
+
+              </div>
+          
+              <!-- Right: Search, Export, Add -->
+ <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end">
+  <!-- Export Button -->
+  <div class="btn-group">
+    <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+            type="button"
+            id="exportDropdown"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+      <i class="bi bi-box-arrow-up me-1"></i>
+      <span>Export</span>
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+      <li>
+        <a class="dropdown-item" href="{{ url_for('generate_head_ipcr_period_summary_pdf') }}">
+          <i class="bi bi-file-earmark-spreadsheet me-2"></i>Export as PDF
+        </a>
+      </li>
+      <li><hr class="dropdown-divider"></li>
+      <li>
+        <a class="dropdown-item" href="{{ url_for('print_head_ipcr_period_summary') }}" target="_blank">
+          <i class="bi bi-printer me-2"></i>Print
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+            </div>
+      
+      
+            <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                    <table class="table table-bordered align-middle border-top dataTable dtr-column collapsed" 
+                         id="evaluationTable" 
+                  aria-describedby="DataTables_Table_0_info" 
+                  style="width: 100%; height: 100%;">
+
+              <thead class="table-dark align-middle text-center">
+                <tr>
+                  <th>Evaluation Name</th>
+                  <th>Evaluation Period</th>
+                  <th>Submitted</th>
+                  <th>Graded</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody class="text-center">
+                {% for entry in periods_data %}
+                  <tr>
+                    <td>{{ entry.period.name }}</td>
+                    <td>{{ entry.period.start_date.strftime('%b %d, %Y') }} - {{ entry.period.end_date.strftime('%b %d, %Y') }}</td>
+
+                    <td class="fw-medium">
+                      {{ entry.ipcr_submitted }} / {{ entry.ipcr_total }} submitted
+                    </td>
+
+                    <td class="fw-medium">
+                      {{ entry.ipcr_graded }} / {{ entry.ipcr_total }} graded
+                    </td>
+
+                    <td>
+                      {% if entry.status == 'completed' %}
+                        <span class="badge bg-success">Completed</span>
+                      {% else %}
+                        <span class="badge bg-warning text-dark">Incomplete</span>
+                      {% endif %}
+                    </td>
+
+                    <td>
+                      <a href="{{ url_for('HeadPerformance', period_id=entry.period.id) }}" class="btn btn-sm btn-success">
+                        View IPCR
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+            </div>
+        
+        </div>
+          </div>
+    
+    
+
+        
+      </div>
+    </div>
+    
+
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("dt-search-0");
+    const table = document.getElementById("DataTables_Table_0");
+    const rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+
+    searchInput.addEventListener("keyup", function () {
+      const filter = searchInput.value.toLowerCase();
+
+      for (let i = 0; i < rows.length; i++) {
+        let rowText = rows[i].textContent.toLowerCase();
+        if (rowText.includes(filter)) {
+          rows[i].style.display = "";
+        } else {
+          rows[i].style.display = "none";
+        }
+      }
+    });
+  });
+</script>
+
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+    const table = $('#evaluationTable').DataTable({
+        paging: true,        // Client-side pagination
+        searching: true,     // Search box
+        ordering: true,      // Column sorting
+        responsive: true,    // Responsive table
+        autoWidth: false,
+        pageLength: 10,      // Default rows per page
+        lengthMenu: [5, 10, 25, 50, 100],
+        dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>' +
+             't' +
+             '<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search evaluations..."
+        },
+        columnDefs: [
+            { targets: [0,1], className: "text-start" },   // Name & Period align left
+            { targets: [2,3,4,5], className: "text-center" } // Numbers, status, actions center
+        ]
+    });
+
+    // Style search + length dropdown
+    const wrapper = $('#evaluationTable').closest('.dataTables_wrapper');
+    $(".dataTables_filter input", wrapper)
+        .addClass("form-control form-control-lg w-auto").css("margin-left", "0");
+    $(".dataTables_length select", wrapper)
+        .addClass("form-select form-select-lg").css("min-width", "80px");
+});
+</script>
+{% endblock %}
+
+
+{% endblock content %}

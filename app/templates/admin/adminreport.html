@@ -1,0 +1,433 @@
+{% extends "base/AdminDashboard.html" %}
+{% block content %}
+
+<div class="row g-4">
+  <!-- Rating Distribution Pie Chart -->
+  <div class="col-md-6">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-pie-chart-fill me-2"></i>Employee Rating Distribution
+        </h5>
+        <div style="width: 200px;">
+          <select id="periodSelect" class="form-select form-select-sm">
+            {% for period in periods %}
+              <option value="{{ period.id }}" {% if period.id == active_period_id %}selected{% endif %}>
+                {{ period.name or ("Period " ~ period.id) }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div id="employeeRatingPieChart"></div>
+    </div>
+  </div>
+
+  <!-- Employee Rating Trend Line Chart -->
+  <div class="col-md-6">
+    <div class="card p-3">
+      <h5 class="card-title">
+        <i class="bi bi-graph-up-arrow me-2"></i>Employee Rating Trend Over Time
+      </h5>
+      <div id="employeeTrendLineChart"></div>
+    </div>
+  </div>
+
+  <!-- Top Performing Employees Bar Chart -->
+  <div class="col-md-12">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-trophy-fill me-2"></i>Top Performing Employees
+        </h5>
+        <div style="width: 250px;">
+          <select id="employeePerformancePeriodSelect" class="form-select form-select-sm">
+            {% for period in periods %}
+              <option value="{{ period.id }}" {% if period.id == active_period_id %}selected{% endif %}>
+                {{ period.name or ("Period " ~ period.id) }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div id="topEmployeeBarChart"></div>
+    </div>
+  </div>
+
+  <!-- Rating Improvement (Employee-wise Over Time) -->
+  <div class="col-md-12">
+    <div class="card p-3">
+      <h5 class="card-title mb-3">
+        <i class="bi bi-arrow-up-right-circle-fill me-2"></i>Rating Improvement per Employee
+      </h5>
+
+      <!-- Custom Legend (Centered & Enlarged) -->
+      <div class="d-flex justify-content-center gap-4 mb-3" style="font-size: 1rem; font-weight: 500;">
+        <div><span style="color:#28c76f; font-size: 1.2rem;">■</span> Improved</div>
+        <div><span style="color:#ff9f43; font-size: 1.2rem;">■</span> No Change</div>
+        <div><span style="color:#ea5455; font-size: 1.2rem;">■</span> Declined</div>
+      </div>
+
+      <!-- Chart Container -->
+      <div id="employeeImprovementLineChart"></div>
+    </div>
+  </div>
+
+<!-- Rating Count by Position -->
+<div class="col-md-12">
+  <div class="card p-3">
+    <h5 class="card-title mb-3">
+      <i class="bi bi-bar-chart-steps me-2"></i>Rating Count by Position
+    </h5>
+    <div class="card-body d-flex flex-column align-items-center">
+
+      <!-- Chart -->
+      <div id="ratingByPositionChart" style="width: 100%; height: 350px;"></div>
+
+      <!-- Custom Legend -->
+      <div id="ratingLegend" class="mt-4 d-flex flex-wrap justify-content-center align-items-center gap-3 text-center"></div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+<!-- Employee Rating Distribution Pie Chart -->
+<script id="perPeriodRatingData" type="application/json">
+  {{ rating_distribution_by_period | tojson }}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const perPeriodPieData = JSON.parse(document.getElementById("perPeriodRatingData").textContent);
+  const labels = ["Very Satisfactory", "Satisfactory", "Fair", "Poor", "Very Poor"];
+  const colors = ['#4154f1', '#71dd37', '#03c3ec', '#ffab00', '#ff3e1d'];
+  const chartContainer = document.querySelector("#employeeRatingPieChart");
+
+  function renderChart(periodId) {
+    const dist = perPeriodPieData[periodId]?.ratings || {};
+    const series = labels.map(label => dist[label] || 0);
+
+    chartContainer.innerHTML = ""; // Clear previous chart
+
+    const chart = new ApexCharts(chartContainer, {
+      chart: {
+        type: 'pie',
+        height: 450
+      },
+      labels: labels,
+      series: series,
+      colors: colors,
+      stroke: {
+        show: series.filter(val => val > 0).length > 1
+      }
+    });
+
+    chart.render();
+  }
+
+  const initialPeriod = document.getElementById("periodSelect")?.value;
+  if (initialPeriod) {
+    renderChart(initialPeriod);
+  }
+
+  document.getElementById("periodSelect")?.addEventListener("change", function () {
+    renderChart(this.value);
+  });
+});
+</script>
+
+
+
+
+<!-- Employee Rating Trend Over Time -->
+<script id="trendData" type="application/json">
+  {{ rating_trend | tojson }}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  let trendData = { quarters: [], average_ratings: [] };
+  try {
+    trendData = JSON.parse(document.getElementById("trendData").textContent);
+  } catch (e) {
+    console.error("Failed to parse trend data:", e);
+  }
+
+  const trendChart = new ApexCharts(document.querySelector("#employeeTrendLineChart"), {
+    chart: { type: 'line', height: 440 },
+    colors: ['#4154f1'],
+    series: [{ name: 'Average Rating', data: trendData.average_ratings }],
+    xaxis: { categories: trendData.quarters },
+    yaxis: {
+      min: 0,
+      max: 5,
+      title: { text: 'Rating' }
+    },
+    markers: { size: 5, colors: ['#4154f1'], strokeColors: '#fff', strokeWidth: 2 },
+    stroke: { curve: 'smooth' }
+  });
+  trendChart.render();
+});
+</script>
+
+
+<!-- Top Performing Employees Bar Chart -->
+<script id="employeeChartData" type="application/json">
+  {{ employee_chart_data_by_period | tojson }}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const data = JSON.parse(document.getElementById("employeeChartData").textContent);
+  const chartContainer = document.querySelector("#topEmployeeBarChart");
+  const periodSelect = document.getElementById("employeePerformancePeriodSelect");
+
+  let chart = null;
+
+  function renderChart(periodId) {
+    const periodData = data[periodId];
+    if (!periodData) return;
+
+    const labels = periodData.labels;        // Full employee names
+    const ratings = periodData.ratings;      // Corresponding ratings
+    const shortLabels = labels;              // Use full names directly
+
+    if (chart) chart.destroy();
+
+    chart = new ApexCharts(chartContainer, {
+      chart: {
+        type: 'bar',
+        height: 500,
+        toolbar: { show: false },
+        events: {
+          mounted: function () {
+            const axisLabels = document.querySelectorAll("#topEmployeeBarChart .apexcharts-xaxis-texts text");
+            axisLabels.forEach((el, i) => el.setAttribute("title", labels[i]));
+          }
+        }
+      },
+      series: [{ name: 'Average Rating', data: ratings }],
+      xaxis: {
+        categories: shortLabels,
+        labels: { rotate: -45, style: { fontSize: '12px' } }
+      },
+      plotOptions: {
+        bar: {
+          distributed: true,
+          borderRadius: 4,
+          columnWidth: '45%'
+        }
+      },
+      yaxis: {
+        min: 0,
+        max: 5,
+        title: { text: 'Rating' }
+      },
+      tooltip: {
+        y: { formatter: val => `${val.toFixed(2)} / 5.00` },
+        x: { formatter: (_, opts) => labels[opts.dataPointIndex] || "Unknown" }
+      },
+      legend: { show: true, position: 'bottom' },
+      colors: ['#4e79a7', '#f28e2b', '#e15759']
+    });
+
+    chart.render();
+  }
+
+  renderChart(periodSelect.value);
+  periodSelect.addEventListener("change", () => renderChart(periodSelect.value));
+});
+</script>
+
+
+
+<!-- Rating Improvement (Employee-wise Over Time) -->
+<script id="employeeImprovementData" type="application/json">
+  {{ employee_improvement_data | tojson }}
+</script>
+<script id="periodNamesData" type="application/json">
+  {{ period_names | tojson }}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const rawData = JSON.parse(document.getElementById("employeeImprovementData").textContent);
+  const periodNames = JSON.parse(document.getElementById("periodNamesData").textContent);
+
+  // Prepare series
+  const series = Object.entries(rawData).map(([employee, ratings]) => {
+    const first = ratings.find(r => r !== null);
+    const last = [...ratings].reverse().find(r => r !== null);
+
+    let color = '#999999'; // default gray
+    let changeType = 'neutral';
+
+    if (first !== undefined && last !== undefined) {
+      if (last > first) {
+        color = '#28c76f'; // green (improved)
+        changeType = 'improved';
+      } else if (last < first) {
+        color = '#ea5455'; // red (declined)
+        changeType = 'declined';
+      } else {
+        color = '#ff9f43'; // orange (no change)
+        changeType = 'no_change';
+      }
+    }
+
+    return {
+      name: employee,
+      data: ratings,
+      color: color,
+      changeType: changeType
+    };
+  }).sort((a, b) => {
+    const order = { improved: 0, no_change: 1, declined: 2 };
+    return order[a.changeType] - order[b.changeType];
+  });
+
+  // Create chart
+  const chart = new ApexCharts(document.querySelector("#employeeImprovementLineChart"), {
+    chart: {
+      type: 'line',
+      height: 400,
+      zoom: { enabled: true },
+      toolbar: { show: true }
+    },
+    series: series,
+    xaxis: {
+      categories: periodNames,
+      title: { text: 'Evaluation Periods' },
+      labels: { style: { fontSize: '12px' } }
+    },
+    yaxis: {
+      title: { text: 'Rating' },
+      min: 0,
+      max: 5
+    },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      // Show employee name as top line
+      x: {
+        show: true,
+        formatter: function (val, opts) {
+          const employeeName = opts.series[opts.seriesIndex]?.name || 'Unknown';
+          return employeeName;
+        }
+      },
+      // Show period and rating as content
+      y: {
+        formatter: function (val, opts) {
+          const periodName = periodNames[opts.dataPointIndex] || 'No period';
+          const ratingText = val !== null ? val.toFixed(2) : 'No data';
+          return `${periodName}: ${ratingText}`;
+        }
+      }
+    },
+    stroke: {
+      width: 2,
+      curve: 'smooth'
+    },
+    legend: {
+      show: false
+    },
+    dataLabels: {
+      enabled: false
+    },
+    markers: {
+      size: 5,
+      colors: undefined,
+      strokeColors: '#fff',
+      strokeWidth: 2,
+      hover: {
+        size: 7
+      }
+    }
+  });
+
+  chart.render();
+});
+</script>
+
+
+
+<!-- Rating Count by Position -->
+<script id="ratingByPositionData" type="application/json">
+  {{ rating_by_position | tojson }}
+</script>
+
+<div id="ratingByPositionChart"></div>
+
+<!-- Custom Legend -->
+<div class="mt-3" id="ratingLegend" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const data = JSON.parse(document.getElementById("ratingByPositionData").textContent);
+  const labels = Object.keys(data);
+  const counts = Object.values(data);
+
+  const colors = [
+    '#00cfe8', '#7367f0', '#28c76f', '#ff9f43', '#ea5455',
+    '#1E90FF', '#20c997', '#ff6f91', '#9c27b0', '#f3a683'
+  ];
+
+  // Render the chart
+  const chart = new ApexCharts(document.querySelector("#ratingByPositionChart"), {
+    chart: {
+      type: 'bar',
+      height: 440
+    },
+    series: [{
+      name: 'Count',
+      data: counts
+    }],
+    xaxis: {
+      categories: labels,
+      labels: { style: { fontSize: '13px' } }
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 4,
+        distributed: true
+      }
+    },
+    colors: colors,
+    legend: {
+      show: false
+    }
+  });
+
+  chart.render();
+
+  // Custom manual legend
+  const legendContainer = document.getElementById("ratingLegend");
+  labels.forEach((label, index) => {
+    const color = colors[index % colors.length]; // loop if more labels than colors
+    const legendItem = document.createElement("div");
+    legendItem.innerHTML = `
+      <span style="
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        background-color: ${color};
+        margin-right: 6px;
+        border-radius: 3px;
+      "></span>
+      <span style="font-size: 14px;">${label}</span>
+    `;
+    legendContainer.appendChild(legendItem);
+  });
+});
+</script>
+
+{% endblock %}

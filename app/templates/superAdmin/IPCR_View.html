@@ -1,0 +1,213 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+<div class="card shadow-sm">
+  <div class="card-header border-bottom d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="card-title mb-0">Employee: {{ employee.last_name }} {{ employee.first_name }} {{ employee.middle_name }}</h4>
+    <small class="text-muted">Department: {{ department.name }}</small><br>
+    <small class="text-muted">IPCR Period: {{ ipcr.period.name }}</small>
+  </div>
+  <p class="mb-0 text-end">
+    {{ ipcr.period.start_date.strftime('%B %d, %Y') }} to {{ ipcr.period.end_date.strftime('%B %d, %Y') }}
+  </p>
+</div>
+
+
+  <div class="card-body">
+    <div class="d-flex justify-content-end mb-3">
+      <div class="btn-group">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <i class="bi bi-box-arrow-up me-1"></i> Export
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{{ url_for('generate_ipcr', employee_id=employee.id) }}"><i class="bi bi-file-pdf me-2"></i>Export as PDF</a></li>        
+            <li><hr class="dropdown-divider"></li>
+         <li> <a class="dropdown-item"  href="{{ url_for('print_ipcr', employee_id=employee.id) }}"  target="_blank"><i class="bi bi-printer me-2"></i>Print</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered text-center align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th rowspan="2">MFO</th>
+            <th rowspan="2">Success Indicator</th>
+            <th rowspan="2">Allocated Budget</th>
+            <th rowspan="2">Division/Individuals Accountable</th>
+            <th rowspan="2">Actual Expenses</th>
+            <th colspan="4">RATING</th>
+            <th rowspan="2">Remarks</th>
+          </tr>
+          <tr>
+            <th>Q</th><th>E</th><th>T</th><th>A</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set grouped = {'Core': [], 'Support': []} %}
+          {% for section in sections %}
+            {% set _ = grouped[section.type].append(section) %}
+          {% endfor %}
+
+          {% for category in ['Core', 'Support'] %}
+            <tr class="table-primary fw-semibold">
+              <td colspan="10" class="text-start">{{ category }} Functions</td>
+            </tr>
+            {% for section in grouped[category] %}
+              {% for item in section.section_items %}
+                <tr>
+                  <td>{{ item.mfo }}</td>
+                  <td>{{ item.success_indicator }}</td>
+                  <td>{{ item.allotted_budget }}</td>
+                  <td>{{ item.accountable }}</td>
+                  <td>{{ item.accomplishment }}</td>
+                  <td>{{ item.rating_q or '' }}</td>
+                  <td>{{ item.rating_e or '' }}</td>
+                  <td>{{ item.rating_t or '' }}</td>
+                  <td>{{ item.rating_a or '' }}</td>
+                  <td>{{ item.remarks or '' }}</td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <hr class="my-4">
+
+  <div class="card-body">
+  <h5>IPCR Average Rating</h5>
+  <table class="table table-bordered text-center align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>Category</th>
+        <th>MFO Count</th>
+        <th>Final Rating & Computation</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set display_names = {
+        'Core': 'Core Functions',
+        'Support': 'Support Functions'
+      } %}
+
+      {% for category in ['Core', 'Support'] %}
+        <tr>
+          <td class="fw-medium">{{ display_names[category] }}</td>
+          <td>{{ final_average[category].count }}</td>
+          <td>
+            {% if final_average[category].weighted is not none %}
+              <div class="fw-bold">{{ final_average[category].weighted }}</div>
+              <div class="text-muted small">{{ final_average[category].computation }}</div>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+
+    <tfoot class="table-secondary fw-semibold">
+      <tr>
+        <td>Total Overall Rating</td>
+        <td colspan="2" class="text-start">
+          {% if final_overall is not none %}
+            {{ final_overall }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Final Average Rating</td>
+        <td colspan="2" class="text-start">
+          {% if average_rating is not none %}
+            {{ average_rating }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Adjective Rating</td>
+        <td colspan="2" class="text-start">
+          {{ adjective_rating }}
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<hr class="my-4">  
+<div class="card shadow-sm">
+  <div class="card-header border-bottom d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="card-title mb-0">IPCR Handling Workflow</h4>
+      <small class="text-muted">Shows sequence of who handles the IPCR</small>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-bordered text-center align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Step</th>
+            <th>Responsible Person / Office</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for w in workflow %}
+            <tr>
+              <td>{{ w.step }}</td>
+              <td>
+                {# 🧾 CASE 1: HR Staff (list of staff) #}
+                {% if w.staff is defined %}
+                  {% if w.staff %}
+                    {% for s in w.staff %}
+                      {{ s.name }}<br>
+                      <small class="text-muted">{{ s.position }}</small><br>
+                    {% endfor %}
+                  {% else %}
+                    -
+                  {% endif %}
+
+               {# 🧾 CASE 2: Assessed By (side by side layout, no position) #}
+                  {% elif w.assessed_by is defined %}
+                    <div style="display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 1rem;">
+                      {% for line in w.assessed_by %}
+                        {% for person in line %}
+                          <div style="white-space: nowrap;">
+                            {{ person.name }}
+                          </div>
+                        {% endfor %}
+                        {% if not loop.last %}
+                          <span style="margin: 0 0.5rem;">|</span>  {# separator between lines #}
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+
+
+                {# 🧾 CASE 3: Single person (normal step) #}
+                {% else %}
+                  {{ w.name }}
+                  {% if w.position %}
+                    <br><small class="text-muted">{{ w.position }}</small>
+                  {% endif %}
+                {% endif %}
+              </td>
+              <td>{{ w.description }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

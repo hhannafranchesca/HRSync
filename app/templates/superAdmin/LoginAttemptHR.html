@@ -1,0 +1,169 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+
+
+<div class="col-xl-12">
+
+  <div class="nav-align-top mb-4">
+   
+    
+      <div class="tab-content h-100 min-vh-100">
+
+        <!-- PERMANENT EMPLOYEE -->
+          <div class="card-header border-bottom p-0 pb-3">
+            <h5 class="card-title mb-0">Login Attempts</h5>
+    
+            </div>
+          <div class="card-datable mt-4">
+          
+    
+          <table class="table table-bordered table-hover" id="login-attempts-table" >
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Employee Name</th>
+                    <th scope="col">Department</th>
+                    <th scope="col">Position</th>
+                    <th scope="col">Date & Time</th>
+                    <th scope="col">IP Address</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for login in logins %}
+                <tr>
+                    <td>
+                        {% if login.user and login.user.employee %}
+                            {{ login.user.employee.last_name }}, {{ login.user.employee.first_name }}{% if login.user.employee.middle_name %} {{ login.user.employee.middle_name[0] }}.{% endif %}
+                        {% else %}
+                            Unknown
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if login.user and login.user.employee and login.user.employee.department %}
+                            {{ login.user.employee.department.name }}
+                        {% else %}
+                            Unknown
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% set emp = login.user.employee %}
+                        {% if emp %}
+                            {% if emp.permanent_details and emp.permanent_details.position %}
+                                {{ emp.permanent_details.position.title }}
+                            {% elif emp.casual_details and emp.casual_details.position %}
+                                {{ emp.casual_details.position.title }}
+                            {% elif emp.job_order_details %}
+                                {{ emp.job_order_details.position_title }}
+                            {% else %}
+                                Unknown
+                            {% endif %}
+                        {% else %}
+                            Unknown
+                        {% endif %}
+                    </td>
+                    <td>{{ login.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</td>
+                    <td>{{ login.ip_address or 'Unknown' }}</td>
+                    <td>
+                        {% if login.success %}
+                            <span class="badge bg-success">Success</span>
+                        {% else %}
+                            <span class="badge bg-danger">Failed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">No login history available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+           
+
+          </div>
+      </div>
+    </div>
+</div>
+  
+
+<script>
+  const searchInput = document.getElementById('liveSearch');
+  let timer;
+
+  searchInput.addEventListener('input', function () {
+    clearTimeout(timer);
+
+    timer = setTimeout(function () {
+      const query = searchInput.value.trim();
+      const url = new URL(window.location.href);
+      url.searchParams.set('search', query);  // Update search param
+      url.searchParams.set('page', 1);        // Reset to page 1
+      window.location.href = url.toString();  // Reload page
+    }, 300); // debounce delay (0.5s)
+  });
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('liveSearch');
+    if (input && input.value) {
+      input.focus();
+      input.selectionStart = input.value.length; // cursor sa dulo
+    }
+  });
+</script>
+
+
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+    // Force table layout fixed for this DataTable
+    $('#login-attempts-table').css({
+        'table-layout': 'fixed',
+        'width': '100%'
+    });
+
+    // Initialize DataTable
+    var loginAttemptsTable = $('#login-attempts-table').DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        responsive: true,
+        autoWidth: false,
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50, 100],
+        columnDefs: [
+            { targets: 0, className: "text-wrap", width: "20%" }, // Employee Name
+            { targets: 1, width: "20%" }, // Department
+            { targets: 2, width: "20%" }, // Position
+            { targets: 3, width: "20%" }, // Date & Time
+            { targets: 4, width: "10%" }, // IP Address
+            { targets: 5, width: "10%" }  // Status (sortable & searchable)
+        ],
+        order: [[3, 'desc']], // Default sort by Date & Time
+        dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>' +
+             't' +
+             '<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search Login Attempts..."
+        }
+    });
+
+    // Style search input
+    $(".dataTables_filter input")
+        .addClass("form-control form-control-lg w-auto")
+        .css("margin-left", "0");
+
+    // Style entries dropdown
+    $(".dataTables_length select")
+        .addClass("form-select form-select-lg")
+        .css("min-width", "80px");
+});
+</script>
+{% endblock %}
+
+
+
+{% endblock content %}

@@ -1,0 +1,654 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+
+
+
+
+
+  <div class="row g-4">
+    <!-- Rating Distribution Pie Chart -->
+    <div class="col-md-6">
+      <div class="card p-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="card-title mb-0">Rating Distribution</h5>
+          <div style="width: 200px;">
+            <select id="periodSelect" class="form-select form-select-sm">
+              {% for period in periods %}
+                <option value="{{ period.id }}" {% if period.id == active_period_id %}selected{% endif %}>
+                  {{ period.name or ("Period " ~ period.id) }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div id="ratingPieChart"></div>
+      </div>
+    </div>
+
+
+       <!-- Performance Trend Line Chart -->
+    <div class="col-md-6">
+      <div class="card p-3">
+        <h5 class="card-title">Average Rating Trend Over Time</h5>
+        <div id="trendLineChart"></div>
+      </div>
+    </div>
+
+    <!-- Department Average Bar Chart -->
+    <div class="col-md-12">
+      <div class="card p-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="card-title mb-0">Department Average Ratings</h5>
+        <div style="width: 250px;">
+          <select id="deptPeriodSelect" class="form-select form-select-sm">
+            {% for period in periods %}
+              <option value="{{ period.id }}" {% if period.id == active_period_id %}selected{% endif %}>
+                {{ period.name or ("Period " ~ period.id) }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+        <div id="departmentBarChart"></div>
+      </div>
+    </div>
+
+
+
+<!-- Department Trend Over Time (Multi-Line) -->
+<div class="col-md-12">
+  <div class="card p-3">
+    <h5 class="card-title">Performance Trend per Department</h5>
+    <div id="multiLineTrendChart"></div>
+  </div>
+</div>
+
+
+<!-- Stacked Bar: Rating Count Per Department -->
+<div class="col-12 mb-4">
+  <div class="card p-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="card-title mb-0">Employee Rating Count per Department</h5>
+      <div style="width: 250px;">
+        <select id="stackedChartPeriodSelect" class="form-select form-select-sm">
+          {% for period in periods %}
+            <option value="{{ period.id }}" {% if period.id == active_period_id %}selected{% endif %}>
+              {{ period.name or ("Period " ~ period.id) }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div id="ratingStackedBarChart"></div>
+  </div>
+</div>
+
+
+<div class="col-12 mb-4">
+  <div class="card p-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="card-title mb-0">Top Performer in Each Department</h5>
+      <div style="width: 250px;">
+        <select id="topPerformerPeriodSelect" class="form-select form-select-sm">
+          {% for period in periods %}
+            <option value="{{ period.id }}" {% if period.id == active_period_id %}selected{% endif %}>
+              {{ period.name or ("Period " ~ period.id) }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div id="topPerformerChart"></div>
+  </div>
+</div>
+
+
+
+
+
+  </div>
+
+
+<script id="allRatingData" type="application/json">
+  {{ rating_distribution_by_period | tojson }}
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const data = JSON.parse(document.getElementById("allRatingData").textContent);
+    const labels = ["Very Satisfactory", "Satisfactory", "Fair", "Poor", "Very Poor"];
+    const colors = ['#4154f1', '#71dd37', '#03c3ec', '#ffab00', '#ff3e1d'];
+    const chartContainer = document.querySelector("#ratingPieChart");
+
+    function renderChart(periodId) {
+      const dist = data[periodId]?.ratings || {};
+      const series = labels.map(label => dist[label] || 0);
+
+      chartContainer.innerHTML = ""; // Clear old chart
+
+      const chart = new ApexCharts(chartContainer, {
+        chart: { type: 'pie', height: 450 },
+        labels: labels,
+        series: series,
+        colors: colors,
+        stroke: {
+          show: series.filter(val => val > 0).length > 1
+        }
+      });
+      chart.render();
+    }
+
+    const initialPeriod = document.getElementById("periodSelect")?.value;
+    if (initialPeriod) {
+      renderChart(initialPeriod);
+    }
+
+    document.getElementById("periodSelect")?.addEventListener("change", function () {
+      renderChart(this.value);
+    });
+  });
+</script>
+
+
+
+
+
+<!--   // Rating Distribution Pie Chart -->
+
+
+
+
+<!-- Average Rating Trend Over Time -->
+<script id="trendData" type="application/json">
+  {{ rating_trend | tojson }}
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Safely parse the trend data
+    let trendData = { quarters: [], average_ratings: [] };
+    try {
+      trendData = JSON.parse(document.getElementById("trendData").textContent);
+    } catch (e) {
+      console.error("Failed to parse trend data:", e);
+    }
+
+    const trendLabels = trendData.quarters || [];
+    const trendValues = trendData.average_ratings || [];
+
+    const trendChart = new ApexCharts(document.querySelector("#trendLineChart"), {
+      chart: {
+        type: 'line',
+        height: 440
+      },
+      colors: ['#4154f1'],
+      series: [{
+        name: 'Average Rating',
+        data: trendValues
+      }],
+      xaxis: {
+        categories: trendLabels
+      },
+      yaxis: {
+        min: 0,
+        max: 5,
+        title: { text: 'Rating' }
+      },
+      markers: {  
+        size: 5,
+        colors: ['#4154f1'],         // Marker color
+        strokeColors: '#ffffff',     // Optional: border of marker
+        strokeWidth: 2 },
+        stroke: { curve: 'smooth' }
+      });
+
+    trendChart.render();
+  });
+</script>
+
+
+
+
+<!-- Department Bar Chart Data -->
+<script id="departmentChartData" type="application/json">
+  {{ department_chart_data_by_period | tojson }}
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const data = JSON.parse(document.getElementById("departmentChartData").textContent);
+    const chartContainer = document.querySelector("#departmentBarChart");
+    const periodSelect = document.getElementById("deptPeriodSelect");
+
+    let chart = null;
+
+    function renderChart(periodId) {
+      const periodData = data[periodId];
+      if (!periodData) return;
+
+      const deptLabels = periodData.labels;
+      const deptRatings = periodData.ratings;
+      const deptAcronyms = periodData.acronyms;
+
+      const shortLabels = deptLabels.map(label => deptAcronyms[label] || label);
+      const acronymToFullName = {};
+      deptLabels.forEach((full, i) => {
+        const acronym = shortLabels[i];
+        acronymToFullName[acronym] = full;
+      });
+
+      if (chart) chart.destroy();
+
+      chart = new ApexCharts(chartContainer, {
+        chart: {
+          type: 'bar',
+          height: 500,
+          toolbar: { show: false },
+          events: {
+            mounted: function () {
+              // Tooltip for X-axis labels
+              const axisLabels = document.querySelectorAll("#departmentBarChart .apexcharts-xaxis-texts text");
+              axisLabels.forEach((el, i) => {
+                el.setAttribute("title", deptLabels[i]);
+              });
+
+              // Tooltip for legend (just in case multiple series are added in future)
+              const legendItems = document.querySelectorAll("#departmentBarChart .apexcharts-legend-text");
+              legendItems.forEach((el) => {
+                const acronym = el.textContent.trim();
+                if (acronymToFullName[acronym]) {
+                  el.setAttribute("title", acronymToFullName[acronym]);
+                }
+              });
+            }
+          }
+        },
+        series: [{
+          name: 'Average Rating',
+          data: deptRatings
+        }],
+        xaxis: {
+          categories: shortLabels,
+          labels: {
+            rotate: -45,
+            style: { fontSize: '12px' }
+          }
+        },
+        plotOptions: {
+          bar: {
+            distributed: true,
+            borderRadius: 4,
+            columnWidth: '45%'
+          }
+        },
+        yaxis: {
+          min: 0,
+          max: 5,
+          tickAmount: 5,
+          title: { text: 'Rating' }
+        },
+        tooltip: {
+          y: {
+            formatter: val => `${val.toFixed(2)} / 5.00`
+          },
+          x: {
+            formatter: (_, opts) => deptLabels[opts.dataPointIndex] || "Unknown Dept"
+          }
+        },
+        legend: {
+          show: true,
+          position: 'bottom'
+        },
+        colors: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7', '#9c755f', '#bab0ab']
+      });
+
+      chart.render();
+    }
+
+    renderChart(periodSelect.value);
+
+    periodSelect.addEventListener("change", function () {
+      renderChart(this.value);
+    });
+  });
+</script>
+
+
+
+
+
+<!-- Performance Trend per Department -->
+<script id="deptTrendChartData" type="application/json">
+  {
+    "quarters": {{ dept_trend_data["quarters"] | tojson }},
+    "departments": {{ dept_trend_data["departments"] | tojson }},
+    "acronyms": {{ department_acronyms | tojson }}
+  }
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let trendData = { quarters: [], departments: {}, acronyms: {} };
+
+    try {
+      trendData = JSON.parse(document.getElementById("deptTrendChartData").textContent);
+    } catch (e) {
+      console.error("Failed to parse trend chart data:", e);
+    }
+
+    const quarters = trendData.quarters;
+    const departments = trendData.departments;  // keys are acronyms (e.g., HR)
+    const acronymToFull = {};
+
+    // Invert acronyms mapping (e.g., { "HR": "Human Resources" })
+    Object.entries(trendData.acronyms).forEach(([full, acronym]) => {
+      acronymToFull[acronym] = full;
+    });
+
+    // Prepare series using acronym keys
+    const deptSeries = Object.entries(departments).map(([acronym, data]) => ({
+      name: acronym,
+      data: data
+    }));
+
+    const chart = new ApexCharts(document.querySelector("#multiLineTrendChart"), {
+      chart: {
+        type: 'line',
+        height: 400,
+        events: {
+          mounted: function () {
+            // Add native tooltips to legend items using full department names
+            const legendItems = document.querySelectorAll("#multiLineTrendChart .apexcharts-legend-text");
+            legendItems.forEach((el) => {
+              const acronym = el.textContent.trim();
+              const fullName = acronymToFull[acronym];
+              if (fullName) {
+                el.setAttribute("title", fullName);
+              }
+            });
+          }
+        }
+      },
+      series: deptSeries,
+      xaxis: {
+        categories: quarters
+      },
+      yaxis: {
+        min: 0,
+        max: 5,
+        title: { text: "Rating" }
+      },
+      stroke: {
+        curve: 'smooth'
+      },
+      legend: {
+        position: 'top'
+      },
+      tooltip: {
+        shared: true,
+        y: {
+          formatter: function (val) {
+            return val.toFixed(2);
+          },
+          title: {
+            formatter: function (seriesName) {
+              return acronymToFull[seriesName] || seriesName;
+            }
+          }
+        }
+      },
+      colors: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1']
+    });
+
+    chart.render();
+  });
+</script>
+
+
+<!-- Employee Rating Count per Department -->
+<script id="ratingStackedChartData" type="application/json">
+{
+  "by_period": {{ rating_counts_by_dept_by_period | default({}) | tojson }},
+  "acronyms": {{ department_acronyms | default({}) | tojson }},
+  "active_period_id": {{ active_period_id | default(0) | tojson }}
+}
+</script>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const chartData = JSON.parse(document.getElementById("ratingStackedChartData").textContent);
+  const allRatingsByPeriod = chartData.by_period || {};
+  const deptAcronyms = chartData.acronyms || {};
+  const activePeriodId = chartData.active_period_id;
+
+  const categories = ["Outstanding", "Very Satisfactory", "Satisfactory", "Fair", "Poor", "Very Poor"];
+
+  function generateChart(periodId) {
+    const ratingData = allRatingsByPeriod[periodId] || {};
+    const deptLabels = Object.keys(deptAcronyms);
+    const shortLabels = deptLabels.map(label => deptAcronyms[label] || label);
+
+    const acronymToFullName = {};
+    shortLabels.forEach((acr, i) => {
+      acronymToFullName[acr] = deptLabels[i];
+    });
+
+    const seriesData = categories.map(category => ({
+      name: category,
+      data: shortLabels.map(acr => {
+        const full = acronymToFullName[acr];
+        return ratingData[full]?.[category] || 0;
+      })
+    }));
+
+    return {
+      seriesData,
+      shortLabels,
+      acronymToFullName
+    };
+  }
+
+  let chart;
+  function renderChart(periodId) {
+    const { seriesData, shortLabels, acronymToFullName } = generateChart(periodId);
+
+    if (chart) chart.destroy();
+
+    chart = new ApexCharts(document.querySelector("#ratingStackedBarChart"), {
+      chart: {
+        type: 'bar',
+        stacked: true,
+        height: 400,
+        events: {
+          mounted: function () {
+            setTimeout(() => {
+              const axisLabels = document.querySelectorAll("#ratingStackedBarChart .apexcharts-xaxis-label");
+              axisLabels.forEach((el) => {
+                const acronym = el.textContent.trim();
+                const fullName = acronymToFullName[acronym];
+                if (fullName) el.setAttribute("title", fullName);
+              });
+            }, 100);
+          }
+        }
+      },
+      series: seriesData,
+      xaxis: {
+        categories: shortLabels,
+        labels: {
+          rotate: -45,
+          style: { fontSize: '12px' }
+        }
+      },
+      yaxis: {
+        title: { text: 'Number of Employees' }
+      },
+      tooltip: {
+        shared: true,
+        intersect: false,
+        x: {
+          formatter: function (_, opts) {
+            const acronym = shortLabels[opts.dataPointIndex];
+            return acronymToFullName[acronym] || acronym;
+          }
+        }
+      },
+      legend: {
+        position: 'top'
+      },
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          borderRadius: 3
+        }
+      }
+    });
+
+    chart.render();
+  }
+
+  // Initial render
+  renderChart(activePeriodId);
+
+  // Listen for period select change
+  document.getElementById("stackedChartPeriodSelect").addEventListener("change", function () {
+    const selectedPeriodId = this.value;
+    renderChart(selectedPeriodId);
+  });
+});
+</script>
+
+
+
+
+<script id="topPerformerChartData" type="application/json">
+  {
+    "performers_by_period": {{ top_performers_by_period | tojson }},
+    "acronyms": {{ department_acronyms | tojson }},
+    "periods": {{ period_ids | tojson }}
+  }
+</script>
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const chartData = JSON.parse(document.getElementById("topPerformerChartData").textContent);
+  const performersByPeriod = chartData.performers_by_period;
+  const acronymsMap = chartData.acronyms;
+
+  const acronymToFull = {};
+  Object.entries(acronymsMap).forEach(([full, acr]) => {
+    acronymToFull[acr] = full;
+  });
+
+  const select = document.getElementById("topPerformerPeriodSelect");
+  const chartContainer = document.querySelector("#topPerformerChart");
+
+  let chart;
+
+  function renderTopPerformerChart(periodId) {
+    const performers = performersByPeriod[periodId] || {};
+    const deptFullNames = Object.keys(performers);
+    const deptAcronyms = deptFullNames.map(name => acronymsMap[name] || name);
+    const ratings = deptFullNames.map(name => performers[name].rating);
+    const topNames = deptFullNames.map(name => performers[name].name);
+
+    const options = {
+      chart: {
+        type: 'bar',
+        height: 500,
+        events: {
+          mounted: function () {
+            setTimeout(() => {
+              const legendItems = document.querySelectorAll("#topPerformerChart .apexcharts-legend-text");
+              legendItems.forEach(el => {
+                const acronym = el.textContent.trim();
+                if (acronymToFull[acronym]) {
+                  el.setAttribute("title", acronymToFull[acronym]);
+                }
+              });
+            }, 100);
+          }
+        }
+      },
+      series: [{
+        name: 'Rating',
+        data: ratings
+      }],
+      xaxis: {
+        categories: deptAcronyms,
+        title: { text: 'Department' },
+        labels: {
+          rotate: -45,
+          style: { fontSize: '12px' }
+        }
+      },
+      yaxis: {
+        min: 0,
+        max: 5,
+        title: { text: 'Rating' }
+      },
+      plotOptions: {
+        bar: {
+          horizontal: true,
+          distributed: true,
+          barHeight: '80%',
+          dataLabels: {
+            position: 'center'
+          }
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: function (val, opt) {
+          return `${topNames[opt.dataPointIndex]}: ${val.toFixed(1)}`;
+        },
+        style: {
+          colors: ['#fff'],
+          fontSize: '13px',
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        y: {
+          formatter: function (val, opt) {
+            const acr = deptAcronyms[opt.dataPointIndex];
+            const full = acronymToFull[acr] || acr;
+            const name = topNames[opt.dataPointIndex];
+            return `${full} (${name}): ${val.toFixed(2)}`;
+          }
+        }
+      },
+      legend: {
+        show: true,
+        position: 'bottom'
+      }
+    };
+
+    if (chart) chart.destroy();
+    chart = new ApexCharts(chartContainer, options);
+    chart.render();
+  }
+
+  // Initial render
+  renderTopPerformerChart(select.value);
+
+  // Handle change
+  select.addEventListener("change", function () {
+    renderTopPerformerChart(this.value);
+  });
+});
+</script>
+
+
+
+
+
+
+
+{% endblock content %}

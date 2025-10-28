@@ -1,0 +1,113 @@
+{% extends "base/landingBase.html" %}
+{% block content %}
+
+    <!-- Page Title -->
+    <!-- Replace this section of your HTML -->
+
+<!-- Page Title -->
+<div class="page-title">
+    <div class="container d-lg-flex justify-content-between align-items-center">
+      <h1 class="mb-2 mb-lg-0">Culture & Tradition</h1>
+      <nav class="breadcrumbs">
+        <ol>
+          <li><a href="{{ url_for('home') }}">Home</a></li>
+          <li class="current">Culture</li>
+        </ol>
+      </nav>
+    </div>
+  </div><!-- End Page Title -->
+  
+  <!-- Service Details Section -->
+  <section id="service-details" class="service-details section">
+    <div class="container">
+      <div class="row gy-5">
+        <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="service-box">
+            <h4>Culture Programs</h4>
+           <div class="services-list">
+            <a href="#"><i class="bi bi-check-circle"></i><span>Annual Itik Festival</span></a>
+            <a href="#"><i class="bi bi-check-circle"></i><span>Traditional Dance Exhibits</span></a>
+            <a href="#"><i class="bi bi-check-circle"></i><span>Local Arts & Crafts Workshops</span></a>
+            <a href="#"><i class="bi bi-check-circle"></i><span>Historical Site Tours</span></a>
+            <a href="#"><i class="bi bi-check-circle"></i><span>Community Storytelling Events</span></a>
+            <a href="#"><i class="bi bi-check-circle"></i><span>Cultural Heritage Preservation</span></a>
+          </div>
+
+          </div>
+  
+          <!-- <div class="service-box">
+            <h4>Download Catalog</h4>
+            <div class="download-catalog">
+              <a href="#"><i class="bi bi-filetype-pdf"></i><span>Culture Booklet PDF</span></a>
+              <a href="#"><i class="bi bi-file-earmark-word"></i><span>Heritage Programs DOC</span></a>
+            </div>
+          </div> -->
+  
+          <div class="help-box d-flex flex-column justify-content-center align-items-center">
+            <i class="bi bi-headset help-icon"></i>
+            <h4>Need Assistance?</h4>
+            <p class="d-flex align-items-center mt-2 mb-0"><i class="bi bi-telephone me-2"></i> <span>+1 5589 55488 55</span></p>
+            <p class="d-flex align-items-center mt-1 mb-0"><i class="bi bi-envelope me-2"></i> <a href="mailto:contact@example.com">contact@example.com</a></p>
+          </div>
+        </div>
+  
+        <div class="col-lg-8 ps-lg-5" data-aos="fade-up" data-aos-delay="200">
+            <style>
+                .image-box {
+                  height: 300px; /* adjust as needed */
+                  overflow: hidden;
+                }
+              
+                .image-box img {
+                  height: 100%;
+                  width: 100%;
+                  object-fit: cover;
+                  border-radius: 8px;
+                }
+              </style>
+              
+              <div class="row mb-4">
+                <div class="col-md-4" data-aos="fade-up">
+                  <div class="image-box">
+                    <img src="{{ url_for('static', filename='img/landing/festive.JPG') }}" alt="Itik Festival" class="img-fluid shadow-sm">
+
+                  </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                  <div class="image-box">
+                    <img src="{{ url_for('static', filename='img/landing/fes2.JPG') }}" alt="Traditional Dance" class="img-fluid shadow-sm">
+
+                  </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                  <div class="image-box">
+                    <img src="{{ url_for('static', filename='img/landing/fes3.JPG') }}" alt="Local Crafts" class="img-fluid shadow-sm">
+
+                  </div>
+                </div>
+              </div>
+              
+                        
+          <h3>Experience the Culture and Tradition of Victoria, Laguna</h3>
+          <p>
+            The town of Victoria, Laguna is rich in cultural heritage and traditions that continue to thrive in the hearts of its people. From colorful festivals to traditional arts, the community takes pride in its history and identity.
+          </p>
+          <p>
+            At the center of Victoria's culture is the Itik Festival, a vibrant celebration showcasing the town's iconic duck-raising industry through dance, music, and parades. Residents honor their ancestors through local rituals and express their creativity through handcrafted goods and folk art.
+          </p>
+          <ul>
+            <li><i class="bi bi-check-circle"></i> <span>Colorful festivals that celebrate local livelihoods and heritage.</span></li>
+            <li><i class="bi bi-check-circle"></i> <span>Workshops and exhibits promoting traditional skills and artistry.</span></li>
+            <li><i class="bi bi-check-circle"></i> <span>Programs for preserving oral traditions and indigenous stories.</span></li>
+            <li><i class="bi bi-check-circle"></i> <span>Community participation in cultural education and youth heritage clubs.</span></li>
+          </ul>
+          <p>
+            Victoria’s culture is a living story passed down through generations. Visitors and locals alike are invited to take part, learn, and ensure that the town’s traditions continue to flourish.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section><!-- /Service Details Section -->
+  
+
+  {% endblock content %}

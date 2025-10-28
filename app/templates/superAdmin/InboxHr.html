@@ -1,0 +1,1791 @@
+{% extends "base/SuperAdmin.html" %}
+
+{% block content %}
+
+
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+<style>
+  /* Reset pseudo-element for all nav-links */
+  #emailTabs .nav-link::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.25rem; /* 4px */
+    height: 2rem;
+    background-color: transparent;
+    border-radius: 0 0.375rem 0.375rem 0; /* rounded left edge */
+    transition: background-color 0.3s ease;
+  }
+
+  /* Show blue bar only on active tab */
+  #emailTabs .nav-link.active::before {
+    background-color: #4154f1;
+  }
+
+  /* Active link styling */
+  #emailTabs .nav-link.active {
+    color: #4154f1 !important;
+    font-weight: 600;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding-left: 1.25rem;
+    position: relative;
+  }
+
+  /* Hover for inactive */
+  #emailTabs .nav-link:not(.active):hover {
+    background-color: #f8f9fa;
+    color: #4154f1 !important;
+  }
+
+
+    /* Container for all tab content - fixed height or use viewport height */
+  #emailTabsContent {
+    height: 600px; /* adjust as needed or use vh */
+    display: flex;
+    flex-direction: column;
+  }
+
+
+
+
+  /* Each tab pane uses flex layout and full height */
+  .tab-pane {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  /* Email list and detail view stack vertically */
+  .email-list-view,
+  .email-detail-view {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+
+  /* Hide detail view by default */
+  .email-detail-view.d-none {
+    display: none !important;
+  }
+
+  /* Show detail view as flex container */
+  .email-detail-view {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Email body fills available space inside detail view and scrolls */
+  .email-detail-view > #emailBody-inbox,
+  .email-detail-view > #emailBody-sent,
+  .email-detail-view > #emailBody-trash {
+    flex-grow: 1;
+    overflow-y: auto;
+    border-top: 1px solid #ddd;
+    padding-top: 1rem;
+  }
+
+  /* Back button styling */
+  .email-detail-view > button {
+    align-self: flex-start;
+  }
+
+   .ql-editor {
+    font-size: 16px; /* or 18px, 20px as needed */
+    line-height: 1.6;
+  }
+
+    .cursor-pointer {
+    cursor: pointer;
+  }
+
+      #file-preview .badge {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+  #file-preview .btn-icon i {
+    font-size: 1rem;
+    line-height: 1;
+  }
+  #file-preview i.bi {
+    font-size: 1rem;
+  }
+  
+  
+/* Sidebar Offcanvas Styles */
+.email-card-wrapper {
+  position: relative;   
+  overflow: hidden;    
+}
+
+.small-offcanvas {
+  width: 320px !important;
+  max-width: 75%;
+}
+
+#mobileSidebar.offcanvas {
+  position: absolute; 
+  top: 0;
+  left: 0;
+  height: 100%;         
+  max-height: 100%;
+  z-index: 1050;       
+}
+</style>
+
+
+<!-- Bootstrap Icons CDN -->
+
+<div class="row g-4 mb-4">
+  <div class="col-12">
+    <div class="card h-100 ">
+      <div class="row g-0">
+        
+    
+          <div id="emailSidebar"
+          class="col-md-2 bg-white border-end d-flex flex-column d-none d-lg-flex"
+          style="height: 100%;">
+          <!-- Sidebar content mo dito -->
+          <div class="p-4 pb-0">
+            <button class="btn btn-primary w-100 mb-4" data-bs-toggle="modal" data-bs-target="#composeModal">
+              <i class="bi bi-pencil-square me-2"></i> Compose
+            </button>
+          </div>
+
+
+          <div class="flex-grow-0 px-0">
+            <ul class="nav nav-pills flex-column mb-4 gap-2" id="emailTabs" role="tablist">
+              <li class="nav-item w-100" role="presentation">
+                <button class="nav-link active d-flex justify-content-between align-items-center position-relative w-100"
+                        id="inbox-tab" data-bs-toggle="tab" data-bs-target="#inbox" type="button" role="tab"
+                        aria-controls="inbox" aria-selected="true">
+                  <span class="d-flex align-items-center">
+                    <i class="bi bi-envelope me-2 fs-5 ps-2"></i>Inbox
+                  </span>
+                   {% set unread_count = inbox | selectattr('is_read', 'equalto', False) | list | length %}
+                    {% if unread_count > 0 %}
+                      <span class="badge bg-primary rounded-pill">{{ unread_count }}</span>
+                    {% endif %}
+                </button>
+              </li>
+              <li class="nav-item w-100" role="presentation">
+                <button class="nav-link d-flex justify-content-start align-items-center position-relative w-100"
+                        id="sent-tab" data-bs-toggle="tab" data-bs-target="#sent" type="button" role="tab"
+                        aria-controls="sent" aria-selected="false">
+                  <i class="bi bi-send me-2 fs-5 ps-2"></i>Sent
+                </button>
+              </li>
+              <li class="nav-item w-100" role="presentation">
+                <button class="nav-link d-flex justify-content-start align-items-center position-relative w-100"
+                        id="trash-tab" data-bs-toggle="tab" data-bs-target="#trash" type="button" role="tab"
+                        aria-controls="trash" aria-selected="false">
+                  <i class="bi bi-trash me-2 fs-5 ps-2"></i>Trash
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <div class="p-4 pt-0">
+            <h6 class="text-muted mb-3">LABELS</h6>
+            <ul class="list-unstyled ps-0 mb-0">
+              <li class="d-flex align-items-center mb-3">
+                <span class="badge rounded-circle bg-success me-2" style="width:10px; height:10px;">&nbsp;</span> Announcement
+              </li>
+              <li class="d-flex align-items-center mb-3">
+                <span class="badge rounded-circle bg-primary me-2" style="width:10px; height:10px;">&nbsp;</span> Reminder
+              </li>
+              <li class="d-flex align-items-center mb-3">
+                <span class="badge rounded-circle bg-warning me-2" style="width:10px; height:10px;">&nbsp;</span> Personal
+              </li>
+              <li class="d-flex align-items-center mb-3">
+                <span class="badge rounded-circle bg-info me-2" style="width:10px; height:10px;">&nbsp;</span> System
+              </li>
+
+              <li class="d-flex align-items-center mb-3">
+                <span class="badge rounded-circle me-2" style="width:10px; height:10px; background-color: #7367F0;">&nbsp;</span> IPCR 
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        
+  <!-- 📌 Offcanvas Sidebar confined sa card -->
+  <div class="offcanvas offcanvas-start small-offcanvas" 
+       tabindex="-1" id="mobileSidebar" 
+       data-bs-backdrop="false">
+    <div class="offcanvas-body d-flex flex-column">
+      <!-- Compose Button -->
+      <div class="p-4 pb-0">
+        <button class="btn btn-primary w-100 mb-4" data-bs-toggle="modal" data-bs-target="#composeModal">
+          <i class="bi bi-pencil-square me-2"></i> Compose
+        </button>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="flex-grow-0 px-0">
+        <ul class="nav nav-pills flex-column mb-4 gap-2" id="emailTabs" role="tablist">
+          <li class="nav-item w-100" role="presentation">
+            <button class="nav-link active d-flex justify-content-between align-items-center position-relative w-100"
+                    id="inbox-tab" data-bs-toggle="tab" data-bs-target="#inbox" type="button" role="tab"
+                    aria-controls="inbox" aria-selected="true">
+              <span class="d-flex align-items-center">
+                <i class="bi bi-envelope me-2 fs-5 ps-2"></i>Inbox
+              </span>
+              {% set unread_count = inbox | selectattr('is_read', 'equalto', False) | list | length %}
+              {% if unread_count > 0 %}
+                <span class="badge bg-primary rounded-pill">{{ unread_count }}</span>
+              {% endif %}
+            </button>
+          </li>
+          <li class="nav-item w-100" role="presentation">
+            <button class="nav-link d-flex justify-content-start align-items-center position-relative w-100"
+                    id="sent-tab" data-bs-toggle="tab" data-bs-target="#sent" type="button" role="tab"
+                    aria-controls="sent" aria-selected="false">
+              <i class="bi bi-send me-2 fs-5 ps-2"></i>Sent
+            </button>
+          </li>
+          <li class="nav-item w-100" role="presentation">
+            <button class="nav-link d-flex justify-content-start align-items-center position-relative w-100"
+                    id="trash-tab" data-bs-toggle="tab" data-bs-target="#trash" type="button" role="tab"
+                    aria-controls="trash" aria-selected="false" >
+              <i class="bi bi-trash me-2 fs-5 ps-2"></i>Trash
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Labels -->
+      <div class="p-4 pt-0">
+        <h6 class="text-muted mb-3">LABELS</h6>
+        <ul class="list-unstyled ps-0 mb-0">
+          <li class="d-flex align-items-center mb-3">
+            <span class="badge rounded-circle bg-success me-2" style="width:10px; height:10px;">&nbsp;</span> Announcement
+          </li>
+          <li class="d-flex align-items-center mb-3">
+            <span class="badge rounded-circle bg-primary me-2" style="width:10px; height:10px;">&nbsp;</span> Reminder
+          </li>
+          <li class="d-flex align-items-center mb-3">
+            <span class="badge rounded-circle bg-warning me-2" style="width:10px; height:10px;">&nbsp;</span> Personal
+          </li>
+          <li class="d-flex align-items-center mb-3">
+            <span class="badge rounded-circle bg-info me-2" style="width:10px; height:10px;">&nbsp;</span> System
+          </li>
+          <li class="d-flex align-items-center mb-3">
+            <span class="badge rounded-circle bg-info me-2" style="width:10px; height:10px;">&nbsp;</span> System
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+        <!-- Main Content -->
+        <div id="emailMainContent" class="col-md-10 bg-white">
+
+          <div class="card-body emails-list-header p-3 py-2">
+            <div class="d-flex justify-content-between align-items-center mt-2 mb-4">
+              <div class="d-flex align-items-center w-100">
+               <i class="bi bi-list fs-4 cursor-pointer d-block d-lg-none me-4"
+             data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar"></i>
+
+                <div class="w-100">
+                  <div class="input-group input-group-merge shadow-none">
+                    <span class="input-group-text border-0 p-0 pe-4" id="email-search">
+                      <i class="bi bi-search text-body fs-5"></i>
+                    </span>
+                    <input type="text" class="form-control email-search-input border-0 py-0" placeholder="Search mail" aria-label="Search mail" aria-describedby="email-search">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr class="mx-n3 emails-list-header-hr mb-3">
+           <div class="d-flex justify-content-between align-items-center ps-1">
+
+         
+            <div class="d-flex align-items-center">
+              <!-- Select All Checkbox -->
+                <div class="form-check me-1" style="margin-left: -4px;">
+                  <input type="checkbox" class="form-check-input" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
+                </div>
+
+              <!-- Bulk Action Buttons -->
+             <div class="btn btn-icon me-1" onclick="bulkDeleteMessages()" data-current-tab="inbox" id="deleteBtn">
+            <i class="bi bi-trash fs-5 cursor-pointer"></i>
+          </div>
+
+              <div class="btn btn-icon me-1" id="markAsReadBtn" onclick="bulkMarkAsRead()">
+                <i class="bi bi-envelope-open fs-5 cursor-pointer"></i>
+              </div>
+            </div>
+
+
+              <div class="d-flex align-items-center">
+                <span class="btn btn-icon me-1"  onclick="location.reload()">
+                  <i class="bi bi-arrow-clockwise fs-5 cursor-pointer"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Email Views -->
+          <div class="tab-content px-0 pt-0" id="emailTabsContent">
+
+            <!-- Inbox Tab Pane -->
+            <div class="tab-pane fade show active" id="inbox" role="tabpanel" aria-labelledby="inbox-tab">
+              <div class="email-list-view overflow-auto" style="max-height: 60vh;">
+                
+                {% for msg in inbox %}
+                  <div class="email-card p-3 border-bottom {{ 'bg-white' if not msg.is_read else 'bg-body-secondary' }}" 
+                      id="message-{{ msg.id }}"
+                      style="cursor:pointer"
+                      data-id="{{ msg.id }}"
+                      data-sender="{{ msg.sender.name | e }}"
+                      data-image="{{ msg.sender.image_file }}"
+                      data-subject="{{ msg.subject | e }}"
+                      data-body='{{ msg.body | tojson }}'
+                      data-tab="inbox"
+                      data-type="{{ msg.message_type }}"
+                      data-role="{{ msg.sender.role }}"
+                      data-timestamp="{{ msg.timestamp.isoformat() }}"
+                      data-ipcr-link="{{ msg.ipcr_link or '' }}"
+                      data-user-position="{{ position_title }}"
+                      data-attachments='{{ msg.attachments | map(attribute="filename") | list | tojson | safe }}'
+                      onclick="handleEmailCardClick(this)">
+                             
+
+                                          
+                  <div class="d-flex align-items-center">
+                  <input type="checkbox" class="form-check-input me-3 message-checkbox" onclick="event.stopPropagation()" data-id="{{ msg.id }}">
+
+
+                    <!-- Sender Initials -->
+                <div class="me-3">
+                    {% if msg.message_type == 'personal' %}
+                      {% if msg.sender.image_file and msg.sender.image_file != 'default.jpg' %}
+                        <img src="{{ url_for('static', filename='img/avatars/' ~ msg.sender.image_file) }}"
+                            class="rounded-circle" width="40" height="40">
+                      {% else %}
+                        <div class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center"
+                            style="width: 40px; height: 40px;">
+                          {{ msg.sender.name[:2].upper() }}
+                        </div>
+                      {% endif %}
+                      
+                    {% elif msg.message_type == 'announcement' %}
+                      <div class="rounded-circle bg-success text-white d-flex justify-content-center align-items-center"
+                          style="width: 40px; height: 40px;">
+                        <i class="bi bi-megaphone"></i>
+                      </div>
+
+                    {% elif msg.message_type == 'reminder' %}
+                      <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
+                          style="width: 40px; height: 40px;">
+                        <i class="bi bi-alarm"></i>
+                      </div>
+
+                    {% elif msg.message_type == 'system' %}
+                      <div class="rounded-circle bg-info text-dark d-flex justify-content-center align-items-center"
+                          style="width: 40px; height: 40px;">
+                        <i class="bi bi-gear text-white"></i>
+                      </div>
+
+                        {% elif msg.message_type == 'ipcr_submission' %}
+                    <div class="rounded-circle d-flex justify-content-center align-items-center"
+                        style="width: 40px; height: 40px; background-color: #7367F0;">
+                      <i class="bi bi-file-earmark-check text-white"></i>
+                    </div>
+                      
+                    {% else %}
+                      <div class="rounded-circle bg-dark text-white d-flex justify-content-center align-items-center"
+                          style="width: 40px; height: 40px;">
+                        ?
+                      </div>
+                    {% endif %}
+                  </div>
+
+
+                  <!-- Message content -->
+                    <div class="d-flex justify-content-between align-items-center w-100">
+                      <div class="me-3 overflow-hidden">
+                        <div class="fw-{{ 'bold' if not msg.is_read else 'normal' }} text-dark mb-1">
+                          {% if msg.sender.role == 'HR' and msg.message_type in ['system', 'announcement', 'reminder'] %}
+                          {% if msg.message_type == 'system' %}
+                            System Notification
+                          {% elif msg.message_type == 'announcement' %}
+                            Official Announcement
+                          {% elif msg.message_type == 'reminder' %}
+                            HR Reminder
+                          {% endif %}
+                          {% elif msg.message_type == 'ipcr_submission' %}
+                          IPCR Submission Notification
+                        {% else %}
+                          {{ msg.sender.name }}
+                        {% endif %}
+                        </div>
+                        <div class="text-muted text-truncate small" style="max-width: 300px;">
+                          {{ msg.subject }}
+                        </div>
+                      </div>
+                      
+                      <!-- Badge and Time -->
+                       <div class="text-end d-flex align-items-center gap-2">
+                        {% if msg.message_type == 'announcement' %}
+                          <span class="badge rounded-circle bg-success" style="width:10px; height:10px;">&nbsp;</span>
+                        {% elif msg.message_type == 'reminder' %}
+                          <span class="badge rounded-circle bg-primary" style="width:10px; height:10px;">&nbsp;</span>
+                        {% elif msg.message_type == 'personal' %}
+                          <span class="badge rounded-circle bg-warning" style="width:10px; height:10px;">&nbsp;</span>
+                        {% elif msg.message_type == 'system' %}
+                          <span class="badge rounded-circle bg-info" style="width:10px; height:10px;">&nbsp;</span>
+                         {% elif msg.message_type == 'ipcr_submission' %}
+                            <span class="badge rounded-circle" style="width:10px; height:10px; background-color: #7367F0;">&nbsp;</span>
+                          {% else %}
+                          <span class="badge rounded-circle bg-secondary" style="width:10px; height:10px;">&nbsp;</span>
+                        {% endif %}
+                                   <small class="text-muted">{{ msg.timestamp | ph_time }}</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% else %}
+                <p class="text-muted ps-3">No inbox messages.</p>
+              {% endfor %}
+
+
+              </div>
+            </div>
+
+            <!-- Sent Tab -->
+         <div class="tab-pane fade" id="sent" role="tabpanel" aria-labelledby="sent-tab">
+          <div class="email-list-view overflow-auto" style="max-height: 60vh;">
+            {% for msg in sent %}
+              <div class="email-card p-3 border-bottom {{ 'bg-white' if not msg.is_read else 'bg-body-secondary' }}"
+       
+                  style="cursor:pointer"
+                  onclick="handleEmailCardClick(this)"
+                  data-id="{{ msg.id }}"
+                  data-sender="{{ msg.recipient.name | e }}"
+                  data-receiver="{{ msg.recipient.name | e }}"
+                  data-image="{{ msg.recipient.image_file }}"
+                  data-subject="{{ msg.subject | e }}"
+                  data-body='{{ msg.body | tojson }}'
+                  data-tab="sent"
+                  data-type="{{ msg.message_type }}"
+                  data-timestamp="{{ msg.timestamp.isoformat() }}"
+                  data-ipcr-link="{{ msg.ipcr_link or '' }}"
+                  data-user-position="{{ position_title }}"
+                  data-attachments='{{ msg.attachments | map(attribute="filename") | list | tojson | safe }}'>
+
+
+                <div class="d-flex align-items-center">
+                  <input type="checkbox" class="form-check-input me-3 message-checkbox" onclick="event.stopPropagation()" data-id="{{ msg.id }}">
+
+                    <!-- avatar -->
+                 {% if msg.recipient.image_file and msg.recipient.image_file != 'default.jpg' %}
+                    <img src="{{ url_for('static', filename='img/avatars/' ~ msg.recipient.image_file) }}"
+                        class="rounded-circle me-3" width="40" height="40">
+                  {% else %}
+                    <div class="rounded-circle bg-info text-white d-flex justify-content-center align-items-center me-3"
+                        style="width:40px; height:40px;">
+                      {{ msg.recipient.name[:2]|upper }}
+                    </div>
+                  {% endif %}
+
+
+                  <div class="d-flex justify-content-between align-items-center w-100">
+                    <div class="me-3 overflow-hidden">
+                      <div class="fw-{{ 'bold' if not msg.is_read else 'normal' }} text-dark mb-1">{{ msg.recipient.name }}</div>
+                      <div class="text-muted text-truncate small" style="max-width: 300px;">{{ msg.subject }}</div>
+                    </div>
+                    <div class="text-end d-flex align-items-center gap-2">
+                        {% if msg.message_type == 'announcement' %}
+                          <span class="badge rounded-circle bg-success" style="width:10px; height:10px;">&nbsp;</span>
+                        {% elif msg.message_type == 'reminder' %}
+                          <span class="badge rounded-circle bg-primary" style="width:10px; height:10px;">&nbsp;</span>
+                        {% elif msg.message_type == 'personal' %}
+                          <span class="badge rounded-circle bg-warning" style="width:10px; height:10px;">&nbsp;</span>
+                        {% elif msg.message_type == 'system' %}
+                          <span class="badge rounded-circle bg-info" style="width:10px; height:10px;">&nbsp;</span>
+                         {% elif msg.message_type == 'ipcr_submission' %}
+                            <span class="badge rounded-circle" style="width:10px; height:10px; background-color: #7367F0;">&nbsp;</span>
+                          {% else %}
+                          <span class="badge rounded-circle bg-secondary" style="width:10px; height:10px;">&nbsp;</span>
+                        {% endif %}
+                                   <small class="text-muted">{{ msg.timestamp | ph_time }}</small>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            {% else %}
+              <p class="text-muted ps-3">No sent messages.</p>
+            {% endfor %}
+          </div>
+
+          </div>
+              
+
+          <!-- Trash Tab -->
+        <div class="tab-pane fade" id="trash" role="tabpanel" aria-labelledby="trash-tab">
+          <div class="email-list-view overflow-auto" style="max-height: 60vh;">
+            {% for msg in trash %}
+            <div class="email-card p-3 border-bottom"
+              style="cursor:pointer"
+              onclick="handleEmailCardClick(this)"
+              data-id="{{ msg.id }}"
+              data-sender="{{ msg.recipient.name | e if msg.is_sent_copy else msg.sender.name | e }}"
+              data-image="{{ msg.recipient.image_file if msg.is_sent_copy else msg.sender.image_file }}"
+              data-subject="{{ msg.subject | e }}"
+              data-body='{{ msg.body | tojson }}'
+              data-tab="trash"
+              data-role="{{ msg.sender.role }}"
+              data-type="{{ msg.message_type }}"
+              data-timestamp="{{ msg.timestamp.isoformat() }}"
+              data-ipcr-link="{{ msg.ipcr_link or '' }}"
+              data-user-position="{{ position_title }}"
+             data-attachments='{{ msg.attachments | map(attribute="filename") | list | tojson | safe }}'>
+
+
+              <div class="d-flex align-items-center">
+                <input type="checkbox" class="form-check-input me-3 message-checkbox" onclick="event.stopPropagation()" data-id="{{ msg.id }}">
+
+                <!-- Avatar -->
+                <div class="me-3">
+                  {% if msg.message_type == 'personal' %}
+                    {% set user = msg.recipient if msg.is_sent_copy else msg.sender %}
+                    {% if user.image_file and user.image_file != 'default.jpg' %}
+                      <img src="{{ url_for('static', filename='img/avatars/' ~ user.image_file) }}"
+                          class="rounded-circle" width="40" height="40">
+                    {% else %}
+                      <div class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center"
+                          style="width: 40px; height: 40px;">
+                        {{ user.name[:2].upper() }}
+                      </div>
+                    {% endif %}
+                  {% elif msg.message_type == 'announcement' %}
+                    <div class="rounded-circle bg-success text-white d-flex justify-content-center align-items-center"
+                        style="width: 40px; height: 40px;">
+                      <i class="bi bi-megaphone"></i>
+                    </div>
+                  {% elif msg.message_type == 'reminder' %}
+                    <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
+                        style="width: 40px; height: 40px;">
+                      <i class="bi bi-alarm"></i>
+                    </div>
+                  {% elif msg.message_type == 'system' %}
+                    <div class="rounded-circle bg-info text-dark d-flex justify-content-center align-items-center"
+                        style="width: 40px; height: 40px;">
+                      <i class="bi bi-gear text-white"></i>
+                    </div>
+                  {% else %}
+                    <div class="rounded-circle bg-dark text-white d-flex justify-content-center align-items-center"
+                        style="width: 40px; height: 40px;">
+                      ?
+                    </div>
+                  {% endif %}
+                </div>
+
+                <!-- Message Content -->
+                <div class="d-flex justify-content-between align-items-center w-100">
+                  <!-- Left: sender/recipient name + subject -->
+                  <div class="me-3 overflow-hidden">
+                    <div class="fw-{{ 'bold' if not msg.is_read else 'normal' }} text-dark mb-1 text-truncate">
+                      {% if msg.is_sent_copy %}
+                        {{ msg.recipient.name }}
+                      {% elif msg.sender.role == 'HR' and msg.message_type in ['system', 'announcement', 'reminder'] %}
+                        {% if msg.message_type == 'system' %}
+                          System Notification
+                        {% elif msg.message_type == 'announcement' %}
+                          Official Announcement
+                        {% elif msg.message_type == 'reminder' %}
+                          HR Reminder
+                        {% endif %}
+                      {% else %}
+                        {{ msg.sender.name }}
+                      {% endif %}
+                    </div>
+                    <div class="text-muted text-truncate small" style="max-width: 300px;">
+                      {{ msg.subject }}
+                    </div>
+                  </div>
+                  <!-- Right: badge + time -->
+                   <div class="text-end d-flex align-items-center gap-2">
+                        {% if msg.message_type == 'announcement' %}
+                          <span class="badge rounded-circle bg-success" style="width:10px; height:10px;">&nbsp;</span>
+                        {% elif msg.message_type == 'reminder' %}
+                          <span class="badge rounded-circle bg-primary" style="width:10px; height:10px;">&nbsp;</span>
+                        {% elif msg.message_type == 'personal' %}
+                          <span class="badge rounded-circle bg-warning" style="width:10px; height:10px;">&nbsp;</span>
+                        {% elif msg.message_type == 'system' %}
+                          <span class="badge rounded-circle bg-info" style="width:10px; height:10px;">&nbsp;</span>
+                         {% elif msg.message_type == 'ipcr_submission' %}
+                            <span class="badge rounded-circle" style="width:10px; height:10px; background-color: #7367F0;">&nbsp;</span>
+                          {% else %}
+                          <span class="badge rounded-circle bg-secondary" style="width:10px; height:10px;">&nbsp;</span>
+                        {% endif %}
+                                   <small class="text-muted">{{ msg.timestamp | ph_time }}</small>
+                      </div>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <p class="text-muted ps-3">Trash is empty.</p>
+          {% endfor %}
+          </div>
+
+                  </div>
+
+                  </div>
+
+
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Compose Modal -->
+<div class="modal fade" id="composeModal" tabindex="-1" aria-labelledby="composeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-3 shadow-sm">
+
+      <!-- Header -->
+      <div class="modal-header">
+        <h5 class="modal-title">Compose Mail</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <form id="compose-form" action="{{ url_for('send_message') }}" method="POST" enctype="multipart/form-data">
+
+          <!-- Message Type -->
+            <div class="mb-3">
+              <label class="form-label d-block">Message Type</label>
+              <div class="d-flex gap-3">
+
+                <input type="radio" class="btn-check" name="message_type" id="type-announcement" value="announcement" autocomplete="off" required>
+                <label class="btn btn-outline-success" for="type-announcement">Announcement</label>
+
+                <input type="radio" class="btn-check" name="message_type" id="type-reminder" value="reminder" autocomplete="off">
+                <label class="btn btn-outline-primary" for="type-reminder">Reminder</label>
+
+                <input type="radio" class="btn-check" name="message_type" id="type-personal" value="personal" autocomplete="off">
+                <label class="btn btn-outline-warning" for="type-personal">Personal</label>
+
+              </div>
+            </div>
+
+          <!-- Recipients -->
+          <div class="mb-3">
+              <label for="recipientSearch" class="form-label">Recipients</label>
+              <div class="border rounded p-2" id="recipientContainer">
+                <div class="d-flex flex-wrap gap-1 mb-1" id="selectedRecipients"></div>
+                <input type="text" class="form-control border-0 p-0 shadow-none"
+                      id="recipientSearch"
+                      placeholder="Search recipients..."
+                      onkeyup="filterRecipients()" data-bs-toggle="dropdown" autocomplete="off">
+                <input type="hidden" name="recipient_emails" id="recipientEmails" required>
+                <div class="invalid-feedback">Please select at least one recipient.</div>
+              <ul class="dropdown-menu w-100 mt-1" id="recipientDropdown">
+
+                 <li>
+                  <button class="dropdown-item fw-bold text-primary" type="button" onclick="addAllRecipients()">
+                    <i class="bi bi-people-fill me-1"></i> All Employees
+                  </button>
+                </li>
+                <li><hr class="dropdown-divider">
+                </li>
+
+                 {% for department, dept_users in grouped_users.items() %}
+                  <li>
+                    <h5 class="dropdown-header text-uppercase fw-bold text-info">
+                      {{ department }}
+                    </h5>
+                  </li>
+                  
+                      {% for user in dept_users %}
+                        <li>
+                          <button class="dropdown-item" type="button" onclick="addRecipient('{{ user.email }}', '{{ user.name | escape }}')">
+                            {{ user.name }} 
+                            (
+                            {% if user.employee %}
+                              {% if user.employee.permanent_details %}
+                                {{ user.employee.permanent_details.position.title }}
+                              {% elif user.employee.casual_details %}
+                                {{ user.employee.casual_details.position.title }}
+                              {% elif user.employee.job_order_details %}
+                                {{ user.employee.job_order_details.position_title }}
+                              {% else %}
+                                No Position
+                              {% endif %}
+                            {% else %}
+                              No Employee Info
+                            {% endif %}
+                            ) – {{ user.email }}
+                          </button>
+                        </li>
+                      {% endfor %}
+
+                      <li><hr class="dropdown-divider"></li>
+                    {% endfor %}
+
+              </ul>
+            </div>
+          </div>
+
+          <!-- Subject -->
+          <div class="mb-3">
+            <input type="text" class="form-control" id="compose-subject" placeholder="Subject:" name="subject" />
+            <div class="invalid-feedback">Subject is required.</div>
+          </div>
+
+          <!-- Editor -->
+          <div class="mb-3">
+            <div id="quill-compose-editor" style="height: 200px; border: 1px solid #ced4da; border-radius: 4px;"></div>
+            <input type="hidden" name="content" id="compose-content" />
+            <div class="invalid-feedback">Message body cannot be empty.</div>
+          </div>
+
+          <!-- File attachment (hidden input + file preview) -->
+          <input type="file" id="compose-attachment" name="attachments" multiple hidden onchange="showSelectedFiles(this.files)">
+          <div id="file-preview" class="mt-2 text-muted small"></div>
+
+       
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer justify-content-end">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-send-fill me-1"></i> Send
+        </button>
+         </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="deleteModalBody">
+  Are you sure you want to move the selected messages to trash?
+</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Yes, Move to Trash</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<!-- JS FOR THE MODAL  -->
+<script>
+  let quillCompose;
+  let selectedFiles = [];
+
+  const composeModal = document.getElementById('composeModal');
+
+  composeModal.addEventListener('shown.bs.modal', function () {
+    if (!quillCompose) {
+      quillCompose = new Quill('#quill-compose-editor', {
+        theme: 'snow',
+        modules: {
+          toolbar: {
+            container: [
+              ['bold', 'italic', 'underline'],
+              [{ list: 'bullet' }],
+              ['link'],
+              ['attachment']
+            ],
+            handlers: {
+              attachment: function () {
+                document.getElementById('compose-attachment').click();
+              }
+            }
+          }
+        }
+      });
+
+      const attachmentBtn = document.querySelector('.ql-attachment');
+      if (attachmentBtn) {
+        attachmentBtn.innerHTML = '<i class="bi bi-paperclip"></i>';
+      }
+    }
+  });
+
+  const composeForm = document.getElementById('compose-form');
+composeForm.addEventListener('submit', function (e) {
+  const subject = document.getElementById('compose-subject');
+  const recipients = document.getElementById('recipientEmails');
+  const contentInput = document.getElementById('compose-content');
+
+  // Sync Quill editor value
+  const content = quillCompose.root.innerHTML;
+  contentInput.value = content;
+
+  let valid = true;
+
+  // Validate subject
+  if (!subject.value.trim()) {
+    subject.classList.add("is-invalid");
+    valid = false;
+  } else {
+    subject.classList.remove("is-invalid");
+  }
+
+  // Validate recipients
+  if (!recipients.value.trim()) {
+    recipients.classList.add("is-invalid");
+    valid = false;
+  } else {
+    recipients.classList.remove("is-invalid");
+  }
+
+  // Validate content
+  if (!content || content === "<p><br></p>") {
+    contentInput.classList.add("is-invalid");
+    valid = false;
+  } else {
+    contentInput.classList.remove("is-invalid");
+  }
+
+  // Stop form if invalid
+  if (!valid) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+});
+
+
+  function showSelectedFiles(files) {
+    const preview = document.getElementById('file-preview');
+    preview.innerHTML = '';
+    selectedFiles = Array.from(files);
+
+    selectedFiles.forEach((file, index) => {
+      const ext = file.name.split('.').pop().toLowerCase();
+      const icon = getFileIcon(ext);
+
+      const badge = document.createElement('div');
+      badge.className = "d-inline-flex align-items-center badge bg-label-info text-dark p-2 me-2 mb-2 shadow-sm";
+      badge.innerHTML = `
+        <i class="${icon} me-1"></i> ${file.name}
+        <button type="button" class="btn btn-sm btn-icon ms-2 p-0 border-0 bg-transparent text-danger" onclick="removeFile(${index})">
+          <i class="bi bi-x-circle-fill"></i>
+        </button>
+      `;
+      preview.appendChild(badge);
+    });
+  }
+
+  function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    showSelectedFiles(selectedFiles);
+  }
+
+  function getFileIcon(extension) {
+    switch (extension) {
+      case 'pdf': return 'bi bi-file-earmark-pdf-fill';
+      case 'doc':
+      case 'docx': return 'bi bi-file-earmark-word-fill';
+      case 'xls':
+      case 'xlsx': return 'bi bi-file-earmark-excel-fill';
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+      case 'gif': return 'bi bi-file-image-fill';
+      case 'zip':
+      case 'rar': return 'bi bi-file-zip-fill';
+      case 'txt': return 'bi bi-file-earmark-text-fill';
+      default: return 'bi bi-paperclip';
+    }
+  }
+
+  // === Recipient Logic ===
+  function addRecipient(email, name) {
+    const selected = document.getElementById('selectedRecipients');
+    const existing = Array.from(selected.querySelectorAll('.recipient-badge'))
+      .map(el => el.dataset.email);
+    if (existing.includes(email)) return;
+
+    const badge = document.createElement('span');
+    badge.className = "recipient-badge badge bg-secondary text-light me-1 mb-1 p-2 d-inline-flex align-items-center";
+    badge.dataset.email = email;
+    badge.innerHTML = `
+      <span>${name}</span>
+      <button type="button" class="btn-close btn-close-white btn-sm ms-2" aria-label="Remove" onclick="removeRecipient(this, '${email}')"></button>
+    `;
+    selected.appendChild(badge);
+
+    updateRecipientEmails();
+  }
+
+  function removeRecipient(button, email) {
+    button.parentElement.remove();
+    updateRecipientEmails();
+  }
+
+  function updateRecipientEmails() {
+    const emails = Array.from(document.querySelectorAll('.recipient-badge'))
+      .map(el => el.dataset.email);
+    document.getElementById('recipientEmails').value = emails.join(',');
+  }
+
+  function addAllRecipients() {
+    const dropdownItems = document.querySelectorAll('#recipientDropdown button:not(.fw-bold)');
+    dropdownItems.forEach(button => {
+      const text = button.textContent.trim();
+      const emailMatch = text.match(/([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)/);
+      const email = emailMatch ? emailMatch[0] : null;
+      const name = text.split('(')[0].trim();
+      if (email) addRecipient(email, name);
+    });
+  }
+  
+</script>
+
+<!-- COMPOSE VALIDATION -->
+<script>
+  // Real-time validation clear
+  document.addEventListener("DOMContentLoaded", () => {
+    const subject = document.getElementById("compose-subject");
+    const recipients = document.getElementById("recipientEmails"); // hidden input
+    const recipientContainer = document.getElementById("recipientContainer"); // visible box
+    const contentInput = document.getElementById("compose-content");
+
+    // Subject input
+    subject.addEventListener("input", () => {
+      if (subject.value.trim()) {
+        subject.classList.remove("is-invalid");
+      } else {
+        subject.classList.add("is-invalid");
+      }
+    });
+
+    // Recipients validation — trigger on hidden input change
+    const validateRecipients = () => {
+      if (recipients.value.trim()) {
+        recipients.classList.remove("is-invalid");
+        recipientContainer.classList.remove("is-invalid"); // ✅ clear red border
+      } else {
+        recipients.classList.add("is-invalid");
+        recipientContainer.classList.add("is-invalid"); // ✅ show red border
+      }
+    };
+    recipients.addEventListener("input", validateRecipients);
+
+    // Also run after adding/removing recipients
+    window.updateRecipientEmails = function () {
+      const emails = Array.from(document.querySelectorAll('.recipient-badge'))
+        .map(el => el.dataset.email);
+      recipients.value = emails.join(',');
+      validateRecipients(); // ✅ recheck each time
+    };
+
+    // Quill editor (watch text changes)
+    quillCompose?.on("text-change", () => {
+      const content = quillCompose.root.innerHTML;
+      if (content && content !== "<p><br></p>") {
+        contentInput.classList.remove("is-invalid");
+      } else {
+        contentInput.classList.add("is-invalid");
+      }
+    });
+  });
+</script>
+
+
+
+<!-- ✅ JS FOR MESSAGE VIEW -->
+<script>
+
+function linkify(text) {
+  const urlPattern = /(https?:\/\/[^\s<]+)/g; // stop bago sa '<'
+  return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
+}
+
+function showEmailFullView(
+  messageId, sender, subject, body, tab = 'inbox',
+  message_type = 'personal', imageFile = 'default.jpg',
+  receiver = '', userRole = 'user', fromSource = '',
+  attachments = [], timestamp = null, ipcrLink = '', userPosition = ''
+
+) {
+  const senderInitials = sender.trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  /// TIMESTAMP
+  let displayTime = new Date(timestamp || Date.now()).toLocaleString();
+
+  const showReply = (tab !== 'sent' && tab !== 'trash');
+  const tabLabel = tab.charAt(0).toUpperCase() + tab.slice(1);
+
+  const isHR = userRole.toLowerCase() === 'hr';
+  const isSent = tab === 'sent';
+  const isTrash = tab === 'trash';
+  const trashFromSent = isTrash && fromSource === 'sent';
+
+  let senderDisplayName = sender;
+
+//Sender display name
+if (message_type === 'ipcr_submission') {
+  senderDisplayName = 'IPCR Submission';
+} else if (isSent || trashFromSent) {
+  senderDisplayName = isHR ? getMessageLabel(message_type) : receiver;
+} else if (isHR) {
+  senderDisplayName = getMessageLabel(message_type);
+}
+
+  
+let profileHtml = '';
+// Personal message with custom image
+if (message_type === 'personal' && imageFile && imageFile !== 'default.jpg') {
+  profileHtml = `<img src="/static/img/avatars/${imageFile}" class="rounded-circle me-3" width="40" height="40">`;
+} else {
+  const typeStyles = {
+    system:         { icon: 'bi-gear', bg: 'bg-info',     style: '' },
+    announcement:   { icon: 'bi-megaphone-fill', bg: 'bg-success', style: '' },
+    reminder:       { icon: 'bi-bell-fill', bg: 'bg-primary', style: '' },
+    ipcr_submission:{ icon: 'bi-file-earmark-check-fill', bg: '', style: 'background-color: #7367F0;' }
+  };
+
+  if (typeStyles[message_type]) {
+    const { icon, bg, style } = typeStyles[message_type];
+    profileHtml = `
+      <div class="rounded-circle ${bg} text-white d-flex justify-content-center align-items-center me-3"
+           style="width: 40px; height: 40px; ${style}">
+        <i class="bi ${icon} text-white"></i>
+      </div>`;
+  } else {
+    profileHtml = `
+      <div class="rounded-circle bg-warning text-dark d-flex justify-content-center align-items-center me-3"
+           style="width: 40px; height: 40px; font-weight: bold;">
+        ${senderInitials}
+      </div>`;
+  }
+}
+
+
+//Badge
+const badgeStyles = {
+  announcement:    { class: 'bg-success text-white', label: 'Announcement' },
+  reminder:        { class: 'bg-primary text-white', label: 'Reminder' },
+  system:          { class: 'bg-info text-white', label: 'System' },
+  ipcr_submission: { class: 'text-white', style: 'background-color: #7367F0;', label: 'IPCR Submission' },
+  personal:        { class: 'bg-warning text-dark', label: 'Personal' }
+};
+
+const badge = badgeStyles[message_type.toLowerCase()] || badgeStyles.personal;
+messageTypeBadge = `<span class="badge ${badge.class} ms-2" style="${badge.style || ''}">${badge.label}</span>`;
+
+
+  // attachments
+let attachmentHtml = attachments.length > 0 ? `
+  <div class="mb-4">
+    <h6 class="mb-2">Attachments:</h6>
+    <div class="row g-3">
+      ${attachments.map(att => {
+        const filename = att.split('_').slice(1).join('_');
+        const fileUrl = `/static/uploads/attachments/${att}`;
+        const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(att);
+        const isPDF = /\.pdf$/i.test(att);
+        const isDoc = /\.(doc|docx)$/i.test(att);
+        let previewHtml = '';
+        if (isImage) {
+          previewHtml = `
+            <a href="${fileUrl}" target="_blank">
+              <img src="${fileUrl}" alt="${filename}" class="img-thumbnail mb-1" style="max-width: 100%;">
+            </a>`;
+        } else if (isPDF) {
+          previewHtml = `
+            <div style="position: relative;">
+              <iframe src="${fileUrl}" style="width: 100%; height: 250px;" frameborder="0"></iframe>
+              <a href="${fileUrl}" target="_blank" 
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                        z-index: 10; background: transparent;"></a>
+            </div>`;
+        } else if (isDoc) {
+          const googleViewUrl = `https://docs.google.com/gview?url=${location.origin}${fileUrl}&embedded=true`;
+          previewHtml = `
+            <div style="position: relative;">
+              <iframe src="${googleViewUrl}" style="width: 100%; height: 250px;" frameborder="0"></iframe>
+              <a href="${googleViewUrl}" target="_blank" 
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                        z-index: 10; background: transparent;"></a>
+            </div>`;
+        } else {
+          previewHtml = `
+            <a href="${fileUrl}" target="_blank" class="d-flex align-items-center text-decoration-none">
+              <i class="bi bi-file-earmark-text me-2 fs-4"></i>
+              <span title="${filename}">
+                ${filename.length > 30 ? filename.slice(0, 27) + '...' : filename}
+              </span>
+            </a>`;
+        }
+        return `
+          <div class="col-md-6">
+            ${previewHtml}
+            <a href="${fileUrl}" download="${filename}" class="btn btn-sm btn-outline-primary mt-2 d-block">
+              <i class="bi bi-download me-1"></i> Download
+            </a>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  </div>
+` : '';
+
+// ipcrmessage
+if (message_type === 'ipcr_submission') {
+  body = `
+    <div class="border rounded p-4 mt-3 text-center" style="border-color: #7367F0;">
+      <p class="mb-3 fw-semibold" style="font-size: 1.05rem; color: #333;">
+        ${body}
+      </p>
+      ${userPosition === 'MUNICIPAL GOVERNMENT DEPARTMENT HEAD I' && ipcrLink ? `
+        <a href="${ipcrLink}" class="btn btn-sm btn-outline-primary">
+          <i class="fas fa-star"></i> Evaluate Submitted IPCR
+        </a>` : '<span class="fw-bold text-secondary">Evaluation Completed</span>'}
+    </div>
+  `;
+}
+
+// timestamp
+let dateObj = new Date(timestamp);
+
+// Force PH timezone
+let phDate = new Date(dateObj.getTime() + (8 * 60 * 60 * 1000));
+
+displayTime = phDate.toLocaleString('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  hour12: true
+});
+
+
+// PARA SA LINK
+  body = linkify(body);
+
+  const container = document.getElementById('emailMainContent');
+  container.innerHTML = `
+    <div class="p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <div class="d-flex align-items-center">
+          <button class="btn btn-sm btn-link me-3" onclick="goBackToListFullView()">
+            <i class="bi bi-arrow-left fs-5"></i>
+          </button>
+          <h5 class="mb-0">${subject}</h5>
+          <span class="badge bg-secondary ms-2">${tabLabel}</span>
+          ${messageTypeBadge}
+        </div>
+        <div class="text-muted">
+          <i class="bi bi-trash3 me-3 fs-5 cursor-pointer text-danger"
+            onclick="confirmSingleDelete(${messageId})"></i>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center mb-3">
+        ${profileHtml}
+        <div>
+          <div class="fw-medium">${senderDisplayName}</div>
+         <div class="text-muted small">${displayTime}</div>
+
+        </div>
+      </div>
+
+      <div id="email-body" class="mb-4" style="font-size: 1.05rem; line-height: 1.7;">
+        ${body}
+      </div>
+
+      ${attachmentHtml}
+
+      ${showReply ? `
+      <form id="replyForm" method="POST" action="/messages/reply/${messageId}" enctype="multipart/form-data">
+        <h6 class="mb-2">Reply:</h6>
+        <div id="quill-reply-editor" style="height: 200px; border: 1px solid #ced4da; border-radius: 4px;"></div>
+        <input type="hidden" name="reply_content" id="replyContentInput">
+
+        <!-- Hidden file input for attachments -->
+        <input type="file" id="reply-attachment" name="attachments" multiple hidden onchange="showReplySelectedFiles(this.files)">
+        <div id="reply-file-preview" class="mt-2"></div>
+
+        <button type="submit" class="btn btn-primary mt-3" onclick="submitReply()">
+          <i class="bi bi-send me-1"></i>Send Reply
+        </button>
+      </form>
+    ` : ''}
+    </div>
+  `;
+
+   if (showReply) {
+  setTimeout(() => {
+    window.quillReply = new Quill('#quill-reply-editor', {
+      theme: 'snow',
+      modules: {
+        toolbar: {
+          container: [
+            ['bold', 'italic', 'underline'],
+            [{ list: 'bullet' }],
+            // ['link'],
+            ['image'] // gagamitin muna natin si "image" bilang placeholder
+          ],
+          handlers: {
+            image: function () {
+              // Kapag na-click, buksan yung file input mo para sa attachments
+              document.getElementById('reply-attachment').click();
+            }
+          }
+        }
+      }
+    });
+
+    // Palitan ang image icon ng paperclip
+    const replyAttachmentBtn = document.querySelector('#quill-reply-editor .ql-image');
+    if (replyAttachmentBtn) {
+      replyAttachmentBtn.innerHTML = '<i class="bi bi-paperclip"></i>';
+      replyAttachmentBtn.title = 'Attach file';
+    }
+  }, 100);
+}
+
+}
+
+let selectedReplyFiles = [];
+
+function showReplySelectedFiles(files) {
+  const preview = document.getElementById('reply-file-preview');
+  preview.innerHTML = '';
+  selectedReplyFiles = Array.from(files);
+
+  selectedReplyFiles.forEach((file, index) => {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const icon = getFileIcon(ext);
+
+    const badge = document.createElement('div');
+    badge.className = "d-inline-flex align-items-center badge bg-label-info text-dark p-2 me-2 mb-2 shadow-sm";
+
+    let fileHtml = `<i class="${icon} me-1"></i> ${file.name}`;
+
+    if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) {
+      const imgUrl = URL.createObjectURL(file);
+      fileHtml += `<img src="${imgUrl}" class="ms-2" style="max-height:40px; border-radius:4px;">`;
+    }
+
+    badge.innerHTML = `
+      ${fileHtml}
+      <button type="button" class="btn btn-sm btn-icon ms-2 p-0 border-0 bg-transparent text-danger" onclick="removeReplyFile(${index})">
+        <i class="bi bi-x-circle-fill"></i>
+      </button>
+    `;
+    preview.appendChild(badge);
+  });
+}
+
+function removeReplyFile(index) {
+  selectedReplyFiles.splice(index, 1);
+  showReplySelectedFiles(selectedReplyFiles);
+}
+
+function getFileIcon(extension) {
+  switch (extension) {
+    case 'pdf': return 'bi bi-file-earmark-pdf-fill';
+    case 'doc':
+    case 'docx': return 'bi bi-file-earmark-word-fill';
+    case 'xls':
+    case 'xlsx': return 'bi bi-file-earmark-excel-fill';
+    case 'png':
+    case 'jpg':
+    case 'jpeg':
+    case 'gif': return 'bi bi-file-image-fill';
+    case 'zip':
+    case 'rar': return 'bi bi-file-zip-fill';
+    case 'txt': return 'bi bi-file-earmark-text-fill';
+    default: return 'bi bi-paperclip';
+  }
+}
+
+function handleEmailCardClick(el) {
+  try {
+    const id = el.dataset.id;
+    const sender = el.dataset.sender || 'Unknown';
+    const receiver = el.dataset.receiver || 'Unknown Recipient';
+    const userRole = el.dataset.role || 'user';
+    const imageFile = el.dataset.image || 'default.jpg';
+    const subject = el.dataset.subject || '(No Subject)';
+    const body = JSON.parse(el.dataset.body || '""');
+    const tab = el.dataset.tab || 'inbox';
+    const type = el.dataset.type || 'personal';
+    const fromSource = el.dataset.from || '';
+    const attachments = JSON.parse(el.dataset.attachments || '[]');
+    const timestamp = el.dataset.timestamp || null; // <-- dito yung galing backend
+
+     // NEW — Get IPCR info
+    const ipcrLink = el.dataset.ipcrLink || '';
+    const userPosition = el.dataset.userPosition || '';
+
+    fetch(`/messages/mark_read/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+
+    showEmailFullView(id, sender, subject, body, tab, type, imageFile, receiver, userRole, fromSource, attachments, timestamp, ipcrLink, userPosition);
+  } catch (err) {
+    console.error("Error loading message:", err);
+  }
+}
+
+
+function getMessageLabel(type) {
+  switch (type.toLowerCase()) {
+    case 'announcement': return 'Official Announcement';
+    case 'reminder': return 'HR Reminder';
+    case 'system': return 'System Notification';
+    default: return 'Personal';
+  }
+}
+
+function goBackToListFullView() {
+  location.reload();
+}
+
+function submitReply() {
+  const quillContent = window.quillReply.root.innerHTML;
+  document.getElementById('replyContentInput').value = quillContent;
+}
+</script>
+
+
+<script>
+  const userPosition = "{{ position_title }}";
+  const ipcrLink = "{{ ipcr_link }}";
+</script>
+
+
+<!-- JS FOR COMPOSE/CREATING MESSAGE -->
+<script>
+  const selectedRecipients = new Set();
+
+  function filterRecipients() {
+    const input = document.getElementById("recipientSearch");
+    const filter = input.value.toLowerCase();
+    const dropdown = document.getElementById("recipientDropdown");
+    const items = dropdown.getElementsByTagName("button");
+
+    for (let i = 0; i < items.length; i++) {
+      const txtValue = items[i].textContent || items[i].innerText;
+      items[i].parentElement.style.display = txtValue.toLowerCase().includes(filter) ? "" : "none";
+    }
+
+    new bootstrap.Dropdown(input).show();
+  }
+
+  function addRecipient(email, name) {
+    if (selectedRecipients.has(email)) return;
+
+    selectedRecipients.add(email);
+    updateSelectedList();
+
+    document.getElementById("recipientSearch").value = "";
+    document.getElementById("recipientSearch").focus();
+    bootstrap.Dropdown.getOrCreateInstance(document.getElementById("recipientSearch")).hide();
+  }
+
+  function removeRecipient(email) {
+    selectedRecipients.delete(email);
+    updateSelectedList();
+  }
+
+  function updateSelectedList() {
+    const container = document.getElementById("selectedRecipients");
+    const hiddenInput = document.getElementById("recipientEmails");
+
+    container.innerHTML = "";
+    const emailsArray = Array.from(selectedRecipients);
+    hiddenInput.value = emailsArray.join(",");
+
+    emailsArray.forEach(email => {
+  const badge = document.createElement("span");
+  badge.className = "badge bg-label-primary d-inline-flex align-items-center me-1 mb-1";
+  badge.style.padding = "0.5rem 0.75rem";
+
+  badge.innerHTML = `
+    ${email}
+    <i class="bi bi-x ms-2 fs-3 cursor-pointer" onclick="removeRecipient('${email}')"></i>
+  `;
+
+  container.appendChild(badge);
+});
+  }
+</script>
+
+
+
+<!-- JS FOR CHECKBOX GETTING THE ID -->
+<script>
+function getSelectedMessageIds() {
+  const checkboxes = document.querySelectorAll('.email-card input[type="checkbox"]:checked');
+  return Array.from(checkboxes).map(cb => cb.dataset.id);
+}
+
+function submitBulkAction(actionUrl) {
+  const ids = getSelectedMessageIds();
+  if (ids.length === 0) return;
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = actionUrl;
+
+  ids.forEach(id => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'ids';
+    input.value = id;
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+}
+
+function bulkMarkAsRead() {
+  submitBulkAction('/messages/mark_read_bulk');
+}
+
+function bulkDeleteMessages() {
+  const ids = getSelectedMessageIds();
+  if (ids.length === 0) {
+    showTemporaryAlert("Please select at least one message.", "warning");
+    return;
+  }
+
+  // Store the action URL in the modal's confirm button
+  const confirmBtn = document.getElementById('confirmDeleteBtn');
+  confirmBtn.dataset.ids = JSON.stringify(ids);
+
+  // Show the modal
+  const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+  modal.show();
+}
+
+// ✅ ADD THIS FUNCTION FOR SELECT ALL
+function toggleSelectAll(sourceCheckbox) {
+  // Find the currently active tab pane
+  const activeTabPane = document.querySelector('.tab-pane.active');
+
+  // Only get checkboxes within the active tab pane
+  const checkboxes = activeTabPane.querySelectorAll('.message-checkbox');
+
+  checkboxes.forEach(cb => {
+    cb.checked = sourceCheckbox.checked;
+  });
+}
+
+
+</script>
+
+
+
+<!-- JS FOR ROUTES FOR THE READ AND TRASH -->
+<script>
+document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+  const ids = JSON.parse(this.dataset.ids || '[]');
+  if (ids.length === 0) return;
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '/messages/delete_bulk';
+
+  ids.forEach(id => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'ids';
+    input.value = id;
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+});
+</script>
+
+
+
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+<script src="{{ url_for('static', filename='js/savingtabs.js') }}"></script>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const markAsReadBtn = document.getElementById('markAsReadBtn');
+
+  function toggleMarkAsReadButton(activeTabId) {
+    const shouldHide = ['sent-tab', 'trash-tab'].includes(activeTabId);
+    markAsReadBtn.style.display = shouldHide ? 'none' : 'inline-block';
+  }
+
+  // Hook into tab switch events
+  document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(button => {
+    button.addEventListener('shown.bs.tab', function (e) {
+      const newTabId = e.target.id;
+      localStorage.setItem('activeTabId', newTabId);
+      toggleMarkAsReadButton(newTabId);
+    });
+  });
+
+  // On page load, restore the previously active tab and handle visibility
+  const savedTabId = localStorage.getItem('activeTabId');
+  if (savedTabId) {
+    const savedTab = document.getElementById(savedTabId);
+    if (savedTab) {
+      new bootstrap.Tab(savedTab).show();
+      toggleMarkAsReadButton(savedTabId);
+    }
+  } else {
+    // Fallback to default tab if nothing is stored
+    const firstTab = document.querySelector('button[data-bs-toggle="tab"]');
+    if (firstTab) {
+      new bootstrap.Tab(firstTab).show();
+      toggleMarkAsReadButton(firstTab.id);
+    }
+  }
+});
+</script>
+
+<!-- icon alignment-->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const emailTabs = document.querySelectorAll('#emailTabs .nav-link');
+  const markAsReadBtn = document.getElementById('markAsReadBtn');
+
+  function updateBulkButtons() {
+    const activeTab = document.querySelector('#emailTabs .nav-link.active');
+    const tabId = activeTab?.getAttribute('data-bs-target')?.replace('#', '');
+
+    if (tabId === 'inbox') {
+      markAsReadBtn.style.display = 'inline-flex';
+    } else {
+      markAsReadBtn.style.display = 'none';
+    }
+  }
+
+  // Update on page load
+  updateBulkButtons();
+
+  // Update when tab changes
+  emailTabs.forEach(tab => {
+    tab.addEventListener('shown.bs.tab', function () {
+      updateBulkButtons();
+    });
+  });
+});
+</script>
+
+
+<!-- SEARCH -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.querySelector('.email-search-input');
+
+    function normalizeName(name) {
+      return name
+        .toLowerCase()
+        .replace(/[.,]/g, '')           // remove punctuation
+        .replace(/\s+/g, ' ')           // normalize spacing
+        .trim();
+    }
+
+    function nameIncludes(senderName, keyword) {
+      const normalizedSender = normalizeName(senderName);
+      const normalizedKeyword = normalizeName(keyword);
+
+      return normalizedKeyword
+        .split(' ')
+        .every(part => normalizedSender.includes(part));
+    }
+
+    function filterMessages() {
+      const keyword = searchInput.value;
+
+      const activePane = document.querySelector('.tab-pane.active');
+      if (!activePane) return;
+
+      const messages = activePane.querySelectorAll('.email-card');
+
+      messages.forEach(card => {
+        const sender = card.getAttribute('data-sender') || '';
+        const subject = card.getAttribute('data-subject') || '';
+        const body = card.getAttribute('data-body') || '';
+
+        const match =
+          nameIncludes(sender, keyword) ||
+          subject.toLowerCase().includes(keyword.toLowerCase()) ||
+          body.toLowerCase().includes(keyword.toLowerCase());
+
+        card.style.display = match ? '' : 'none';
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', filterMessages);
+    }
+
+    // CLEAR search + RESET visibility when switching tabs
+    const tabButtons = document.querySelectorAll('#emailTabs button[data-bs-toggle="tab"]');
+    tabButtons.forEach(button => {
+      button.addEventListener('shown.bs.tab', function () {
+        if (searchInput) {
+          searchInput.value = ''; // Clear search bar
+        }
+
+        const newPaneId = this.getAttribute('data-bs-target');
+        const newPane = document.querySelector(newPaneId);
+        if (newPane) {
+          const cards = newPane.querySelectorAll('.email-card');
+          cards.forEach(card => {
+            card.style.display = ''; // Show all messages
+          });
+        }
+      });
+    });
+  });
+</script>
+
+<!-- trash in view msg -->
+<script>
+function confirmSingleDelete(messageId) {
+  const confirmBtn = document.getElementById('confirmDeleteBtn');
+  confirmBtn.dataset.ids = JSON.stringify([messageId]); // wrap in array for consistency
+
+  // Change modal body text
+  document.getElementById('deleteModalBody').textContent =
+    'Are you sure you want to move this message to trash?';
+
+  // Show the modal
+  const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+  modal.show();
+}
+</script>
+
+<!-- unselecting checkbox -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const tabLinks = document.querySelectorAll('[data-bs-toggle="tab"]');
+
+  tabLinks.forEach(link => {
+    link.addEventListener('shown.bs.tab', function () {
+      // Uncheck all message checkboxes globally
+      document.querySelectorAll('.message-checkbox').forEach(cb => cb.checked = false);
+
+      // ✅ Uncheck the selectAllCheckbox specifically
+      const selectAll = document.getElementById('selectAllCheckbox');
+      if (selectAll) {
+        selectAll.checked = false;
+      }
+    });
+  });
+});
+</script>
+
+<!-- RESPONSHT -->
+<script>document.addEventListener('click', function(e) {
+  const sidebar = document.getElementById('mobileSidebar');
+  if (sidebar.classList.contains('show') && !sidebar.contains(e.target)) {
+    bootstrap.Offcanvas.getInstance(sidebar).hide();
+  }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebarIds = ['#emailSidebar', '#mobileSidebar'];
+  
+  sidebarIds.forEach(sidebar => {
+    const buttons = document.querySelectorAll(sidebar + ' .nav-link');
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-bs-target'); // e.g. #inbox
+        const ariaSelected = this.getAttribute('aria-selected');
+
+        // Sync all other sidebar buttons
+        sidebarIds.forEach(otherSidebar => {
+          if (otherSidebar !== sidebar) {
+            const otherBtn = document.querySelector(otherSidebar + ' .nav-link[data-bs-target="' + targetId + '"]');
+            if (otherBtn) {
+              // Remove active from all buttons first
+              const allBtns = document.querySelectorAll(otherSidebar + ' .nav-link');
+              allBtns.forEach(b => b.classList.remove('active'));
+              
+              // Activate the matching button
+              if (ariaSelected === 'true') {
+                otherBtn.classList.add('active');
+              } else {
+                otherBtn.classList.remove('active');
+              }
+            }
+          }
+        });
+
+        // Also activate the correct tab content
+        const tabContents = document.querySelectorAll('.tab-pane');
+        tabContents.forEach(content => {
+          content.classList.remove('show', 'active');
+        });
+        const targetContent = document.querySelector(targetId);
+        if (targetContent) {
+          targetContent.classList.add('show', 'active');
+        }
+      });
+    });
+  });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const hash = window.location.hash;
+    if(hash) {
+        const card = document.querySelector(hash);
+        if(card) {
+            // Scroll to the card
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Highlight briefly
+            card.style.transition = 'background-color 0.5s';
+            card.style.backgroundColor = '#fff3cd';
+            setTimeout(() => { card.style.backgroundColor = ''; }, 3000);
+
+            // Simulate click to open the message
+            if(typeof handleEmailCardClick === 'function') {
+                handleEmailCardClick(card);
+            }
+
+            // Remove the hash so it doesn't reopen automatically
+            history.replaceState(null, null, ' ');
+        }
+    }
+});
+</script>
+{% endblock content %}

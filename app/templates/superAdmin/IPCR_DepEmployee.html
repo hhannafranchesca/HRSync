@@ -1,0 +1,222 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+
+<div class="col-xl-12">
+
+  <div class="nav-align-top mb-4">
+   
+    
+      <div class="tab-content h-100 min-vh-100">
+
+          <div class="card-header border-bottom p-0 pb-4 mb-4">
+             <div class="d-flex justify-content-between align-items-center mb-1">
+                <h5 class="card-title mb-0">Departments IPCR Status</h5>
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                            type="button"
+                            id="exportDropdown"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                      <i class="bi bi-box-arrow-up me-1"></i>
+                      <span>Export</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('generate_ipcr_dept_pdf', period_id=selected_period.id) }}">
+                              <i class="bi bi-file-pdf me-2"></i>Export as PDF
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('print_ipcr_dept', period_id=selected_period.id) }}" target="_blank">
+                              <i class="bi bi-printer me-2"></i>Print
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row pt-4 g-3 align-items-end">
+                <div class="col-md-6">
+                  <label for="period_filter" class="form-label">Select Evaluation Period</label>
+                  <select class="form-select" name="period_filter" id="period_filter">
+                    {% for period in periods %}
+                      <option value="{{ period.id }}"
+                        {% if selected_period and selected_period.id == period.id %}selected{% endif %}>
+                        {{ period.name }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+      
+      
+                  <div class="col-md-6">
+                    <label for="grade_status_filter" class="form-label">Select Grade Status</label>
+                    <select id="grade_status_filter" class="form-select text-capitalize">
+                      <option value="">All Statuses</option>
+                      <option value="completed">Completed</option>
+                      <option value="incomplete">Incomplete</option>
+                    </select>
+
+                  </div>
+
+      
+               
+            </div>
+          </div>
+
+          <div class="card-datable ">
+           
+      
+
+            <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                    <table id="opcr-table" class="table table-bordered bg-light">
+                      <thead class="table-dark text-center">
+                        <tr>
+                          <th>Division</th>
+                          <th>IPCR Submitted</th>
+                          <th>IPCR Graded</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% if departments_data %}
+                          {% for data in departments_data %}
+                            <tr class="text-center"  data-status="{% if data.ipcr_graded == data.ipcr_total and data.ipcr_total > 0 %}completed{% else %}incomplete{% endif %}">
+
+
+                              <td class="fw-medium">{{ data.division }}</td>
+                         
+
+                              <td class="fw-medium">
+                                  {{ data.ipcr_submitted }} / {{ data.ipcr_total }} submitted
+                                </td>
+
+                             <td class="fw-medium">
+                                {{ data.ipcr_graded }} / {{ data.ipcr_total }} graded
+                              </td>
+
+                                <td class="fw-medium">
+                                  {% if data.ipcr_graded == data.ipcr_total and data.ipcr_total > 0 %}
+                                    <span class="badge rounded-pill bg-success">Completed</span>
+                                  {% else %}
+                                    <span class="badge rounded-pill bg-warning text-dark">Incomplete</span>
+                                  {% endif %}
+                                </td>
+
+                              <td class="text-center">
+                                <div class="d-flex justify-content-center gap-1">         
+                                  <a href="{{ url_for('EmployeeIPCR') }}?period_id={{ data.period_id }}&department={{ data.division | urlencode }}" class="btn btn-sm btn-info">View IPCR</a>
+                                </div>
+                              </td>
+
+
+
+                                    </tr>
+                                  {% endfor %}
+                                {% else %}
+                                  <tr><td colspan="5" class="text-center text-muted">No data available.</td></tr>
+                                {% endif %}
+                      </tbody>
+                    </table>
+            </div>
+        
+            </div>
+          </div>
+    
+      
+    
+        
+      </div>
+    </div>
+    
+
+</div>
+
+
+
+<!-- FILTER DEPARTMENT -->
+<script>
+  document.getElementById('period_filter').addEventListener('change', function () {
+    const periodId = this.value;
+    if (periodId) {
+      window.location.href = `{{ url_for('DepartmentOPCR') }}?period_id=${periodId}`;
+    }
+  });
+</script>
+
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+    // Force table layout fixed
+    $('#opcr-table').css({
+        'table-layout': 'fixed',
+        'width': '100%'
+    });
+
+    // Initialize DataTable
+    var opcrTable = $('#opcr-table').DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        responsive: true,
+        autoWidth: false,
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50, 100],
+        columnDefs: [
+            { targets: 0, width: "25%", className: "text-start" }, // Division
+            { targets: 1, width: "20%", className: "text-center" }, // IPCR Submitted
+            { targets: 2, width: "20%", className: "text-center" }, // IPCR Graded
+            { targets: 3, width: "15%", className: "text-center" }, // Status
+            { targets: 4, width: "20%", orderable: false, className: "text-center" } // Action
+        ],
+        dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>' +
+             't' +
+             '<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search divisions..."
+        }
+    });
+
+    // Style search input
+    $(".dataTables_filter input")
+        .addClass("form-control form-control-lg w-auto")
+        .css("margin-left", "0");
+
+    // Style entries dropdown
+    $(".dataTables_length select")
+        .addClass("form-select form-select-lg")
+        .css("min-width", "80px");
+
+    // Persistent custom filter for grade status
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        const selected = $('#grade_status_filter').val(); // current filter
+        if (!selected) return true; // show all if "All Statuses"
+
+        const row = opcrTable.row(dataIndex).node();
+        const status = $(row).attr('data-status');
+        return selected === status;
+    });
+
+    // Filter on change
+    $('#grade_status_filter').on('change', function () {
+        opcrTable.page('first').draw(); // reset to first page
+    });
+
+    // Period filter (redirect)
+    $('#period_filter').on('change', function () {
+        const periodId = $(this).val();
+        if (periodId) {
+            window.location.href = `{{ url_for('DepartmentOPCR') }}?period_id=${periodId}`;
+        }
+    });
+});
+</script>
+{% endblock %}
+
+
+{% endblock content %}

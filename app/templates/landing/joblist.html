@@ -1,0 +1,181 @@
+{% extends "base/landingBase.html" %}
+{% block content %}
+
+
+
+<div class="container mt-5">
+    <div class="container section-title" data-aos="fade-up">
+        <span>Municipal Job Application</span>
+        <h2>Municipal Job Application</h2>
+        <p>Submit your resume to apply for open positions at the Victoria Municipal Office.</p>
+      </div><!-- End Section Title -->
+    <div class="card shadow-sm rounded-4">
+      <div class="card-body">
+        <div class="row">
+          <!-- Sidebar -->
+          <div class="col-md-4 border-end">
+            <div class="list-group list-group-flush">
+              {% for job in job_postings %}
+                <a href="javascript:void(0);" onclick="showJob('job{{ job.id }}')" class="list-group-item list-group-item-action {% if loop.first %}active{% endif %}">
+                  <div class="d-flex w-100 justify-content-between gap-2">
+                    <h5 class="mb-1 fw-bold">{{ job.title }}</h5>
+                    <small>{{ job.created_at.strftime('%b %d, %Y') }}</small>
+                  </div>
+                  <p class="mb-1">Department: {{ job.department.name }}</p>
+                  <small>Position: {{ job.job_position_type }}</small>
+                </a>
+              {% endfor %}
+            </div>
+            
+          </div>
+  
+          <!-- Job Details -->
+          <div class="col-md-8 p-4">
+           {% for job in job_postings %}
+            <div id="job{{ job.id }}" class="job-details {% if not loop.first %}d-none{% endif %}">
+              <h4 class="fw-bold">{{ job.title }}</h4>
+              <p><strong>Department:</strong> {{ job.department.name }}</p>
+              <p><strong>Posted:</strong> {{ job.created_at.strftime('%b %d, %Y') }}</p>
+              <p><strong>Position:</strong> {{ job.job_position_type }}</p>
+              <p class="text-muted">{{ job.description }}</p>
+              <hr>
+              <h5>Qualifications</h5>
+             <ul>
+                {% for q in job.qualifications.split(';;;') if q.strip() %}
+                  <li>{{ q.strip() }}</li>
+                {% endfor %}
+              </ul>
+
+
+              <!-- Application Form -->
+              <div class="col-lg-12">
+                <div id="form-alert-{{ job.id }}"></div> 
+                <form action="{{ url_for('apply') }}" method="post" enctype="multipart/form-data" class="php-email-form" novalidate>
+                  <input type="hidden" name="job_id" value="{{ job.id }}">
+                  <div class="row gy-4">
+                    <div class="col-md-6">
+                      <label for="name-{{ job.id }}" class="pb-2">Your Name</label>
+                      <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="email-{{ job.id }}" class="pb-2">Your Email</label>
+                      <input type="email" name="email" class="form-control" required>
+                    </div>
+                   <div class="col-md-12 mb-3">
+                      <label for="resume-{{ job.id }}" class="form-label">
+                        Upload your completed Personal Data Sheet (Excel).
+                      </label>
+                      <p class="mb-1 small text-muted">
+                        To download and fill the PDS template, 
+                        <a href="{{ url_for('pds') }}" class="text-decoration-underline text-primary small">
+                          click here
+                        </a>.
+                      </p>
+                      <input type="file" name="resume" id="resume-{{ job.id }}" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-12">
+                      <button type="submit" class="btn btn-primary w-100 mt-2">
+                        <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
+                        <span class="btn-text">Apply Now</span>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function showJob(jobId) {
+      const jobDetails = document.querySelectorAll('.job-details');
+      jobDetails.forEach(job => job.classList.add('d-none'));
+      document.getElementById(jobId).classList.remove('d-none');
+  
+      const items = document.querySelectorAll('.list-group-item');
+      items.forEach(item => item.classList.remove('active'));
+      const selected = Array.from(items).find(item => item.getAttribute('onclick')?.includes(jobId));
+      if (selected) selected.classList.add('active');
+    }
+  </script>
+  
+  <!-- Validation JS -->
+<script>
+function disableSubmit(form) {
+  const button = form.querySelector("button[type='submit']");
+  const spinner = button.querySelector(".spinner-border");
+  const btnText = button.querySelector(".btn-text");
+
+  // Disable button
+  button.disabled = true;
+
+  // Show spinner and change text
+  spinner.classList.remove("d-none");
+  btnText.textContent = "Processing...";
+
+  return true; // allow form submission
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".php-email-form").forEach(form => {
+    form.addEventListener("submit", function (e) {
+      const name = form.querySelector("input[name='name']").value.trim();
+      const email = form.querySelector("input[name='email']").value.trim();
+      const resume = form.querySelector("input[name='resume']").files[0];
+
+      function showAlert(message, type = "danger") {
+        const isTimed = true;
+        const cleanCategory = type;
+        const isDanger = cleanCategory === 'danger';
+
+        Swal.fire({
+          title: cleanCategory.charAt(0).toUpperCase() + cleanCategory.slice(1) + '!',
+          text: message,
+          icon: isDanger ? 'error' : cleanCategory,
+          confirmButtonText: "OK",
+          showConfirmButton: !isTimed,
+          timer: isTimed ? 1700 : undefined,
+          timerProgressBar: isTimed
+        });
+      }
+
+      // Validation
+      if (!name || !email || !resume) {
+        showAlert("All fields are required.", "danger");
+        e.preventDefault();
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showAlert("Please enter a valid email address.", "danger");
+        e.preventDefault();
+        return;
+      }
+
+      const allowedExtensions = ["pdf", "doc", "docx"];
+      const fileExt = resume.name.split('.').pop().toLowerCase();
+      if (!allowedExtensions.includes(fileExt)) {
+        showAlert("Invalid file type. Upload a PDF or Word document.", "danger");
+        e.preventDefault();
+        return;
+      }
+
+      // ✅ If validation passes → disable submit button + show spinner
+      disableSubmit(form);
+    });
+  });
+});
+</script>
+
+
+    
+
+
+  
+{% endblock content %}

@@ -1,0 +1,167 @@
+{% extends "base/UserDashboard.html" %}
+
+{% block content %}
+<div class="col-12">
+  <div class="nav-align-top mb-4">
+
+    <div class="tab-content">
+
+      <!-- Card Header + Export Button -->
+      <div class="card-datable">
+        <div class="row mx-1 my-2 align-items-center justify-content-between">
+
+          <!-- Title -->
+          <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+            <h5 class="card-title mb-0">Submitted IPCR</h5>
+          </div>
+
+          <!-- Export -->
+          <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end">
+            <div class="btn-group">
+              <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                      type="button"
+                      id="exportDropdown"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false">
+                  <i class="bi bi-box-arrow-up me-1"></i>
+                  <span>Export</span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('generate_ipcr_user_summary_pdf', employee_id=current_user.id) }}">
+                    <i class="bi bi-file-earmark-spreadsheet me-2"></i>Export as PDF
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('print_ipcr_user_summary', employee_id=current_user.id) }}" target="_blank">
+                    <i class="bi bi-printer me-2"></i>Print
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+        <hr class="my-0 border-secondary">
+
+        <!-- Table -->
+        <div class="dt-layout-table mt-3">
+          <div class="table-responsive">
+            <table id="opcr-table" class="table table-bordered table-striped table-hover text-center">
+              <thead class="table-dark">
+                <tr>
+                  <th>Evaluation Period</th>
+                  <th>Status</th>
+                  <th>Graded</th>
+                  <th>Date Submitted</th>
+                  <th>Overall Grade</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for ipcr in ipcrs %}
+                  <tr>
+                    <td class="text-truncate" style="max-width:150px;">
+                      {{ ipcr.period.name }}<br>
+                      <small>({{ ipcr.period.start_date.strftime('%b %d, %Y') }} - {{ ipcr.period.end_date.strftime('%b %d, %Y') }})</small>
+                    </td>
+                    <td>
+                      {% if ipcr %}
+                        {% if not ipcr.submitted and not ipcr.graded %}
+                          <span class="badge bg-warning text-dark">Returned</span>
+                        {% elif ipcr.submitted %}
+                          <span class="badge bg-success">Submitted</span>
+                        {% else %}
+                          <span class="badge bg-secondary">Draft</span>
+                        {% endif %}
+                      {% else %}
+                        <span class="badge bg-secondary">No IPCR</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if ipcr.graded %}
+                        <span class="badge bg-success">Graded</span>
+                      {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if ipcr and ipcr.date_submitted %}
+                        {{ ipcr.date_submitted|ph_time_exact }}
+                      {% else %}
+                        <span class="text-muted">N/A</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ ipcr.final_average_rating or 0 }}</td>
+                    <td>
+                      {% if ipcr and (ipcr.submitted or ipcr.graded) %}
+                        <a href="{{ url_for('IPCRView', ipcr_id=ipcr.id) }}" class="btn btn-primary btn-sm">View</a>
+                      {% else %}
+                        <span class="text-warning">Returned</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+           
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div> 
+    </div> 
+  </div> 
+</div> 
+
+{% block scripts %}
+<script>
+  $(document).ready(function () {
+    $('#opcr-table').DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        responsive: true,
+        dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>t<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search IPCR..."
+        }
+    });
+
+    // Style search input
+    $(".dataTables_filter input")
+      .addClass("form-control form-control-lg w-auto")
+      .css("margin-left", "0");
+
+    // Style entries dropdown
+    $(".dataTables_length select")
+      .addClass("form-select form-select-lg")
+      .css("min-width", "80px");
+  });
+</script>
+{% endblock %}
+
+<!-- Search Filter -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("dt-search-0");
+    const table = document.getElementById("opcr-table");
+    const tbody = table.querySelector("tbody");
+
+    function normalizeText(text) {
+      return text.toLowerCase().replace(/\u2013/g, "-").replace(/\s+/g, " ").trim();
+    }
+
+    searchInput.addEventListener("input", function () {
+      const query = normalizeText(this.value);
+      Array.from(tbody.rows).forEach(row => {
+        const cells = row.cells;
+        if (cells.length === 1 && cells[0].colSpan) return;
+        const rowText = normalizeText(row.textContent);
+        row.style.display = rowText.includes(query) ? "" : "none";
+      });
+    });
+  });
+</script>
+
+{% endblock content %}

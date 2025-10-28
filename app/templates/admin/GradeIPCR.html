@@ -1,0 +1,167 @@
+{% extends "base/AdminDashboard.html" %}
+{% block content %}
+
+<style>
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+</style>
+
+
+<div class="card shadow-sm">
+
+  <div class="card-header border-bottom d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="card-title mb-0">
+      {{ ipcr.employee.last_name }} {{ ipcr.employee.first_name }} {{ ipcr.employee.middle_name }}
+    </h4>
+    <small class="text-muted">
+      <small class="text-muted fs-6">
+        Department:
+        {% if ipcr.employee and ipcr.employee.casual_details %}
+          {{ ipcr.employee.casual_details.assigned_department.name if ipcr.employee.casual_details.assigned_department else 'N/A' }}
+        {% elif ipcr.employee and ipcr.employee.department %}
+          {{ ipcr.employee.department.name }}
+        {% else %}
+          N/A
+        {% endif %}
+      </small>
+
+    </small><br>
+    <small class="text-muted">
+      IPCR Period: {{ ipcr.period.name }}
+    </small>
+
+  </div>
+  <p class="mb-0 text-end">
+    {{ ipcr.period.start_date.strftime('%B %d, %Y') }} to {{ ipcr.period.end_date.strftime('%B %d, %Y') }}
+  </p>
+</div>
+
+  <div class="card-body">
+  
+
+    <div class="table-responsive">
+
+      <form method="POST" action="">
+        <table class="table table-bordered text-center align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th rowspan="2">MFO</th>
+              <th rowspan="2">Success Indicator</th>
+              <th rowspan="2">Allocated Budget</th>
+              <th rowspan="2">Division/Individuals Accountable</th>
+              <th rowspan="2">Actual Accomplishments</th>
+              <th colspan="4">RATING</th>
+              <th rowspan="2">Remarks</th>
+            </tr>
+            <tr>
+              <th>Q</th><th>E</th><th>T</th><th>A</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% set grouped = {'Core': [], 'Support': []} %}
+            {% for section in sections %}
+              {% set _ = grouped[section.type].append(section) %}
+            {% endfor %}
+
+            {% set ns = namespace(idx=0) %}
+
+            {% for category in ['Core', 'Support'] %}
+              <tr class="table-primary fw-semibold">
+                <td colspan="10" class="text-start">{{ category }} Functions</td>
+              </tr>
+              {% for section in grouped[category] %}
+                {% for item in section.section_items %}
+                  <tr>
+                    <td>{{ item.mfo }}</td>
+                    <td>{{ item.success_indicator }}</td>
+                    <td>{{ item.allotted_budget }}</td>
+                    <td>{{ item.accountable }}</td>
+                    <td>{{ item.accomplishment }}</td>
+                    <td>
+                      <input type="number" name="items[{{ ns.idx }}][rating_q]" class="form-control text-center" style="min-width: 60px;" min="1" max="5" step="0.01" value="{{ item.rating_q or '' }}">
+                    </td>
+                    <td>
+                      <input type="number" name="items[{{ ns.idx }}][rating_e]" class="form-control text-center" style="min-width: 60px;" min="1" max="5" step="0.01" value="{{ item.rating_e or '' }}">
+                    </td>
+                    <td>
+                      <input type="number" name="items[{{ ns.idx }}][rating_t]" class="form-control text-center" style="min-width: 60px;" min="1" max="5" step="0.01" value="{{ item.rating_t or '' }}">
+                    </td>
+                    <td>
+                      <input type="number" name="items[{{ ns.idx }}][rating_a]" class="form-control text-center" style="min-width: 60px;" min="1" max="5" step="0.01" value="{{ item.rating_a or '' }}" readonly>
+                    </td>
+                    <td>
+                      <input type="text" name="items[{{ ns.idx }}][remarks]" class="form-control" value="{{ item.remarks or '' }}">
+                      <input type="hidden" name="items[{{ ns.idx }}][item_id]" value="{{ item.id }}">
+                    </td>
+                  </tr>
+                  {% set ns.idx = ns.idx + 1 %}
+                {% endfor %}
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{{ url_for('HeadPerformance') }}" class="btn btn-outline-danger">
+                <i class="bi bi-x-circle me-1"></i> Cancel
+            </a>
+            <button type="submit" name="action" value="draft" class="btn btn-secondary">
+                <i class="bi bi-file-earmark-text me-1"></i> Save as Draft
+            </button>
+
+            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#confirmReturnModal">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Return IPCR
+            </button>
+
+
+            <button type="submit" name="action" value="submit" class="btn btn-primary">
+                <i class="bi bi-floppy me-1"></i> Upload
+            </button>
+
+            
+        </div>
+
+
+        <!-- Confirmation Modal -->
+<div class="modal fade" id="confirmReturnModal" tabindex="-1" aria-labelledby="confirmReturnModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content ">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmReturnModalLabel"><i class="bi bi-exclamation-circle me-2"></i>Confirm Return</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        Are you sure you want to return this IPCR for revision? This action will mark it as unsubmitted.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <!-- Hidden submit button inside the original form -->
+        <button type="submit" name="action" value="return" class="btn btn-warning">
+          <i class="bi bi-arrow-counterclockwise me-1"></i> Yes, Return
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+  <script src="{{ url_for('static', filename='js/averageComputation.js') }}"></script>
+
+
+
+
+{% endblock content %}

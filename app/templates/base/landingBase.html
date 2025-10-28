@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>HRSync</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favicons -->
+ <!-- Favicon -->
+<link href="{{ url_for('static', filename='img/landing/victoria.png') }}" rel="icon">
+<link href="{{ url_for('static', filename='img/landing/apple-touch-icon.png') }}" rel="apple-touch-icon">
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+
+<!-- Vendor CSS Files -->
+<link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='vendor/aos/aos.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+
+<!-- Main CSS File -->
+<link href="{{ url_for('static', filename='css/landing.css') }}" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+</head>
+
+<body class="index-page">
+
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+      <a href="{{url_for('home')}}" class="logo d-flex align-items-center me-auto">
+        <!-- Uncomment the line below if you also wish to use an image logo -->
+        <img src="{{ url_for('static', filename='img/landing/victoria.png') }}" alt="">
+        <h1 class="sitename">HRSync</h1>
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="{{ url_for('home') }}" class="{% if request.path == url_for('home') %}active{% endif %}">Home</a></li>
+          <li><a href="{{ url_for('home') }}#about">About</a></li>
+          <li><a href="{{ url_for('home') }}#services">Services</a></li>
+          <li><a href="{{ url_for('home') }}#portfolio">Job Vacancies</a></li>
+
+          <li><a href="{{ url_for('joblist') }}#Jobs" class="{% if request.path == url_for('joblist') %}active{% endif %}">Job List</a></li>
+
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+      
+
+      <a class="btn-getstarted" href="{{ url_for('login')}}">Login</a>
+
+    </div>
+  </header>
+
+  <main class="main">
+
+    
+     {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <script>
+                        // Process category entirely in JavaScript
+                        const category = '{{ category }}';
+                        const isTimed = category.endsWith('-timed');
+                        const cleanCategory = isTimed ? category.replace('-timed', '') : category;
+                        const isDanger = cleanCategory === 'danger';
+                        
+                        Swal.fire({
+                            title: cleanCategory.charAt(0).toUpperCase() + cleanCategory.slice(1) + '!',
+                            text: '{{ message }}',
+                            icon: isDanger ? 'error' : cleanCategory,
+                            confirmButtonText: "OK",
+                            showConfirmButton: !isTimed,
+                            timer: isTimed ? 1700 : undefined,
+                            timerProgressBar: isTimed
+                        });
+                    </script>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+    {% block content%}
+  
+
+    
+    {% endblock %}
+
+
+  </main>
+
+  <footer id="footer" class="footer">
+
+    <div class="footer-newsletter">
+      <div class="container">
+       <!-- <div class="row justify-content-center text-center">
+          <div class="col-lg-6">
+            <h4>Join Our Newsletter</h4>
+            <p>Subscribe to our newsletter and receive the latest news about our products and services!</p>
+            <form action="forms/newsletter.php" method="post" class="php-email-form">
+              <div class="newsletter-form"><input type="email" name="email"><input type="submit" value="Subscribe"></div>
+              <div class="loading">Loading</div>
+              <div class="error-message"></div>
+              <div class="sent-message">Your subscription request has been sent. Thank you!</div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>-->
+
+    <div class="container footer-top">
+      <div class="row gy-4">
+        <div class="col-lg-4 col-md-6 footer-about">
+          <a href="index.html" class="d-flex align-items-center">
+            <span class="sitename">HRSync</span>
+          </a>
+          <div class="footer-contact pt-3">
+            <p>E. Quirino Street</p>
+            <p>Barangay Nanhaya Victoria, Laguna</p>
+            <p class="mt-3"><strong>Phone:</strong> <span>0956-000-2222</span></p>
+            <p><strong>Email:</strong> <span>nekoow08@.com</span></p>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-3 footer-links">
+          <h4>Explore</h4>
+          <ul>
+            <li><i class="bi bi-chevron-right"></i> <a href="{{url_for('home')}}">Home</a></li>
+            <li><i class="bi bi-chevron-right"></i> <a href="{{ url_for('home') }}#about">About Victoria</a></li>
+            <li><i class="bi bi-chevron-right"></i> <a href="{{ url_for('home') }}#services">Local Services</a></li>
+          </ul>
+        </div>
+        
+        <div class="col-lg-4 col-md-3 footer-links">
+          <h4>Public Services</h4>
+          <ul>
+            <li><i class="bi bi-chevron-right"></i> <a href="{{url_for('health')}}">Health Services</a></li>
+            <li><i class="bi bi-chevron-right"></i> <a href="{{url_for('civil')}}">Civil Registratio</a></li>
+            <li><i class="bi bi-chevron-right"></i> <a href="{{url_for('social')}}">Social Welfare</a></li>
+            <li><i class="bi bi-chevron-right"></i> <a href="{{url_for('agriculture')}}">Agricultural Support</a></li>
+          </ul>
+        </div>
+        
+   
+      </div>
+    </div>
+
+    <div class="container copyright text-center mt-4">
+      <p>© <span>Copyright</span> <strong class="px-1 sitename">HRSync</strong> <span>All Rights Reserved</span></p>
+      <div class="credits">
+        <!-- All the links in the footer should remain intact. -->
+        <!-- You can delete the links only if you've purchased the pro version. -->
+        <!-- Licensing information: https://bootstrapmade.com/license/ -->
+        <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
+      
+      </div>
+    </div>
+
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+<!-- Vendor JS Files -->
+<script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/aos/aos.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/glightbox/js/glightbox.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/purecounter/purecounter_vanilla.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/imagesloaded/imagesloaded.pkgd.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/swiper/swiper-bundle.min.js') }}"></script>
+
+<!-- Main JS File -->
+<script src="{{ url_for('static', filename='js/landing.js') }}"></script>
+
+
+   <!-- Swiper JS -->
+   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    
+   <!-- Swiper Init Script -->
+   <script>
+     const swiper = new Swiper(".swiper-container", {
+       loop: true,
+       grabCursor: true,
+       spaceBetween: 30,
+       pagination: {
+         el: ".swiper-pagination",
+         clickable: true
+       },
+       navigation: {
+         nextEl: ".swiper-button-next",
+         prevEl: ".swiper-button-prev"
+       },
+       autoplay: {
+         delay: 5000,
+         disableOnInteraction: false
+       },
+       breakpoints: {
+         640: { slidesPerView: 1 },
+         768: { slidesPerView: 1 },
+         1024: { slidesPerView: 1 }
+       }
+     });
+   </script>
+
+
+</body>
+
+</html>

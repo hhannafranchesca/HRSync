@@ -1,0 +1,19 @@
+  // Save active tab to localStorage when clicked
+  document.addEventListener('DOMContentLoaded', function () {
+    const tabButtons = document.querySelectorAll('button[data-bs-toggle="tab"]');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('shown.bs.tab', function (e) {
+        localStorage.setItem('activeTabId', e.target.id); // Save the ID of the clicked tab
+      });
+    });
+
+    // Get saved tab ID on page load
+    const activeTabId = localStorage.getItem('activeTabId');
+    if (activeTabId) {
+      const savedTab = document.getElementById(activeTabId);
+      if (savedTab) {
+        new bootstrap.Tab(savedTab).show(); // Activate the saved tab
+      }
+    }
+  });

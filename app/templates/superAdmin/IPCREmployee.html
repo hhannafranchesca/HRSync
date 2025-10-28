@@ -1,0 +1,394 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+<div class="card h-100 min-vh-100 d-flex flex-column">
+  <div class="card-header border-bottom">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <h5 class="card-title mb-0">Employees IPCR</h5>
+
+        <!-- Export Button -->
+        <div class="btn-group">
+          <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                  type="button"
+                  id="exportDropdown"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false">
+            <i class="bi bi-box-arrow-up me-1"></i>
+            <span>Export</span>
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+            <!-- Uncomment if needed:
+            <li><a class="dropdown-item" href="#"><i class="bi bi-filetype-csv me-2"></i>Export as CSV</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Export as Excel</a></li>
+            -->
+            <li>
+              <a class="dropdown-item" href="{{ url_for('generate_employee_ipcr_pdf') }}?period_id={{ selected_period.id if selected_period else '' }}&department={{ selected_department | urlencode }}">
+                <i class="bi bi-file-pdf me-2"></i>Export as PDF
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="{{ url_for('print_employee_ipcr') }}?period_id={{ selected_period.id if selected_period else '' }}&department={{ selected_department | urlencode }}" target="_blank">
+                <i class="bi bi-printer me-2"></i>Print
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row pt-4 g-3 align-items-end">
+
+
+           <div class="col-md-4">
+           <label for="period_filter" class="form-label">Select Evaluation Period</label>
+            <select class="form-select" name="period_filter" id="period_filter">
+              {% for period in periods %}
+                <option value="{{ period.id }}"
+                  {% if selected_period and selected_period.id == period.id %}selected{% endif %}>
+                  {{ period.name }}
+                </option>
+              {% endfor %}
+            </select>
+            </div>
+
+            <div class="col-md-4">
+            <label for="department_filter" class="form-label">Select Department</label>
+            <select class="form-select" name="department_filter" id="department_filter">
+              {% for dept in departments %}
+                <option value="{{ dept.name }}"
+                  {% if selected_department == dept.name %}selected{% endif %}>
+                  {{ dept.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+
+          <div class="col-md-4">
+            <label for="grade_status_filter" class="form-label">Select Grade Status</label>
+            <select id="grade_status_filter" class="form-select text-capitalize">
+              <option value="">All Status</option>
+              <option value="graded">Graded</option>
+              <option value="not_graded">Not Graded</option>
+              <option value="no_ipcr">Not Submitted</option>
+            </select>
+          </div>
+
+          <!-- Optionally keep the selected period in the form, so it doesn't reset when changing department -->
+          <input type="hidden" name="period_id" value="{{ selected_period.id if selected_period else '' }}">
+        </form>
+      </div>
+    </div>
+    <div class="card-datable px-3 pb-4">
+      <div class="row mx-3 my-3 align-items-center justify-content-between">
+        
+        <!-- Left: Length selector -->
+        <div class="col-12 col-md-auto mb-3 mb-md-0">
+      
+        </div>
+    
+       <!-- Right: Search, Export, Add -->
+<div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end align-items-center">
+
+
+
+</div>
+
+      </div>
+
+
+      <div class="dt-layout-table " style="height: 100%; display: flex; flex-direction: column;">
+          <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style=" overflow: auto;">
+              <table class="table table-bordered align-middle border-top" id="DataTables_Table_0">
+              <thead class="table-dark align-middle text-center">
+                   <tr>
+                <th >Employee Name</th>
+                <th>Position</th>
+                <th>Status</th>
+                <th>Graded</th>
+                <th>Date Submitted</th>
+                <th>Submission Status</th>
+                <th>Overall Grade</th>
+                <th>Action</th>
+              </tr>
+              
+                </thead>
+                
+            
+             <tbody>
+              {% for employee, ipcr, overall_grade in employees_with_ipcr %}
+             <tr class="text-center searchable-row"
+    data-grade-status="{% if ipcr %}{% if ipcr.graded %}graded{% else %}not_graded{% endif %}{% else %}no_ipcr{% endif %}">
+
+
+
+
+                  <td>{{ employee.first_name }} {{ employee.last_name }}</td>
+                  <td>
+                    {% if employee.permanent_details %}
+                      {{ employee.permanent_details.position.title }}
+                    {% elif employee.casual_details %}
+                      {{ employee.casual_details.position.title }}
+                    {% elif employee.job_order_details %}
+                      {{ employee.job_order_details.position_title }}
+                    {% else %}
+                      Unknown
+                    {% endif %}
+                  </td>
+
+                  <td class="text-center">
+                    {% if ipcr %}
+                      {% if not ipcr.submitted and not ipcr.graded %}
+                        <span class="badge bg-warning text-dark">Returned</span>
+                      {% elif ipcr.submitted %}
+                        <span class="badge bg-info">Submitted</span>
+                      {% else %}
+                        <span class="badge bg-secondary">Draft</span>
+                      {% endif %}
+                    {% else %}
+                      <span class="badge bg-secondary">No IPCR</span>
+                    {% endif %}
+                  </td>
+
+
+                   <td class="text-center">
+                    {% if ipcr %}
+                      {% if ipcr.graded %}
+                        <span class="badge bg-label-success">Graded</span>
+                      {% elif not ipcr.submitted %}
+                        <span class="badge bg-label-warning text-dark">Not Submitted</span>
+                      {% else %}
+                        <span class="badge bg-label-danger">Not Graded</span>
+                      {% endif %}
+                    {% else %}
+                      <span class="badge bg-label-secondary">Not Submitted</span>
+                    {% endif %}
+                  </td>
+
+                  <td class="text-center">
+                      {% if ipcr and ipcr.date_submitted %}
+                          {{ ipcr.date_submitted | ph_time_exact }}
+                      {% else %}
+                          <span class="text-muted">-</span>
+                      {% endif %}
+                  </td>
+
+                  <td class="text-center">
+                    {% if ipcr and ipcr.date_submitted %}
+                      {% if ipcr.late_submission %}
+                        <span class="badge border border-danger text-danger">Late</span>
+                      {% else %}
+                        <span class="badge border border-success text-success">On Time</span>
+                      {% endif %}
+                    {% else %}
+                      <span class="text-muted">-</span>
+                    {% endif %}
+                  </td>
+
+
+
+                  <td class="text-center">
+                    {% if overall_grade %}
+                      {{ "%.2f"|format(overall_grade) }}
+                    {% else %}
+                      0
+                    {% endif %}
+                  </td>
+
+                 <td>
+                    {% if ipcr and ipcr.graded %}
+                      <a href="{{ url_for('HRIpcrView', ipcr_id=ipcr.id) }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-eye"></i> View
+                      </a>
+
+                    {% elif ipcr %}
+                      {% if selected_period and active_period and selected_period.id == active_period.id %}
+
+                        {# ✅ Set emp_dept_id inline #}
+                        {% set emp_dept_id = employee.department_id if employee.permanent_details else employee.casual_details.assigned_department_id if employee.casual_details else None %}
+
+                        {% if not ipcr.graded and ipcr.submitted and hr_employee.department_id == emp_dept_id %}
+                          <a href="{{ url_for('HeadGradeIpcrHR', ipcr_id=ipcr.id) }}" class="btn btn-warning btn-sm mt-1">
+                            <i class="fas fa-star"></i> Rate
+                          </a>
+                        {% elif not ipcr.submitted %}
+                          <span class="text-warning">Returned</span>
+                        {% endif %}
+
+                      {% else %}
+                        {% if not ipcr.submitted %}
+                          <span class="text-warning">Returned</span>
+                        {% endif %}
+                      {% endif %}
+
+                    {% else %}
+                      <span class="text-muted">No IPCR</span>
+                    {% endif %}
+                  </td>
+
+
+                </tr>
+    
+              {% endfor %}
+            </tbody>
+
+
+
+
+                
+          </table>
+      </div>
+      
+    </div>
+  </div>
+    
+</div>
+
+
+
+
+
+<script>
+  document.getElementById('period_filter').addEventListener('change', function () {
+    const periodId = this.value;
+    const department = new URLSearchParams(window.location.search).get('department') || '';
+    const url = new URL(window.location.href);
+    url.searchParams.set('period_id', periodId);
+    if (department) {
+      url.searchParams.set('department', department);
+    }
+    window.location.href = url.toString();
+  });
+</script>
+
+
+<script>
+  document.getElementById('grade_status_filter').addEventListener('change', function () {
+    const selected = this.value;
+    const rows = document.querySelectorAll('#DataTables_Table_0 tbody tr');
+
+    rows.forEach(row => {
+      const status = row.getAttribute('data-grade-status');
+      if (!selected || status === selected) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+</script>
+
+
+<script>
+  document.getElementById('department_filter').addEventListener('change', function () {
+    const department = this.value;
+    const periodId = new URLSearchParams(window.location.search).get('period_id') || '';
+    const url = new URL(window.location.href);
+    url.searchParams.set('department', department);
+    if (periodId) {
+      url.searchParams.set('period_id', periodId);
+    }
+    window.location.href = url.toString();
+  });
+</script>
+
+
+
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+  const tableSelector = '#DataTables_Table_0';
+
+  // Force table layout fixed for consistent alignment
+  $(tableSelector).css({'table-layout': 'fixed', 'width': '100%'});
+
+  // Initialize DataTable
+  var ipcrTable = $(tableSelector).DataTable({
+    paging: true,
+    searching: true,
+    ordering: true,
+    responsive: true,
+    autoWidth: false,
+    pageLength: 10,
+    lengthMenu: [5, 10, 25, 50, 100],
+    columnDefs: [
+      { targets: 0, width: "18%", className: "text-start" },
+      { targets: 1, width: "13%", className: "text-start" },
+      { targets: 2, width: "10%", className: "text-center" },
+      { targets: 3, width: "10%", className: "text-center" },
+      { targets: 4, width: "13%", className: "text-center" },
+      { targets: 5, width: "10%", className: "text-center" },
+      { targets: 6, width: "8%", className: "text-center" },
+      { targets: 7, width: "18%", orderable: false, className: "text-center" }
+    ],
+    dom:
+      '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>' +
+      't' +
+      '<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+    language: { 
+      search: "", 
+      searchPlaceholder: "Search employees..." 
+    }
+  });
+
+  // Style DataTables inputs
+  $(".dataTables_filter input")
+    .addClass("form-control form-control-lg w-auto")
+    .css("margin-left", "0");
+
+  $(".dataTables_length select")
+    .addClass("form-select form-select-lg")
+    .css("min-width", "80px");
+
+  // ✅ Custom filter: Grade Status
+  $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+    // Make sure this filter only applies to this table instance
+    if (settings.nTable.id !== $(tableSelector).attr('id')) return true;
+
+    var selectedStatus = $('#grade_status_filter').val();
+    var rowNode = ipcrTable.row(dataIndex).node();
+    var rowStatus = $(rowNode).attr('data-grade-status');
+
+    // Uncomment this line to debug:
+    // console.log('Filtering:', {selectedStatus, rowStatus});
+
+    if (!selectedStatus || selectedStatus === "") return true; // show all
+    return rowStatus === selectedStatus;
+  });
+
+  // Redraw table when the dropdown changes
+  $('#grade_status_filter').on('change', function () {
+    ipcrTable.draw();
+  });
+
+  // ✅ Server-side filter: Evaluation Period
+  $('#period_filter').on('change', function () {
+    const periodId = $(this).val();
+    const url = new URL(window.location.href);
+    const department = new URLSearchParams(window.location.search).get('department') || '';
+    url.searchParams.set('period_id', periodId);
+    if (department) url.searchParams.set('department', department);
+    window.location.href = url.toString();
+  });
+
+  // ✅ Server-side filter: Department
+  $('#department_filter').on('change', function () {
+    const department = $(this).val();
+    const url = new URL(window.location.href);
+    const periodId = new URLSearchParams(window.location.search).get('period_id') || '';
+    url.searchParams.set('department', department);
+    if (periodId) url.searchParams.set('period_id', periodId);
+    window.location.href = url.toString();
+  });
+});
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+{% endblock content %}

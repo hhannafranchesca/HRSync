@@ -1,0 +1,1087 @@
+{% extends "base/AdminDashboard.html" %}
+{% block content %}
+
+<div class="row g-4 mb-4">
+  
+  <div class="col-12 col-sm-6 col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-start justify-content-between">
+          <div class="content-left">
+            <span class="text-heading">Permanent Employees</span>
+            <div class="d-flex align-items-center my-1">
+              <h4 class="mb-0 me-2 fs-3 fw-semibold">{{ permanent_count }}</h4>
+            </div>
+          </div>
+          <div class="avatar">
+            <span class="avatar-initial rounded bg-label-primary">
+              <i class="bi bi-people fs-3"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-start justify-content-between">
+          <div class="content-left">
+            <span class="text-heading">Casual Employees</span>
+            <div class="d-flex align-items-center my-1">
+              <h4 class="mb-0 me-2 fs-3 fw-semibold">{{ casual_count }}</h4>
+            </div>
+          </div>
+          <div class="avatar">
+            <span class="avatar-initial rounded bg-label-primary">
+              <i class="bi bi-people fs-3"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-start justify-content-between">
+          <div class="content-left">
+            <span class="text-heading">JO Employees</span>
+            <div class="d-flex align-items-center my-1">
+              <h4 class="mb-0 me-2 fs-3 fw-semibold">{{ job_order_count }}</h4>
+            </div>
+          </div>
+          <div class="avatar">
+            <span class="avatar-initial rounded bg-label-primary">
+              <i class="bi bi-people fs-3"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<div class="col-xl-12">
+  <div class="nav-align-top mb-4">
+      <ul class="nav nav-pills mb-3 flex-nowrap overflow-auto" role="tablist" style="white-space: nowrap;">
+    <li class="nav-item">
+        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                data-bs-target="#navs-pills-travel-order" id="travel-order-tab" 
+                aria-controls="navs-pills-travel-order" aria-selected="true">
+                Permanent, Co-Term and Elective
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                data-bs-target="#navs-pills-Leave-Credits" id="Leave-Credits-tab" 
+                aria-controls="navs-pills-Leave-Credits" aria-selected="false">
+                Casual appointments
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" 
+                data-bs-target="#navs-pills-JO" id="JO-tab" 
+                aria-controls="navs-pills-JO" aria-selected="false">
+                Job Order
+        </button>
+    </li>
+</ul>
+
+    
+      <div class="tab-content h-100 min-vh-100">
+
+        <!-- CASUAL EMPLOYEE -->
+        <div class="tab-pane fade " id="navs-pills-Leave-Credits" role="tabpanel" aria-labelledby="Leave-Credits-tab">
+
+     
+        <div class="card-datable">
+          <div class="row mx-1 my-1 align-items-center justify-content-between border-bottom mb-4 pb-4">
+            
+            <!-- Left: Length selector -->
+            <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+             <h5 class="card-title mb-0">Casual Employees</h5>
+
+            </div>
+        
+            <!-- Right: Search, Export, Add -->
+            <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end">
+    
+    <!-- Export Button -->
+              <div class="btn-group">
+                  <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                          type="button"
+                          id="exportDropdown"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false">
+                      <i class="bi bi-box-arrow-up me-1"></i>
+                      <!-- Always show text -->
+                      <span>Export</span>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                      <li>
+                        <a class="dropdown-item" href="{{ url_for('head_casual_employee_pdf') }}">
+                          <i class="bi bi-file-pdf me-2"></i>Export as PDF
+                        </a>
+                      </li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <a class="dropdown-item" href="{{ url_for('head_print_casual_employee') }}" target="_blank">
+                          <i class="bi bi-printer me-2"></i>Print
+                        </a>
+                      </li>
+                  </ul>
+              </div>
+                    
+            </div>
+
+            </div>
+  
+  
+          <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+              <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                  <table class="datatables-users table border-top dataTable dtr-column collapsed table-bordered" 
+                  id="casualtbl" 
+                  aria-describedby="DataTables_Table_0_info" 
+                  style="width: 100%; height: 100%;">
+                  
+           
+                  <thead class="table-dark align-middle text-center">
+                    <tr>
+                      <th colspan="3" class="border">Name of Appointees</th>
+                      <th rowspan="2" class="border">Position Title (Do not abbreviate)</th>
+                      <th rowspan="2" class="border">Equivalent Salary/Job/Pay Grade</th>
+                      <th rowspan="2" class="border">Daily Wage</th>
+                      <th colspan="2" class="border">Period of Employment</th>
+                    </tr>
+                    <tr>
+                      <th class="border">#</th>
+                      <th class="border">Full Name</th>
+                      <th class="border">Name Extension (Jr./III)</th>
+                      <th class="border">From (mm/dd/yyyy)</th>
+                      <th class="border">To (mm/dd/yyyy)</th>
+                    </tr>
+                  </thead>
+                  
+                
+              
+                  <tbody>
+                    {% for emp in casual_employees %}
+                    <tr class="text-center">
+                        <td>{{ loop.index }}</td>
+                        <td>
+                          <div class="d-flex justify-content-start align-items-center user-name">
+                            <div class="d-flex flex-column">
+                              <a href="{{ url_for('HeadEmployeeDetail', id=emp.id) }}" class="text-heading text-wrap">
+                                <span class="fw-medium">{{ emp.last_name }} {{ emp.first_name }} {{ emp.middle_name }}</span>
+                              </a>
+                            </div>
+                          </div>
+                        </td>
+                        
+                        <td>{{ emp.casual_details.name_extension or 'N/A' }}</td>
+                        <td>{{ emp.casual_details.position.title }}</td>
+                        <td>{{ emp.casual_details.equivalent_salary or '' }}</td>
+                        <td>{{ emp.casual_details.daily_wage or '' }}</td>
+                        <td>{{ emp.casual_details.contract_start.strftime('%m/%d/%Y') if emp.casual_details.contract_start else '' }}</td>
+                        <td>{{ emp.casual_details.contract_end.strftime('%m/%d/%Y') if emp.casual_details.contract_end else '' }}</td>
+                    
+                      
+
+                      </tr>
+                    {% endfor %}
+                    
+                    {% if casual_employees|length == 0 %}
+                    <tr>
+                        <td colspan="10" class="text-center">No casual employee records found.</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                
+            </table>
+          </div>
+      
+      </div>
+        </div>
+
+        </div>
+    
+        <!-- PERMANENT EMPLOYEE -->
+        <div class="tab-pane fade show " id="navs-pills-travel-order" role="tabpanel" aria-labelledby="travel-order-tab">
+          
+          <div class="card-datable">
+            <div class="row mx-1 my-1 align-items-center justify-content-between border-bottom mb-4 pb-4">
+              
+              <!-- Left: Length selector -->
+              <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+                <h5 class="card-title mb-0">Permanent, Co-Term and Electives Employees</h5>
+
+              </div>
+          
+              <!-- Right: Search, Export, Add -->
+              <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end">
+                <div class="btn-group">
+                  <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                          type="button"
+                          id="exportDropdown"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false">
+                      <i class="bi bi-box-arrow-up me-1"></i>
+                      <span>Export</span> <!-- Palaging visible -->
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                      <li>
+                        <a class="dropdown-item" href="{{ url_for('head_permanent_employee_pdf') }}">
+                          <i class="bi bi-file-pdf me-2"></i>Export as PDF
+                        </a>
+                      </li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <a class="dropdown-item" href="{{ url_for('head_print_permanent_employee') }}" target="_blank">
+                          <i class="bi bi-printer me-2"></i>Print
+                        </a>
+                      </li>
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+    
+    
+            <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                    <table class="datatables-users table border-top dataTable dtr-column collapsed table-bordered" 
+                    id="employeeTable" 
+                    aria-describedby="DataTables_Table_0_info" 
+                    style="width: 100%; height: 100%;">
+                    
+             
+                    <thead class="table-dark align-middle text-center">
+                        <tr>
+                    
+                        <th data-dt-column="1" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">ORGANIZATIONAL UNIT</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="2" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">ITEM NUMBER</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="3" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">POSITION TITLE</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="7" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">STEP</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+               
+                    
+                        <th data-dt-column="10" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">LEVEL</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="11" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">FULL NAME</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                 
+                    
+                        <th data-dt-column="14" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">SEX</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                   
+                    
+                   
+                    
+                        <th data-dt-column="17" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">TIN / UMID NO.</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+                        <th data-dt-column="18" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">DATE OF ORIGINAL APPOINTMENT</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                    
+               
+                    
+                        <th data-dt-column="20" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                            <span class="dt-column-title" role="button">STATUS</span>
+                            <span class="dt-column-order"></span>
+                        </th>
+                        <th data-dt-column="20" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                          <span class="dt-column-title" role="button">ACTION</span>
+                      </th>
+    
+                        </tr>
+                    </thead>
+                  
+                
+                    <tbody>
+                      {% for emp in permanent_employees %}
+                      <tr>
+                          <td>
+                            <div class="d-flex justify-content-start align-items-center user-name"> 
+                              <div class="d-flex flex-column">
+                                  <span class="fw-medium">{{ emp.department.name }}</span>
+                           
+                              </div>
+                            </div>
+                          </td>
+                          <td>{{ emp.permanent_details.item_number }}</td>
+                          <td>{{ emp.permanent_details.position.title }}</td>
+                          <td>{{ emp.permanent_details.step }}</td>
+                          <td>{{ emp.permanent_details.level }}</td>
+                          <td>
+                              <div class="d-flex justify-content-start align-items-center user-name">
+                                  <div class="d-flex flex-column">
+                                    <a href="{{ url_for('HeadEmployeeDetail', id=emp.id) }}" class="text-heading text-wrap">
+                                      <span class="fw-medium">{{ emp.last_name }} {{ emp.first_name }} {{ emp.middle_name }}</span>
+                                  </a>
+                                  </div>
+                              </div>
+                          </td>
+                          <td>{{ emp.permanent_details.sex }}</td>
+                          <td>{{ emp.permanent_details.tin }} {{ emp.umid_no }}</td>
+                          <td>{{ emp.permanent_details.date_original_appointment.strftime('%Y-%m-%d') if emp.permanent_details.date_original_appointment else '' }}</td>
+                          <td>{{ emp.status }}</td>
+                          <td class="text-center align-middle">
+                              <div class="d-flex justify-content-center gap-2">
+                                <button type="button" class="btn btn-primary btn-edit"
+                                data-id="{{ emp.id }}"
+                                data-organizational_unit="{{ emp.department_id }}"
+                                data-item_number="{{ emp.permanent_details.item_number }}" 
+                                data-position_title="{{ emp.position_id }}" 
+                                data-step="{{ emp.permanent_details.step }}" 
+                                data-last_name="{{ emp.last_name }}"
+                                data-first_name="{{ emp.first_name }}"
+                                data-middle_name="{{ emp.middle_name }}"
+                                data-sex="{{ emp.permanent_details.sex }}" 
+                                data-dob="{{ emp.permanent_details.date_of_birth.strftime('%Y-%m-%d') if emp.permanent_details.date_of_birth else '' }}" 
+                                data-doa="{{ emp.permanent_details.date_original_appointment.strftime('%Y-%m-%d') if emp.permanent_details.date_original_appointment else '' }}" 
+                                data-dop="{{ emp.permanent_details.date_last_promotion.strftime('%Y-%m-%d') if emp.permanent_details.date_last_promotion else '' }}"
+                                data-status="{{ emp.status }}"
+                                data-bs-toggle="modal" data-bs-target="#editEmployeeModal">
+                                View
+                              </button>
+    
+    
+                          
+                              </div>
+                          </td>
+                      </tr>
+                      {% endfor %}
+                      {% if permanent_employees|length == 0 %}
+                      <tr>
+                          <td colspan="11" class="text-center">No employee records found.</td>
+                      </tr>
+                      {% endif %}
+                  </tbody>
+                  
+              </table>
+            </div>
+        
+        </div>
+          </div>
+        </div>
+        
+        <!-- JO EMPLOYEE -->
+        <div class="tab-pane fade" id="navs-pills-JO" role="tabpanel" aria-labelledby="JO-tab">
+          
+          <div class="card-datable">
+            <div class="row mx-1 my-1 align-items-center justify-content-between border-bottom mb-4 pb-4">
+              
+              <!-- Left: Length selector -->
+              <div class="col-12 col-md-auto mb-3 mb-md-0 ps-0">
+                <h5 class="card-title mb-0">Job Order Employees</h5>
+              </div>
+          
+              <!-- Right: Search, Export, Add -->
+            <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end">
+    
+            <!-- Export Button -->
+            <div class="btn-group">
+              <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                      type="button"
+                      id="exportDropdown"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false">
+                  <i class="bi bi-box-arrow-up me-1"></i>
+                  <span>Export</span> <!-- Palaging visible -->
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                  <li>
+                    <a class="dropdown-item" href="{{ url_for('head_job_order_employee_pdf') }}">
+                      <i class="bi bi-file-pdf me-2"></i>Export as PDF
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" href="{{ url_for('head_print_job_order_employee') }}" target="_blank">
+                      <i class="bi bi-printer me-2"></i>Print
+                    </a>
+                  </li>
+              </ul>
+          </div>
+          
+        </div>
+
+            </div>
+    
+    
+            <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                  <table class="datatables-users table border-top dataTable dtr-column collapsed table-bordered" 
+                  id="JOtbl" 
+                  aria-describedby="DataTables_Table_0_info" 
+                  style="width: 100%; height: 100%;">
+               <thead class="table-dark align-middle text-center">
+                   <tr>
+                       <th data-dt-column="1" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                           <span class="dt-column-title" role="button">ORGANIZATIONAL UNIT</span>
+                           <span class="dt-column-order"></span>
+                       </th>
+           
+                       <th data-dt-column="2" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                           <span class="dt-column-title" role="button">FULL NAME</span>
+                           <span class="dt-column-order"></span>
+                       </th>
+
+                       <th data-dt-column="6" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                        <span class="dt-column-title" role="button">CONTRACT</span>
+                        <span class="dt-column-order"></span>
+                      </th>
+           
+                       <th data-dt-column="3" class="dt-orderable-asc dt-orderable-desc" tabindex="0">
+                           <span class="dt-column-title" role="button">STATUS</span>
+                           <span class="dt-column-order"></span>
+                       </th>
+
+           
+                   
+                   </tr>
+               </thead>
+           
+              <tbody class="text-center">
+                {% for employee in job_order_employees %}
+                <tr>
+                  <td>{{ employee.department.name if employee.department else 'N/A' }}</td>
+
+                  <td>
+                        <div class="d-flex justify-content-center align-items-center user-name">
+                          <div class="d-flex flex-column">
+                            <a href="#"
+                              class="fw-medium text-primary viewJobOrderHistory"
+                              data-id="{{ employee.id }}"
+                              data-name="{{ employee.first_name }} {{ employee.middle_name }} {{ employee.last_name }}">
+                              {{ employee.first_name }} {{ employee.middle_name }} {{ employee.last_name }}
+                            </a>
+                          </div>
+                        </div>
+                      </td>
+
+                   <td>
+                        {% if employee.job_order_details and employee.job_order_details.contract_start and employee.job_order_details.contract_end %}
+                          {{ employee.job_order_details.contract_start.strftime('%B %d, %Y') }} 
+                          to 
+                          {{ employee.job_order_details.contract_end.strftime('%B %d, %Y') }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </td> 
+
+                  <td>
+                    <span class="badge text-bg-success"> {{ employee.employment_status if employee.job_order_details else 'N/A' }}</span>
+                   </td>
+
+                </tr>
+                {% endfor %}
+              </tbody>
+
+           </table>
+           
+            </div>
+        
+        </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+
+</div>
+
+
+  <!-- Edit Permanent Employee Modal -->
+<div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form id="editEmployeeForm" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="editEmployeeModalLabel">View Employee Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Employment Details -->
+          <h6 class="fw-bold mb-3">Employment Details</h6>
+          <div class="row g-3">
+            <input type="hidden" id="edit-employee-id">
+
+            <div class="col-md-4">
+              <label class="form-label">Item Number</label>
+              <input type="text" class="form-control" id="edit-item-number" readonly>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Position Title</label>
+              <select class="form-select" id="edit-position-title" disabled>
+                <option value="" disabled>Select Position Title</option>
+                {% for position in positions %}
+                  <option value="{{ position.id }}">{{ position.title }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Step</label>
+              <input type="number" class="form-control" id="edit-step" readonly>
+            </div>
+          </div>
+
+          <!-- Personal Information -->
+          <h6 class="fw-bold mb-3 mt-4">Personal Information</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-control" id="edit-last-name" readonly>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-control" id="edit-first-name" readonly>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" id="edit-middle-name" readonly>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Sex</label>
+              <select class="form-select" id="edit-sex" disabled>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Date of Birth</label>
+              <input type="date" class="form-control" id="edit-dob" readonly>
+            </div>
+          </div>
+
+          <!-- Appointment Info -->
+          <h6 class="fw-bold mb-3 mt-4">Appointment Info</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Date of Original Appointment</label>
+              <input type="date" class="form-control" id="edit-date-original-appointment" readonly>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date of Last Promotion</label>
+              <input type="date" class="form-control" id="edit-date-last-promotion" readonly>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="edit-status" disabled>
+                <option value="">Select Status</option>
+                <option value="P">P - Permanent</option>
+                <option value="E">E - Electives</option>
+                <option value="T">T - Temporary</option>
+                <option value="CT">CT - Co-Terminous</option>
+                <option value="PA">PA - Presidential Appointee</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer mt-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="jobOrderHistoryModal" tabindex="-1" aria-labelledby="jobOrderHistoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="jobOrderHistoryModalLabel">Job Order History</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="jobOrderHistoryBody">
+        <!-- Cards will be inserted here dynamically -->
+        <div class="text-center text-muted">Loading...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- JS FOR JO VIEW -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.viewJobOrderHistory').forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      const employeeId = this.dataset.id;
+      const employeeName = this.dataset.name;
+      const modalTitle = document.getElementById('jobOrderHistoryModalLabel');
+      const body = document.getElementById('jobOrderHistoryBody');
+
+      modalTitle.textContent = employeeName + " - Job Order History";
+      body.innerHTML = "<div class='text-center text-muted'>Loading...</div>";
+
+      fetch(`/job_order_history/${employeeId}`)
+        .then(response => response.json())
+        .then(data => {
+          body.innerHTML = "";
+
+          if (data.current) {
+            // Current record
+            body.innerHTML += `
+              <div class="timeline-item mb-4">
+                <div class="p-3 border rounded bg-light">
+                  <h6 class="mb-2">
+                    <i class="bi bi-briefcase-fill text-secondary me-2"></i>
+                    ${data.current.position_title || "N/A"} 
+                    <span class="badge bg-success ms-2">Current</span>
+                  </h6>
+                  <p class="mb-1"><i class="bi bi-building me-2"></i><strong>Department:</strong> ${data.current.department || "N/A"}</p>
+                  <p class="mb-1"><i class="bi bi-calendar-event me-2"></i><strong>Contract:</strong> ${data.current.contract_start || "N/A"} → ${data.current.contract_end || "N/A"}</p>
+                   <p class="mb-1">
+                      <i class="bi bi-person-lines-fill me-2"></i>
+                      <strong>Date Hired:</strong> ${data.current.date_hired || "N/A"}
+                    </p>
+                </div>
+              </div>`;
+          }
+
+          if (data.history && data.history.length > 0) {
+            // Past history
+            data.history.forEach(history => {
+              body.innerHTML += `
+                <div class="timeline-item mb-4">
+                  <div class="p-3 border rounded">
+                    <h6 class="mb-2">
+                      <i class="bi bi-briefcase-fill text-secondary me-2"></i>
+                      ${history.position_title || "N/A"} 
+                      <span class="badge bg-secondary ms-2">Past</span>
+                    </h6>
+                    <p class="mb-1"><i class="bi bi-building me-2"></i><strong>Department:</strong> ${history.department || "N/A"}</p>
+                    <p class="mb-1"><i class="bi bi-calendar-event me-2"></i><strong>Contract:</strong> ${history.contract_start || "N/A"} → ${history.contract_end || "N/A"}</p>
+                    <p class="mb-1"><i class="bi bi-arrow-return-left me-2"></i><strong>Return Date:</strong> ${history.return_date || "N/A"}</p>
+                    <p class="mb-0"><i class="bi bi-chat-left-text me-2"></i><strong>Reason:</strong> ${history.reason || "N/A"}</p>
+                  </div>
+                </div>`;
+            });
+          }
+
+          if (!data.current && (!data.history || data.history.length === 0)) {
+            body.innerHTML = "<div class='text-center text-muted'>No job order history available.</div>";
+          }
+        })
+        .catch(() => {
+          body.innerHTML = "<div class='text-center text-danger'>Error loading history</div>";
+        });
+
+      new bootstrap.Modal(document.getElementById('jobOrderHistoryModal')).show();
+    });
+  });
+});
+
+</script>
+
+
+<script src="{{ url_for('static', filename='js/savingtabs.js') }}"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      var editButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
+
+      editButtons.forEach(function(button) {
+          button.addEventListener('click', function() {
+              // Get data attributes from the button
+              var employeeId = button.getAttribute('data-id');
+              var firstName = button.getAttribute('data-first-name');
+              var middleName = button.getAttribute('data-middle-name');
+              var lastName = button.getAttribute('data-last-name');
+              var organizationalUnit = button.getAttribute('data-organizational-unit');
+              var status = button.getAttribute('data-status');
+
+              // Set the values in the modal
+              document.getElementById('editEmployeeId').value = employeeId;
+              document.getElementById('editOrganizationalUnit').value = organizationalUnit;
+              document.getElementById('editFirstName').value = firstName;
+              document.getElementById('editMiddleName').value = middleName;
+              document.getElementById('editLastName').value = lastName;
+              document.getElementById('editStatus').value = status;
+          });
+      });
+  });
+</script>
+
+
+<script>
+  // Wait for the DOM to be ready
+  document.addEventListener('DOMContentLoaded', function () {
+    // Get all the edit buttons
+    const editButtons = document.querySelectorAll('.editCasualEmployeeBtn');
+
+    // Add click event listener to each edit button
+    editButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        // Get data attributes from the button
+        const employeeId = button.getAttribute('data-id');
+        const lastName = button.getAttribute('data-last_name');
+        const firstName = button.getAttribute('data-first_name');
+        const middleName = button.getAttribute('data-middle_name');
+        const extension = button.getAttribute('data-extension_name');
+        const status = button.getAttribute('data-status');
+        const positionTitle = button.getAttribute('data-position_title');
+        const salaryGrade = button.getAttribute('data-salary_grade');
+        const dailyWage = button.getAttribute('data-daily_wage');
+        const dateFrom = button.getAttribute('data-date_from');
+        const dateTo = button.getAttribute('data-date_to');
+        console.log('Data:', { employeeId, lastName, firstName, middleName, extension, status, positionTitle, salaryGrade, dailyWage, dateFrom, dateTo });
+
+        
+        // Populate the modal form fields
+        document.getElementById('edit-casual-employee-id').value = employeeId;
+        document.getElementById('edit-casual-last-name').value = lastName;
+        document.getElementById('edit-casual-first-name').value = firstName;
+        document.getElementById('edit-casual-middle-name').value = middleName;
+        document.getElementById('edit-casual-name-extension').value = extension;
+        document.getElementById('edit-casual-status').value = status;
+        document.getElementById('edit-casual-position-title').value = positionTitle;
+        document.getElementById('edit-casual-salary-grade').value = salaryGrade;
+        document.getElementById('edit-casual-daily-wage').value = dailyWage;
+        document.getElementById('edit-casual-date-from').value = dateFrom;
+        document.getElementById('edit-casual-date-to').value = dateTo;
+      });
+    });
+  });
+</script>
+
+  
+
+<!-- EDITING PERMANENT -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const editButtons = document.querySelectorAll('.btn-edit');
+
+    editButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        // Fill fields based on data attributes
+        document.getElementById('edit-employee-id').value = this.dataset.id;
+        document.getElementById('edit-item-number').value = this.dataset.item_number;
+        document.getElementById('edit-step').value = this.dataset.step;
+        document.getElementById('edit-last-name').value = this.dataset.last_name;
+        document.getElementById('edit-first-name').value = this.dataset.first_name;
+        document.getElementById('edit-middle-name').value = this.dataset.middle_name;
+        document.getElementById('edit-sex').value = this.dataset.sex;
+        document.getElementById('edit-dob').value = this.dataset.dob;
+        document.getElementById('edit-date-original-appointment').value = this.dataset.doa;
+        document.getElementById('edit-date-last-promotion').value = this.dataset.dop;
+        document.getElementById('edit-status').value = this.dataset.status;
+
+        // Get department and position ID from data attributes
+        const departmentId = this.dataset.organizational_unit;
+        const positionId = this.dataset.position_title;
+
+        // Set department dropdown value if it exists
+        const departmentSelect = document.getElementById('edit-organizational-unit');
+        if (departmentSelect) {
+          departmentSelect.value = departmentId;
+          loadPositions(departmentId, positionId); // dynamically load positions
+        } else {
+          // Directly set position if no department dropdown
+          const positionSelect = document.getElementById('edit-position-title');
+          if (positionSelect) {
+            positionSelect.value = positionId;
+          }
+        }
+      });
+    });
+
+    // Load positions dynamically based on department
+    function loadPositions(departmentId, selectedPositionId = null) {
+      const positionSelect = document.getElementById('edit-position-title');
+      positionSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
+
+      fetch(`/get_positions/${departmentId}`)
+        .then(response => response.json())
+        .then(data => {
+          positionSelect.innerHTML = '<option value="" disabled>Select Position Title</option>';
+          data.forEach(position => {
+            const opt = document.createElement('option');
+            opt.value = position.id;
+            opt.textContent = position.title;
+            positionSelect.appendChild(opt);
+          });
+
+          if (selectedPositionId) {
+            positionSelect.value = selectedPositionId;
+          }
+        })
+        .catch(error => {
+          console.error('Error loading positions:', error);
+          positionSelect.innerHTML = '<option value="" disabled>Error loading positions</option>';
+        });
+    }
+
+    // Department dropdown event to reload positions
+    const departmentSelect = document.getElementById('edit-organizational-unit');
+    if (departmentSelect) {
+      departmentSelect.addEventListener('change', function () {
+        const departmentId = this.value;
+        loadPositions(departmentId);
+      });
+    }
+  });
+</script>
+
+
+
+
+<!-- AUTOMOTATIC ORG AND POSITIONS -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const orgUnitSelect = document.getElementById('organizationalUnitSelect');
+    const positionSelect = document.getElementById('positionTitleSelect');
+  
+    orgUnitSelect.addEventListener('change', function () {
+      const departmentId = this.value;
+  
+      // If no department selected, clear position select
+      if (!departmentId) {
+        positionSelect.innerHTML = '<option value="" disabled selected>Please select an Organizational Unit first</option>';
+        return;
+      }
+  
+      // Show loading message
+      positionSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
+  
+      fetch(`/get_positions/${departmentId}`)
+        .then(response => response.json())
+        .then(data => {
+          positionSelect.innerHTML = '<option value="" disabled selected>Select Position Title</option>';
+          data.forEach(position => {
+            const opt = document.createElement('option');
+            opt.value = position.id;
+            opt.textContent = position.title;
+            positionSelect.appendChild(opt);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching positions:', error);
+          positionSelect.innerHTML = '<option value="" disabled selected>Error loading positions</option>';
+        });
+    });
+  
+    // On page load, clear position select initially
+    positionSelect.innerHTML = '<option value="" disabled selected>Please select an Organizational Unit first</option>';
+  });
+  </script>
+  
+
+
+<script>
+  /**
+   * Enables basic search filtering on a table.
+   * @param {string} inputId - The ID of the input field to listen for input.
+   * @param {string} tableId - The ID of the table to filter rows from.
+   */
+  function enableTableSearch(inputId, tableId) {
+    const searchInput = document.getElementById(inputId);
+    const table = document.getElementById(tableId);
+
+    if (!searchInput || !table) {
+      console.warn(`Search input or table not found: #${inputId}, #${tableId}`);
+      return;
+    }
+
+    const tbody = table.querySelector("tbody");
+    const rows = tbody.getElementsByTagName("tr");
+
+    searchInput.addEventListener("input", function () {
+      const filter = searchInput.value.toLowerCase();
+      Array.from(rows).forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
+    });
+  }
+
+  // Example usage after DOM is loaded
+  document.addEventListener("DOMContentLoaded", function () {
+    enableTableSearch("searchInput", "employeeTable");
+    enableTableSearch("searchCasual", "casualtbl");
+    enableTableSearch("searchJO", "JOtbl");
+
+  });
+</script>
+
+
+<!-- FILTER PERMANET (FOR NOW) AUTO -->
+ <script>
+document.addEventListener("DOMContentLoaded", function () {
+  const orgSelect = document.getElementById("permanentOrg");
+  const posSelect = document.getElementById("positionOrg");
+  const table = document.getElementById("employeeTable");
+  const rows = table.querySelectorAll("tbody tr");
+
+  // Get trimmed lowercase text from cell
+  function getCellText(row, index) {
+    return row.cells[index]?.innerText.trim().toLowerCase();
+  }
+
+  // Filter rows based on selected org and pos
+  function filterTable() {
+    const selectedOrgText = orgSelect.options[orgSelect.selectedIndex].text.toLowerCase();
+    const selectedPosText = posSelect.value.toLowerCase();
+
+    rows.forEach(row => {
+      const orgText = getCellText(row, 0);  // Org column
+      const posText = getCellText(row, 2);  // Position column
+
+      const matchesOrg = orgText === selectedOrgText;
+      const matchesPos = !selectedPosText || posText === selectedPosText;
+
+      row.style.display = (matchesOrg && matchesPos) ? "" : "none";
+    });
+  }
+
+  // Load positions for the first (locked) department on page load
+  const departmentId = orgSelect.value;
+  if (departmentId) {
+    posSelect.innerHTML = '<option value="">Loading...</option>';
+
+    fetch(`/get_positions/${departmentId}`)
+      .then(response => response.json())
+      .then(data => {
+        posSelect.innerHTML = '<option value="">Select Position</option>';
+        if (data.length > 0) {
+          data.forEach(position => {
+            const option = document.createElement("option");
+            option.value = position.title;
+            option.textContent = position.title;
+            posSelect.appendChild(option);
+          });
+        } else {
+          posSelect.innerHTML += '<option disabled>No positions found</option>';
+        }
+
+        filterTable(); // Run filter after loading
+      })
+      .catch(error => {
+        console.error("Error loading positions:", error);
+        posSelect.innerHTML = '<option disabled>Error loading positions</option>';
+      });
+  }
+
+  // Re-filter on position change
+  posSelect.addEventListener("change", filterTable);
+});
+</script>
+
+
+
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+    // Tables config with columnDefs
+    const tableConfigs = {
+        '#employeeTable': { 
+            columnDefs: [
+                { targets: 0, width: "8%" },
+                { targets: 1, width: "4%" },
+                { targets: 2, width: "8%" },
+                { targets: 3, width: "4%" },
+                { targets: 4, width: "4%" },
+                { targets: 5, width: "12%" }, // Full Name wider
+                { targets: [3, 4], width: "6%", className: "text-center" } // Step & Level smaller
+            ]
+        },
+        '#casualtbl': { 
+            columnDefs: [
+                { targets: 1, width: "25%" }, // Full Name wider
+                { targets: [0, 2, 6, 7], width: "6%", className: "text-center" } // Small numeric/short cols
+            ]
+        },
+        '#JOtbl': { 
+            columnDefs: [
+                { targets: 1, width: "25%" } // Full Name wider
+            ]
+        }
+    };
+
+    // Initialize each table
+    Object.entries(tableConfigs).forEach(([selector, config]) => {
+        const table = $(selector).DataTable({
+            paging: true,
+            searching: true,
+            ordering: true,
+            responsive: true,
+            autoWidth: false,
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50, 100],
+            dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>' +
+                 't' +
+                 '<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+            language: {
+                search: "",
+                searchPlaceholder: "Search..."
+            },
+            columnDefs: config.columnDefs || []
+        });
+
+        // Style inputs
+        $(".dataTables_filter input", table.table().container())
+            .addClass("form-control form-control-lg w-auto")
+            .css("margin-left", "0");
+
+        $(".dataTables_length select", table.table().container())
+            .addClass("form-select form-select-lg")
+            .css("min-width", "80px");
+    });
+
+    // Fix responsive redraw on tab change
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        const target = $(e.target).attr("data-bs-target");
+        $(target).find('table.dataTable').each(function() {
+            $(this).DataTable().columns.adjust().responsive.recalc();
+        });
+    });
+});
+</script>
+{% endblock %}
+
+
+
+{% endblock content %}

@@ -1,0 +1,1036 @@
+{% extends "base/SuperAdmin.html" %}
+
+{% block content %}
+
+<div class="col-xl-12">
+<!-- Tabs (Applicant List, Interview Applicants, Rejected Applicants) -->
+   <ul class="nav nav-pills mb-3 flex-nowrap overflow-auto" role="tablist" style="white-space: nowrap;">
+  <!-- Under Review -->
+    <li class="nav-item">
+      <button type="button" class="nav-link d-flex justify-content-between align-items-center w-100"
+              role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-under-interview"
+              id="interview-tab" aria-controls="navs-pills-under-interview" aria-selected="true">
+        <span>Under Interview</span>
+        {% if applicants_underReviewed|length > 0 %}
+          <span class="badge bg-danger rounded-circle d-flex justify-content-center align-items-center ms-2"
+                style="width: 1.25rem; height: 1.25rem; font-size: 0.75rem;">
+            {{ applicants_underReviewed|length }}
+          </span>
+        {% endif %}
+      </button>
+    </li>
+
+    <!-- Interviewed -->
+    <li class="nav-item">
+      <button type="button" class="nav-link d-flex justify-content-between align-items-center w-100"
+              role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-interview"
+              id="interview-app-tab" aria-controls="navs-pills-interview" aria-selected="false">
+        <span>Interviewed Applicants</span>
+        {% if applicants_interviewed|length > 0 %}
+          <span class="badge bg-danger rounded-circle d-flex justify-content-center align-items-center ms-2"
+                style="width: 1.25rem; height: 1.25rem; font-size: 0.75rem;">
+            {{ applicants_interviewed|length }}
+          </span>
+        {% endif %}
+      </button>
+    </li>
+
+
+<!-- Hired -->
+<li class="nav-item">
+  <button type="button" class="nav-link d-flex justify-content-between align-items-center w-100"
+          role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-accepted"
+          id="accepted-tab" aria-controls="navs-pills-accepted" aria-selected="false">
+    <span>Accepted Applicants</span>
+        <!-- {% if applicants_hired|length > 0 and not session.get('accepted_viewed') %}
+      <span class="badge bg-danger rounded-circle d-flex justify-content-center align-items-center ms-2"
+            style="width: 1.25rem; height: 1.25rem; font-size: 0.75rem;">
+        {{ applicants_hired|length }}
+      </span>
+    {% endif %} -->
+  </button>
+</li>
+
+
+    <!-- Rejected -->
+    <li class="nav-item">
+      <button type="button" class="nav-link d-flex justify-content-between align-items-center w-100"
+              role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-rejected"
+              id="rejected-tab" aria-controls="navs-pills-rejected" aria-selected="false">
+        <span>Rejected Applicants</span>
+        <!-- {% if applicants_rejected|length > 0 %}
+          <span class="badge bg-danger rounded-circle d-flex justify-content-center align-items-center ms-2"
+                style="width: 1.25rem; height: 1.25rem; font-size: 0.75rem;">
+            {{ applicants_rejected|length }}
+          </span>
+        {% endif %} -->
+      </button>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content p-0 h-100 min-vh-100">
+
+    <!-- Under Review -->
+    <div class="tab-pane fade show" id="navs-pills-under-interview" role="tabpanel" aria-labelledby="under-interview-tab">
+      <div class="card p-3 h-100 min-vh-100">
+       
+        <!-- Table Controls -->
+      <div class="card-datable pt-3 pb-3 mx-3">
+        <div class="row g-2 align-items-center justify-content-between border-bottom pb-3">
+        <!-- Search -->
+         <div class="col-12 col-md-auto">
+          <h5 class="card-title mb-0">Under Review Applicants</h5>
+
+        </div>
+
+  <!-- Export -->
+           <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end">
+            <div class="btn-group">
+            <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                      id="exportDropdown3" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-box-arrow-up me-1"></i>
+                <span>Export</span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="exportDropdown3">
+                <li><a class="dropdown-item" href="{{ url_for('generate_under_review_pdf') }}"><i class="bi bi-file-pdf me-2"></i> Export as PDF</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ url_for('print_under_review') }}" target="_blank"><i class="bi bi-printer me-2"></i>Print</a></li>
+              </ul>
+            </div>
+          </div>
+    </div>
+
+    </div>
+
+        <!-- Table -->
+      <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+             <table class="table table-bordered align-middle border-top dataTable dtr-column collapsed" id="underInterviewTable" aria-describedby="DataTables_Table_0_info" style="width: 100%;">
+                <thead class="table-dark align-middle text-center">
+                  <tr>
+                    <th>Position</th>
+                    <th>Department</th>
+                    <th>Applicant Name</th>
+                    <th>Email</th> 
+                    <th>Phone</th> 
+                    <th>Role</th>
+                    <th>Application Score</th>
+                    <th>Status</th>
+                    <th>Actions</th> <!-- New column for actions -->
+                  </tr>
+                </thead>
+                <tbody class="text-center align-middle">
+                  {% for applicant in applicants_underReviewed %}
+                  <tr>
+                    <td>{{ applicant.job_posting.title if applicant.job_posting else "N/A" }}</td>
+                    <td>{{ applicant.job_posting.department.name if applicant.job_posting and applicant.job_posting.department else "N/A" }}</td>
+                    <td>{{ applicant.first_name }} {{ applicant.last_name }}</td>
+                    <td>{{ applicant.email }}</td> <!-- Email -->
+                    <td>{{ applicant.phone if applicant.phone else "N/A" }}</td> <!-- Phone -->
+                    <td>{{ applicant.job_posting.job_position_type }}</td>
+                    <td>{{ applicant.application_score }}</td>
+                    <td>
+                      <span class="badge 
+                          {% if applicant.status == 'Received' %} text-secondary border border-secondary
+                          {% elif applicant.status == 'Under Review' %} text-warning border border-warning
+                          {% elif applicant.status == 'Interviewed' %} text-info border border-info
+                          {% elif applicant.status == 'Hired' %} text-success border border-success
+                          {% elif applicant.status == 'Rejected' %} text-danger border border-danger
+                          {% else %} text-secondary border border-secondary
+                          {% endif %}
+                      ">
+                        {{ applicant.status }}
+                      </span>
+                    </td>
+                   <td>
+                    <div class="d-flex flex-column align-items-center gap-2">
+                    <!-- View PDS Button -->
+                    {% if applicant.pds_path %}
+                      <a 
+                        href="{{ url_for('static', filename='uploads/resumes/' ~ applicant.pds_path) }}" 
+                        target="_blank" 
+                        class="btn btn-sm btn-primary w-100"
+                      >
+                        <i class="bi bi-file-earmark-text me-1"></i> View PDS
+                      </a>
+                    {% else %}
+                      <button 
+                        class="btn btn-sm btn-secondary w-100" 
+                        disabled
+                      >
+                        <i class="bi bi-file-earmark-x me-1"></i> No PDS
+                      </button>
+                    {% endif %}
+
+                    <!-- Schedule Interview Button -->
+                    {% if current_user.has_permission('write_hiring') %}
+                      <button 
+                        type="button"
+                        class="btn btn-sm btn-success w-100 change-status-btn d-flex align-items-center justify-content-center"
+                        data-applicant-id="{{ applicant.id }}" 
+                        data-current-status="{{ applicant.status }}"
+                      >
+                        <i class="bi bi-calendar-check me-1"></i> Schedule Interview
+                      </button>
+                    {% endif %}
+                  </div>
+
+                  </td>
+
+                  </tr>
+             
+                  {% endfor %}
+                </tbody>
+              </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  
+
+    <!-- Interview Applicants Tab -->
+    <div class="tab-pane fade" id="navs-pills-interview" role="tabpanel" aria-labelledby="interview-tab">
+      <div class="card p-3 h-100 min-vh-100">
+     
+
+
+        <!-- Table Controls -->
+      <div class="card-datable pt-3 pb-3 mx-3">
+            <div class="row g-2 align-items-center justify-content-between border-bottom pb-3">
+            <!-- Search -->
+        <div class="col-12 col-md-auto">
+          <h5 class="card-title mb-0">Interviewed Applicants</h5>
+        
+        </div>
+        <!-- Export -->
+        <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end">
+          <div class="btn-group">
+             <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                    id="exportDropdown3" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-box-arrow-up me-1"></i>
+                <span>Export</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="exportDropdown3">
+              <li><a class="dropdown-item" href="{{ url_for('generate_interview_pdf') }}"><i class="bi bi-file-pdf me-2"></i>Export as PDF</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{{ url_for('print_interview') }}" target="_blank"><i class="bi bi-printer me-2"></i>Print</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <!-- Table -->
+        <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+             <table class="table table-bordered align-middle border-top dataTable dtr-column collapsed" id="interviewedTable" style="width: 100%;">
+              <thead class="table-dark align-middle text-center">
+                <tr>
+                  <th>Position</th>
+                  <th>Department</th>
+                  <th>Applicant Name</th>
+                  <th>Email</th> 
+                  <th>Phone</th> 
+                  <th>Role</th>
+                  <th>Interview Date</th>
+                  <th>Method</th>
+                  <th>Interview Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+          <tbody class="text-center align-middle">
+                {% for applicant in applicants_interviewed %}
+                  {% set interview = applicant.interviews|first %}
+                  <tr>
+                    <td>{{ applicant.job_posting.title if applicant.job_posting else "N/A" }}</td>
+                    <td>{{ applicant.job_posting.department.name if applicant.job_posting and applicant.job_posting.department else "N/A" }}</td>
+                    <td>{{ applicant.first_name }} {{ applicant.last_name }}</td>
+                    <td>{{ applicant.email }}</td> <!-- Email -->
+                    <td>{{ applicant.phone if applicant.phone else "N/A" }}</td> <!-- Phone -->
+                    <td>{{ applicant.job_posting.job_position_type if applicant.job_posting else "N/A" }}</td>
+
+                    <!-- Interview Info -->
+                    <td>
+                      {% if interview and interview.scheduled_date and interview.scheduled_time %}
+                        {{ interview.scheduled_date.strftime('%B %d, %Y') }} - {{ interview.scheduled_time.strftime('%I:%M %p') }}
+                      {% else %}
+                        Not Set
+                      {% endif %}
+                    </td>
+
+                    <td>
+                      {{ interview.method if interview and interview.method else 'N/A' }}
+                    </td>
+
+                    <!-- Interview Status Badge -->
+                    <td>
+                      <span class="badge
+                        {% if interview and interview.status == 'Scheduled' %} text-primary border border-primary
+                        {% elif interview and interview.status == 'Completed' %} text-success border border-success
+                        {% elif interview and interview.status == 'Cancelled' %} text-danger border border-danger
+                        {% else %} text-secondary border border-secondary
+                        {% endif %}
+                      ">
+                        {{ interview.status if interview and interview.status else "No Interview" }}
+                      </span>
+                    </td>
+
+                    <td>
+                    <div class="d-flex flex-wrap gap-2">
+                        <!-- View PDS Button -->
+                        {% if applicant.pds_path %}
+                          <a 
+                            href="{{ url_for('static', filename='uploads/resumes/' ~ applicant.pds_path) }}" 
+                            target="_blank" 
+                            class="btn btn-sm btn-primary flex-fill d-flex align-items-center justify-content-center"
+                          >
+                            <i class="bi bi-file-earmark-text me-1"></i> View PDS
+                          </a>
+                        {% else %}
+                          <button 
+                            class="btn btn-sm btn-secondary flex-fill d-flex align-items-center justify-content-center" 
+                            disabled
+                          >
+                            <i class="bi bi-file-earmark-x me-1"></i> No PDS
+                          </button>
+                        {% endif %}
+
+                        {% if current_user.has_permission('write_hiring') %}
+                          <!-- Approve Interview Button -->
+                          <button 
+                            class="btn btn-sm btn-success flex-fill d-flex align-items-center justify-content-center approve-interview-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#approveModal"
+                            data-applicant-id="{{ applicant.id }}"
+                            data-applicant-name="{{ applicant.first_name }} {{ applicant.last_name }}"
+                          >
+                            <i class="bi bi-check-circle me-1"></i> Approve
+                          </button>
+
+                          <!-- Reject Interview Button -->
+                          <button 
+                            class="btn btn-sm btn-danger flex-fill d-flex align-items-center justify-content-center"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmRejectModal"
+                            data-applicant-id="{{ applicant.id }}"
+                            data-applicant-name="{{ applicant.first_name }} {{ applicant.last_name }}"
+                          >
+                            <i class="bi bi-x-circle me-1"></i> Reject
+                          </button>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+  
+                {% endfor %}
+              </tbody>
+
+            </table>
+            
+            
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accepted/Hired Applicant -->
+    <div class="tab-pane fade" id="navs-pills-accepted" role="tabpanel" aria-labelledby="accepted-tab">
+      <div class="card p-3 h-100 min-vh-100">
+                 
+        <!-- Compact filter controls -->
+        <div class="card-datable pt-3 pb-3 mx-3">
+          <div class="row g-2 align-items-center justify-content-between border-bottom pb-3">
+            <!-- Search -->
+          <div class="col-12 col-md-auto">
+            <h5 class="card-title mb-0">Accepted Applicants</h5>
+  
+        </div>
+        <!-- Export -->
+        <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end">
+          <div class="btn-group">
+             <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                    id="exportDropdown3" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-box-arrow-up me-1"></i>
+                <span>Export</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="exportDropdown3">
+              <li><a class="dropdown-item" href="{{ url_for('generate_hired_pdf') }}"><i class="bi bi-file-pdf me-2"></i>Export as PDF</a></li>
+              <li><hr class="dropdown-divider"></li>
+   <li><a class="dropdown-item" href="{{ url_for('print_hired') }}" target="_blank"><i class="bi bi-printer me-2"></i>Print</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+        <!-- Table -->
+        <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+             <table class="table table-bordered align-middle border-top dataTable dtr-column collapsed"   id="acceptedTable" style="width: 100%;">
+              <thead class="table-dark align-middle text-center">
+                <tr>
+                  <th>Position</th>
+                  <th>Department</th>
+                  <th>Applicant Name</th>
+                  <th>Email</th> 
+                  <th>Phone</th> 
+                  <th>Role</th>
+                  <th>Interview Date</th>
+                  <th>Method</th>
+                  <th>Interviewer</th>
+                  <th>Interview Result</th>
+                  <th>Approval Notes</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+             <tbody class="text-center align-middle">
+                {% for applicant in applicants_hired %}
+                  {% set interview = applicant.interviews|first %}
+                  <tr>
+                    <td>{{ applicant.job_posting.title if applicant.job_posting else "N/A" }}</td>
+                    <td>{{ applicant.job_posting.department.name if applicant.job_posting and applicant.job_posting.department else "N/A" }}</td>
+                    <td>{{ applicant.first_name }} {{ applicant.last_name }}</td>
+                    <td>{{ applicant.email }}</td> <!-- Email -->
+                    <td>{{ applicant.phone if applicant.phone else "N/A" }}</td> <!-- Phone -->
+                    <td>{{ applicant.job_posting.job_position_type if applicant.job_posting else "N/A" }}</td>
+
+                    <!-- Interview Info -->
+                    <td>
+                      {% if interview and interview.scheduled_date and interview.scheduled_time %}
+                        {{ interview.scheduled_date.strftime('%B %d, %Y') }} - {{ interview.scheduled_time.strftime('%I:%M %p') }}
+                      {% else %}
+                        Not Set
+                      {% endif %}
+                    </td>
+
+                    <td>
+                      {{ interview.method if interview and interview.method else 'N/A' }}
+                    </td>
+                    
+                    <td>
+                      {{ interview.interviewer if interview and interview.interviewer else 'N/A' }}
+                    </td>
+
+                    <td>
+                      <span class="badge
+                        {% if interview and interview.result == 'Scheduled' %} text-primary border border-primary
+                        {% elif interview and interview.result == 'Approved' %} text-success border border-success
+                        {% elif interview and interview.result == 'Cancelled' %} text-danger border border-danger
+                        {% else %} text-secondary border border-secondary
+                        {% endif %}
+                      ">
+                        {{ interview.result if interview and interview.result else "No Result" }}
+                      </span>
+                    </td>
+
+                    <td>
+                      {{ interview.approval_notes if interview and interview.approval_notes else 'N/A' }}
+                    </td>
+
+                    <td>
+                      <div class="d-flex justify-content-center gap-1">
+                        {% if applicant.pds_path %}
+                          <a href="{{ url_for('static', filename='uploads/resumes/' + applicant.pds_path) }}" target="_blank" class="btn btn-sm btn-primary">
+                            View PDS
+                          </a>
+                        {% else %}
+                          <button class="btn btn-sm btn-secondary w-100" disabled>No PDS</button>
+                        {% endif %}
+
+                      </div>
+                    </td>
+                  </tr>
+  
+                {% endfor %}
+              </tbody>
+
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+<!-- Rejected Applicants Tab -->
+<div class="tab-pane fade" id="navs-pills-rejected" role="tabpanel" aria-labelledby="rejected-tab">
+  <div class="card p-3 h-100 min-vh-100 ">
+
+    <!-- Compact filter controls -->
+    <div class="card-datable pt-3 pb-3 mx-3">
+      <div class="row g-2 align-items-center justify-content-between border-bottom pb-3">
+        <!-- Search -->
+         <div class="col-12 col-md-auto">
+            <h5 class="card-title mb-0">Rejected Applicants/h5>
+
+        </div>
+        <!-- Export -->
+   <div class="col-12 col-md d-flex flex-wrap gap-3 justify-content-end">
+          <div class="btn-group">
+         <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
+                    id="exportDropdown3" data-bs-toggle="dropdown" aria-expanded="false">
+               <i class="bi bi-box-arrow-up me-1"></i>
+                <span>Export</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="exportDropdown3">
+              <li><a class="dropdown-item" href="{{ url_for('generate_rejected_pdf') }}"><i class="bi bi-file-pdf me-2"></i>Export as PDF</a></li>
+              <li><hr class="dropdown-divider"></li>
+   <li><a class="dropdown-item" href="{{ url_for('print_rejected') }}" target="_blank"><i class="bi bi-printer me-2"></i>Print</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+     <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+       <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+        <table class="table table-bordered align-middle border-top dataTable dtr-column collapsed"  id="rejectedTable" style="width: 100%;">
+          <thead class="table-dark align-middle text-center">
+            <tr>
+              <th>Position</th>
+              <th>Department</th>
+              <th>Applicant Name</th>
+              <th>Email</th> 
+              <th>Phone</th> 
+              <th>Role</th>
+              <th>Interview Date</th>
+              <th>Method</th>
+              <th>Interviewer</th>
+              <th>Interview Result</th>
+              <th>Rejection Reason</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+         <tbody class="text-center align-middle">
+            {% for applicant in applicants_rejected %}
+              {% set interview = applicant.interviews|first %}
+              <tr>
+                <td>{{ applicant.job_posting.title if applicant.job_posting else "N/A" }}</td>
+                <td>{{ applicant.job_posting.department.name if applicant.job_posting and applicant.job_posting.department else "N/A" }}</td>
+                <td>{{ applicant.first_name }} {{ applicant.last_name }}</td>
+                <td>{{ applicant.email }}</td> <!-- Email -->
+                <td>{{ applicant.phone if applicant.phone else "N/A" }}</td> <!-- Phone -->
+                <td>{{ applicant.job_posting.job_position_type if applicant.job_posting else "N/A" }}</td>
+
+                <!-- Interview Info -->
+                <td>
+                  {% if interview and interview.scheduled_date and interview.scheduled_time %}
+                    {{ interview.scheduled_date.strftime('%B %d, %Y') }} - {{ interview.scheduled_time.strftime('%I:%M %p') }}
+                  {% else %}
+                    Not Set
+                  {% endif %}
+                </td>
+
+                <td>
+                  {{ interview.method if interview and interview.method else 'N/A' }}
+                </td>
+                
+                <td>
+                  {{ interview.interviewer if interview and interview.interviewer else 'N/A' }}
+                </td>
+
+                <td>
+                  <span class="badge
+                    {% if interview and interview.result == 'Rejected' %} text-danger border border-danger
+                    {% else %} text-secondary border border-secondary
+                    {% endif %}
+                  ">
+                    {{ interview.result if interview and interview.result else "No Result" }}
+                  </span>
+                </td>
+
+                <td>
+                  {{ interview.rejection_reason if interview and interview.rejection_reason else 'N/A' }}
+                </td>
+
+                <td>
+                  <div class="d-flex flex-column align-items-center gap-2 text-center">
+                    <!-- View PDS Button -->
+                    {% if applicant.pds_path %}
+                      <a 
+                        href="{{ url_for('static', filename='uploads/resumes/' ~ applicant.pds_path) }}" 
+                        target="_blank" 
+                        class="btn btn-sm btn-primary w-100"
+                      >
+                        <i class="bi bi-file-earmark-text me-1"></i> View PDS
+                      </a>
+                    {% else %}
+                      <button class="btn btn-sm btn-secondary w-100" disabled>
+                        <i class="bi bi-file-earmark-x me-1"></i> No PDS
+                      </button>
+                    {% endif %}
+
+                    <!-- Reschedule Button -->
+                    {% if current_user.has_permission('write_hiring') %}
+                      <button 
+                        class="btn btn-sm btn-warning w-100"
+                        data-bs-toggle="modal"
+                        data-bs-target="#rescheduleInterviewModal"
+                        data-applicant-id="{{ applicant.id }}"
+                      >
+                        <i class="bi bi-calendar-event me-1"></i> Reschedule
+                      </button>
+                    {% endif %}
+                  </div>
+
+                </td>
+              </tr>
+    
+            {% endfor %}
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+  </div>
+
+  </div>
+
+
+
+<!-- Schedule Interview Modal -->
+<div class="modal fade" id="scheduleInterviewModal" tabindex="-1" aria-labelledby="scheduleInterviewModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog">
+    <form id="scheduleInterviewForm" method="POST" action="{{ url_for('schedule_interview') }}" novalidate>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="scheduleInterviewModalLabel">Schedule Interview</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          <input type="hidden" name="applicant_id" id="modalApplicantId">
+
+          
+          
+          <div class="mb-3">
+            <label for="interviewDate" class="form-label">Interview Date</label>
+            <input type="date" class="form-control" id="interviewDate" name="interview_date" required>
+            <div class="invalid-feedback">
+              Please select a valid interview date.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="interviewTime" class="form-label">Interview Time</label>
+            <input type="time" class="form-control" id="interviewTime" name="interview_time" required>
+            <div class="invalid-feedback">
+              Please select a valid interview time.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="interviewMethod" class="form-label">Interview Method</label>
+            <select class="form-select" id="interviewMethod" name="interview_method" required>
+              <option value="">Select Method</option>
+              <option value="Online">Online</option>
+              <option value="Onsite">Onsite</option>
+              <option value="Phone Call">Phone Call</option>
+            </select>
+            <div class="invalid-feedback">
+              Please select an interview method.
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="interviewNotes" class="form-label">Notes (optional)</label>
+            <textarea class="form-control" id="interviewNotes" name="interview_notes" rows="3"></textarea>
+          </div>
+
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Schedule</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- Reject Confirmation Modal -->
+<div class="modal fade" id="confirmRejectModal" tabindex="-1" aria-labelledby="confirmRejectModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('reject_applicant_Hiring') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmRejectModalLabel">Confirm Rejection</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to reject <strong id="applicantName"></strong>?</p>
+          
+          <input type="hidden" name="applicant_id" id="rejectApplicantId">
+
+          <!-- New rejection reason textarea -->
+          <div class="mb-3">
+            <label for="rejectionReason" class="form-label">Reason for Rejection (optional):</label>
+            <textarea class="form-control" id="rejectionReason" name="rejection_reason" rows="3" placeholder="Enter reason here..."></textarea>
+          </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Reject</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<!-- Approve Confirmation Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('approve_applicant_Hiring') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="approveModalLabel">Confirm Approval</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to approve <strong id="approveApplicantName"></strong>?</p>
+          
+          <input type="hidden" name="applicant_id" id="approveApplicantId">
+
+          <!-- New approval notes textarea -->
+          <div class="mb-3">
+            <label for="approvalNotes" class="form-label">Approval Notes (optional):</label>
+            <textarea class="form-control" id="approvalNotes" name="approval_notes" rows="3" placeholder="Enter notes here..."></textarea>
+          </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Approve</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<!-- Reschedule Interview Modal -->
+<div class="modal fade" id="rescheduleInterviewModal" tabindex="-1" aria-labelledby="rescheduleInterviewModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog">
+    <form id="rescheduleInterviewForm" method="POST" action="{{ url_for('schedule_interview') }}" novalidate>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="rescheduleInterviewModalLabel">Reschedule Interview</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <input type="hidden" name="applicant_id" id="rescheduleApplicantId">
+
+          <div class="mb-3">
+            <label for="rescheduleDate" class="form-label">New Interview Date</label>
+            <input type="date" class="form-control" id="rescheduleDate" name="interview_date" required>
+            <div class="invalid-feedback">
+              Please select a valid interview date.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="rescheduleTime" class="form-label">New Interview Time</label>
+            <input type="time" class="form-control" id="rescheduleTime" name="interview_time" required>
+            <div class="invalid-feedback">
+              Please select a valid interview time.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="rescheduleMethod" class="form-label">Interview Method</label>
+            <select class="form-select" id="rescheduleMethod" name="interview_method" required>
+              <option value="">Select Method</option>
+              <option value="Online">Online</option>
+              <option value="Onsite">Onsite</option>
+              <option value="Phone Call">Phone Call</option>
+            </select>
+            <div class="invalid-feedback">
+              Please select an interview method.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="rescheduleNotes" class="form-label">Notes (optional)</label>
+            <textarea class="form-control" id="rescheduleNotes" name="interview_notes" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Reschedule</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+
+<script src="{{ url_for('static', filename='js/savingtabs.js') }}"></script>
+
+
+<!-- Approval JS -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var approveModal = document.getElementById('approveModal');
+    
+    // When Approve button is clicked, show the modal and populate applicant details
+    approveModal.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget;
+      var applicantId = button.getAttribute('data-applicant-id');
+      var applicantName = button.getAttribute('data-applicant-name');
+  
+      var modalApplicantIdInput = document.getElementById('approveApplicantId');
+      var modalApplicantName = document.getElementById('approveApplicantName');
+      var approvalNotesTextarea = document.getElementById('approvalNotes'); // NEW
+  
+      modalApplicantIdInput.value = applicantId;
+      modalApplicantName.textContent = applicantName;
+      
+      // Clear the approval notes every time the modal opens
+      if (approvalNotesTextarea) {
+        approvalNotesTextarea.value = '';
+      }
+    });
+  });
+</script>
+
+
+<!-- Rejection JS -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var confirmRejectModal = document.getElementById('confirmRejectModal');
+    confirmRejectModal.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget;
+      var applicantId = button.getAttribute('data-applicant-id');
+      var applicantName = button.getAttribute('data-applicant-name');
+  
+      var modalApplicantIdInput = document.getElementById('rejectApplicantId');
+      var modalApplicantName = document.getElementById('applicantName');
+      var rejectionReasonTextarea = document.getElementById('rejectionReason'); // NEW
+  
+      modalApplicantIdInput.value = applicantId;
+      modalApplicantName.textContent = applicantName;
+      
+      // Clear the rejection reason every time the modal opens
+      if (rejectionReasonTextarea) {
+        rejectionReasonTextarea.value = '';
+      }
+    });
+  });
+  
+  </script>
+  
+
+<!-- Schedule Interview -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const changeStatusButtons = document.querySelectorAll('.change-status-btn');
+    const scheduleModalElement = document.getElementById('scheduleInterviewModal');
+    const form = document.getElementById('scheduleInterviewForm');
+
+    changeStatusButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        const applicantId = this.getAttribute('data-applicant-id');
+        document.getElementById('modalApplicantId').value = applicantId;
+
+        // Show the modal
+        const scheduleModal = new bootstrap.Modal(scheduleModalElement);
+        scheduleModal.show();
+      });
+    });
+
+    // Form submission and validation
+    form.addEventListener('submit', function (event) {
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      form.classList.add('was-validated');
+    });
+
+    // Real-time validation for each input field
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(function (input) {
+      input.addEventListener('input', function () {
+        if (input.checkValidity()) {
+          input.classList.remove('is-invalid');
+          input.classList.add('is-valid');
+        } else {
+          input.classList.remove('is-valid');
+          input.classList.add('is-invalid');
+        }
+      });
+    });
+
+    // Clear form and validation when modal is closed
+    scheduleModalElement.addEventListener('hidden.bs.modal', function () {
+      form.reset(); // Clears input values
+      form.classList.remove('was-validated'); // Remove validation styling
+
+      // Also remove input-level validation classes
+      inputs.forEach(function (input) {
+        input.classList.remove('is-valid');
+        input.classList.remove('is-invalid');
+      });
+    });
+  });
+</script>
+
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const lastTab = localStorage.getItem('activeTab');
+    if (lastTab) {
+      const tabButton = document.querySelector(`[data-bs-target="${lastTab}"]`);
+      if (tabButton) {
+        const tab = new bootstrap.Tab(tabButton);
+        tab.show();
+      }
+    } else {
+      // No lastTab found, ensure default tab is active (optional)
+      const defaultTabButton = document.querySelector('button.nav-link.active');
+      if (defaultTabButton) {
+        const tab = new bootstrap.Tab(defaultTabButton);
+        tab.show();
+      }
+    }
+  
+    const tabButtons = document.querySelectorAll('button[data-bs-toggle="tab"]');
+    tabButtons.forEach(button => {
+      button.addEventListener('shown.bs.tab', function (e) {
+        localStorage.setItem('activeTab', e.target.getAttribute('data-bs-target'));
+      });
+    });
+  });
+  
+  </script>
+  
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const rescheduleModal = document.getElementById('rescheduleInterviewModal');
+    const applicantInput = document.getElementById('rescheduleApplicantId');
+
+    rescheduleModal.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      const applicantId = button.getAttribute('data-applicant-id');
+      applicantInput.value = applicantId;
+    });
+  });
+</script>
+
+
+<script>
+  function setupSearch(inputId, tableId) {
+    const input = document.getElementById(inputId);
+    const table = document.getElementById(tableId);
+
+    if (!input || !table) return;
+
+    input.addEventListener("input", function () {
+      const filter = input.value.toLowerCase();
+      const rows = table.querySelectorAll("tbody tr");
+
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    setupSearch("Under-review", "underInterviewTable");
+    setupSearch("Interview-Applicant", "interviewedTable");
+    setupSearch("Accepted-Applicant", "acceptedTable");
+    setupSearch("Rejected-Applicant", "rejectedTable");
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const acceptedTab = document.getElementById('accepted-tab');
+
+    acceptedTab.addEventListener('shown.bs.tab', function () {
+      const badge = acceptedTab.querySelector('.badge');
+      if (badge) {
+        badge.remove();
+      }
+
+      // Tell Flask to hide badge next reload
+      fetch('/hide_accepted_badge', {
+        method: 'POST'
+      });
+    });
+  });
+</script>
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+    // Force table layout fixed for all DataTables
+    $('table.dataTable').css({
+        'table-layout': 'fixed',
+        'width': '100%'
+    });
+
+    // Common options function
+    const commonOptions = (searchPlaceholder, columnCount) => ({
+        paging: true,
+        searching: true,
+        ordering: true,
+        responsive: true,
+        autoWidth: false,
+        columnDefs: Array.from({ length: columnCount }, (_, i) => ({ width: `${100/columnCount}%`, targets: i })),
+        dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>t<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: searchPlaceholder
+        }
+    });
+
+    // Initialize all applicant tables
+    const underInterviewTable = $('#underInterviewTable').DataTable(commonOptions("Search Under Review Applicants...", 9));
+    const interviewedTable = $('#interviewedTable').DataTable(commonOptions("Search Interviewed Applicants...", 10));
+    const acceptedTable = $('#acceptedTable').DataTable(commonOptions("Search Hired Applicants...", 12));
+    const rejectedTable = $('#rejectedTable').DataTable(commonOptions("Search Rejected Applicants...", 12));
+
+    // Style search inputs
+    $(".dataTables_filter input")
+        .addClass("form-control form-control-lg w-auto")
+        .css("margin-left", "0");
+
+    // Style entries dropdown
+    $(".dataTables_length select")
+        .addClass("form-select form-select-lg")
+        .css("min-width", "80px");
+
+    // Adjust columns when switching Bootstrap tabs
+    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+        $.fn.dataTable
+            .tables({ visible: true, api: true })
+            .columns.adjust();
+    });
+});
+</script>
+{% endblock %}
+
+
+{% endblock content %} 
+

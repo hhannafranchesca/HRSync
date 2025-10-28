@@ -1,0 +1,244 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+
+<div class="card h-100">
+  <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+    <div>
+      <h4 class="card-title mb-0">Department: {{ opcr.department.name }}</h4>
+      <small class="text-muted">OPCR: {{ opcr.period.name }}</small>
+    </div>
+    <p class="mb-0 text-end">
+      {{ opcr.period.start_date.strftime('%B %d, %Y') }} to {{ opcr.period.end_date.strftime('%B %d, %Y') }}
+    </p>
+  </div>
+
+
+
+  <div class="card-body mt-3">
+     <div class="d-flex justify-content-between align-items-center mb-3">
+  <!-- Left side: Status -->
+  <div>
+    <p class="mb-1">Status: 
+      {% if opcr.submitted %}
+        <span class="badge bg-success">Submitted</span>
+      {% else %}
+        <span class="badge bg-secondary">Not Submitted</span>
+      {% endif %}
+    </p>
+    <p class="mb-0">Grading: 
+      {% if opcr.graded %}
+        <span class="badge bg-primary">Graded</span>
+      {% else %}
+        <span class="badge bg-warning text-dark">Not Graded</span>
+      {% endif %}
+    </p>
+  </div>
+
+  <!-- Right side: Export button -->
+  <div class="btn-group">
+    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+      <i class="bi bi-box-arrow-up me-1"></i> Export
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="#"><i class="bi bi-file-pdf me-2"></i>Export as PDF</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item" href="#"><i class="bi bi-printer me-2"></i>Print</a></li>
+    </ul>
+  </div>
+</div>
+
+
+        <hr>
+
+        <table id="opcr-table" class="table table-bordered text-center align-middle">
+
+            <thead class="table-dark">
+                <tr>
+                    <th rowspan="2">MFO</th>
+                    <th rowspan="2">Success Indicator</th>
+                    <th rowspan="2">Allocated Budget</th>
+                    <th rowspan="2">Division</th>
+                    <th rowspan="2">Actual Expenses</th>
+                    <th colspan="4">RATING</th>
+                    <th rowspan="2">Remarks</th>
+                </tr>
+                <tr>
+                    <th>Q</th>
+                    <th>E</th>
+                    <th>T</th>
+                    <th>A</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {# Group sections by type first #}
+                {% set grouped = {'Strategic': [], 'Core': [], 'Support': []} %}
+                {% for section in sections %}
+                    {% set _ = grouped[section.type].append(section) %}
+                {% endfor %}
+
+                {# Strategic Objectives Section #}
+                <tr class="table-primary fw-semibold">
+                    <td colspan="10" class="text-start">
+                        Strategic Objectives 
+                    </td>
+                </tr>
+                {% for section in grouped['Strategic'] %}
+                    {% for item in section.section_items %}
+                        <tr>
+                            <td>{{ item.mfo }}</td>
+                            <td>{{ item.success_indicator }}</td>
+                            <td>{{ item.allotted_budget }}</td>
+                            <td>{{ item.division }}</td>
+                            <td>{{ item.actual_expenses }}</td>
+                            <td>{{ item.rating_q if item.rating_q is not none else '-' }}</td>
+                            <td>{{ item.rating_e if item.rating_e is not none else '-' }}</td>
+                            <td>{{ item.rating_t if item.rating_t is not none else '-' }}</td>
+                            <td>{{ item.rating_a if item.rating_a is not none else '-' }}</td>
+                            <td>{{ item.remarks if item.remarks is not none else '-' }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+
+                {# Core Functions Section #}
+                <tr class="table-primary fw-semibold">
+                    <td colspan="10" class="text-start">
+                        Core Functions
+                    </td>
+                </tr>
+                {% for section in grouped['Core'] %}
+                    {% for item in section.section_items %}
+                        <tr>
+                            <td>{{ item.mfo }}</td>
+                            <td>{{ item.success_indicator }}</td>
+                            <td>{{ item.allotted_budget }}</td>
+                            <td>{{ item.division }}</td>
+                            <td>{{ item.actual_expenses }}</td>
+                            <td>{{ item.rating_q if item.rating_q is not none else '-' }}</td>
+                            <td>{{ item.rating_e if item.rating_e is not none else '-' }}</td>
+                            <td>{{ item.rating_t if item.rating_t is not none else '-' }}</td>
+                            <td>{{ item.rating_a if item.rating_a is not none else '-' }}</td>
+                            <td>{{ item.remarks if item.remarks is not none else '-' }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+
+                {# Support Functions Section #}
+                <tr class="table-primary fw-semibold">
+                    <td colspan="10" class="text-start">
+                        Support Functions 
+                    </td>
+                </tr>
+                {% for section in grouped['Support'] %}
+                    {% for item in section.section_items %}
+                        <tr>
+                            <td>{{ item.mfo }}</td>
+                            <td>{{ item.success_indicator }}</td>
+                            <td>{{ item.allotted_budget }}</td>
+                            <td>{{ item.division }}</td>
+                            <td>{{ item.actual_expenses }}</td>
+                            <td>{{ item.rating_q if item.rating_q is not none else '-' }}</td>
+                            <td>{{ item.rating_e if item.rating_e is not none else '-' }}</td>
+                            <td>{{ item.rating_t if item.rating_t is not none else '-' }}</td>
+                            <td>{{ item.rating_a if item.rating_a is not none else '-' }}</td>
+
+                            <td>{{ item.remarks if item.remarks is not none else '-' }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+
+            </tbody>
+        </table>
+  </div>
+
+
+  <hr class="my-4">
+
+  <div class="card-body">
+  <h5>OPCR Average Rating</h5>
+<table class="table table-bordered text-center align-middle">
+  <thead class="table-dark">
+    <tr>
+      <th>Category</th>
+      <th>MFO Count</th>
+      <th>Final Rating & Computation</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% set display_names = {
+      'Strategic': 'Strategic Priority',
+      'Core': 'Core Functions',
+      'Support': 'Support Functions'
+    } %}
+
+    {% for category in ['Strategic', 'Core', 'Support'] %}
+      <tr>
+        <td class="fw-medium">{{ display_names[category] }}</td>
+        <td>{{ final_average[category].count }}</td>
+        <td>
+          {% if final_average[category].weighted is not none %}
+            <div class="fw-bold">{{ final_average[category].weighted }}</div>
+            <div class="text-muted small">{{ final_average[category].computation }}</div>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+
+  <tfoot class="table-secondary fw-semibold">
+    <tr>
+      <td>Total Overall Rating</td>
+      <td colspan="2" class="text-start">
+        {% if final_overall is not none %}
+          {{ final_overall }}
+        {% else %}
+          -
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Final Average Rating</td>
+      <td colspan="2" class="text-start">
+        {% if average_rating is not none %}
+          {{ average_rating }}
+        {% else %}
+          -
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Adjective Rating</td>
+      <td colspan="2" class="text-start">
+        {{ adjective_rating }}
+      </td>
+    </tr>
+  </tfoot>
+</table>
+
+
+
+
+</div>
+
+
+</div>
+
+<script>
+  $(document).ready(function () {
+    $('#opcr-table').DataTable({
+      // Optional: customize behavior
+      "order": [],
+      "pageLength": 10,
+      "columnDefs": [
+        { "orderable": false, "targets": [] }  // Add column indexes here if needed
+      ]
+    });
+  });
+</script>
+
+
+
+{% endblock content %}

@@ -1,0 +1,336 @@
+{% extends "base/SuperAdmin.html" %}
+{% block content %}
+
+
+
+<div class="col-xl-12">
+
+  <div class="nav-align-top mb-4">
+   
+    
+      <div class="tab-content h-100 min-vh-100">
+
+        <!-- PERMANENT EMPLOYEE -->
+          <div class="card-header border-bottom p-0 pb-3 mb-3">
+            <h5 class="card-title mb-0">User Responsiblities</h5>
+    
+            </div>
+          <div class="card-datable">
+         
+    
+    
+            <div class="dt-layout-table" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="d-md-flex justify-content-between align-items-center dt-layout-full table-responsive" style="flex: 1; overflow: auto;">
+                  <table class="datatables-users table border-top dataTable dtr-column collapsed table-bordered" 
+                      id="DataTables_Table_0" 
+                      aria-describedby="DataTables_Table_0_info" 
+                      style="width: 100%; height: 100%;">
+
+                      <thead class="table-dark align-middle text-center">
+                          <tr>
+                              <th>POSITION TITLE</th>
+                              <th>FULL NAME</th>
+                              <th>EMAIL</th>
+                              <th>LOGIN ID</th>
+                              <th>ACTION</th>
+                          </tr>
+                      </thead>
+
+                      <tbody>
+                          {% for emp in permanent_employees %}
+                          <tr>
+                               <td>
+                                {% if emp.permanent_details and emp.permanent_details.position %}
+                                  {{ emp.permanent_details.position.title }}
+                                {% else %}
+                                  N/A
+                                {% endif %}
+                              </td>
+                              <td>
+                                  <a href="{{ url_for('EmployeeDetail', id=emp.id) }}" class="text-heading text-truncate fw-medium">
+                                      {{ emp.last_name }} {{ emp.first_name }} {{ emp.middle_name }}
+                                  </a>
+                              </td>
+                              <td>{{ emp.user.email }}</td>
+                              <td>{{ emp.user.login_id }}</td>
+                            <td class="text-center align-middle">
+                            <button type="button"
+                                  class="btn btn-sm btn-primary btn-edit"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#addRoleModal"
+                                  data-user-id="{{ emp.user.id }}">
+                            Edit User Account
+                          </button>
+
+                            </td>
+                          </tr>
+                          {% endfor %}
+                          {% if permanent_employees|length == 0 %}
+                          <tr>
+                              <td colspan="8" class="text-center">No Account records found.</td>
+                          </tr>
+                          {% endif %}
+                      </tbody>
+                  </table>
+
+                </div>
+        
+            </div>
+          </div>
+
+  
+
+        
+      </div>
+    </div>
+    
+
+</div>
+  
+
+<!-- Modal -->
+<div class="modal fade" id="addRoleModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form id="editUserForm" method="POST" action="{{ url_for('update_user_responsibilities') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title opacity-0" id="editEmployeeModalLabel">Assign Role</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+
+          <div class="text-center mb-4">
+            <h4 class="role-title mb-2">Edit User Account</h4>
+            <p>Set user roles and permissions</p>
+          </div>
+
+          <!-- Hidden User ID -->
+          <input type="hidden" name="user_id" id="editUserId">
+
+          <!-- Role Permissions -->
+          <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fs-4 mb-0">Role Permissions</h5>
+              <small class="text-muted">Read/Write Access Control</small>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-flush-spacing mb-0 border-top">
+                <thead>
+                  <tr>
+                    <th>Module</th>
+                    <th class="text-end">Read</th>
+                    <th class="text-end">Write</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  {% set modules = [
+                    ('Performance Management', 'performance'),
+                    ('Hiring Management', 'hiring'),
+                    ('Application For Leave', 'leave'),
+                    ('Travel Order', 'travel'),
+                    ('Clearance Form', 'clearance'),
+                    ('Certificate of Employment (COE)', 'coe')
+                  ] %}
+
+                  {% for label, key in modules %}
+                  <tr>
+                    <td class="text-nowrap fs-6 fw-medium p-4 ps-0">{{ label }}</td>
+                    <td class="text-end pe-3">
+                      <div class="form-check d-inline-flex">
+                        <input class="form-check-input" type="checkbox" id="read_{{ key }}" name="read_{{ key }}">
+                        <label class="form-check-label ms-2" for="read_{{ key }}">Read</label>
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <div class="form-check d-inline-flex">
+                        <input class="form-check-input" type="checkbox" id="write_{{ key }}" name="write_{{ key }}">
+                        <label class="form-check-label ms-2" for="write_{{ key }}">Write</label>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- End Role Form -->
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('addRoleModal');
+  const userIdInput = document.getElementById('editUserId');
+
+  // Clear all checkboxes in modal
+  function clearCheckboxes() {
+    modal.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+  }
+
+  // Set checkboxes based on permissions object
+  function setCheckboxes(perms) {
+    for (const [perm, allowed] of Object.entries(perms)) {
+      const checkbox = modal.querySelector(`#${perm}`);
+      if (checkbox) {
+        checkbox.checked = allowed;
+      }
+    }
+  }
+
+  // Add event listeners to all Edit buttons
+  document.querySelectorAll('.btn-edit').forEach(button => {
+    button.addEventListener('click', () => {
+      const userId = button.getAttribute('data-user-id');
+      userIdInput.value = userId;
+
+      clearCheckboxes();
+
+      fetch(`/api/user_permissions/${userId}`)
+        .then(response => response.json())
+        .then(perms => {
+          setCheckboxes(perms);
+        })
+        .catch(err => {
+          console.error('Failed to load permissions:', err);
+        });
+    });
+  });
+});
+</script>
+
+
+
+<script src="{{ url_for('static', filename='js/savingtabs.js') }}"></script>
+
+  
+
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const editButtons = document.querySelectorAll(".btn-edit");
+  const userIdInput = document.getElementById("editUserId");
+
+  editButtons.forEach(button => {
+    button.addEventListener("click", function () {
+      const userId = this.getAttribute("data-user-id");
+      userIdInput.value = userId;
+    });
+  });
+});
+</script>
+
+  
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('input[type="checkbox"][id^="write_"]').forEach(function (writeCheckbox) {
+      writeCheckbox.addEventListener('change', function () {
+        const key = this.id.replace('write_', '');
+        const readCheckbox = document.getElementById('read_' + key);
+
+        if (this.checked) {
+          readCheckbox.checked = true;
+        }
+      });
+    });
+
+    document.querySelectorAll('input[type="checkbox"][id^="read_"]').forEach(function (readCheckbox) {
+      readCheckbox.addEventListener('change', function () {
+        const key = this.id.replace('read_', '');
+        const writeCheckbox = document.getElementById('write_' + key);
+
+        // If write is checked, prevent unchecking read
+        if (writeCheckbox.checked && !this.checked) {
+          this.checked = true;
+        }
+      });
+    });
+  });
+</script>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const searchInput = document.getElementById("search-user-role");
+  const table = document.getElementById("DataTables_Table_0");
+  const rows = table.querySelectorAll("tbody tr");
+
+  searchInput.addEventListener("input", function () {
+    const query = this.value.trim().toLowerCase();
+
+    rows.forEach(row => {
+      const rowText = row.textContent.toLowerCase();
+      row.style.display = rowText.includes(query) ? "" : "none";
+    });
+  });
+});
+</script>
+
+
+{% block scripts %}
+<script>
+$(document).ready(function () {
+    // Force table layout fixed for this DataTable
+    $('#DataTables_Table_0').css({
+        'table-layout': 'fixed',
+        'width': '100%'
+    });
+
+    // Initialize DataTable
+    var accountsTable = $('#DataTables_Table_0').DataTable({
+        paging: true,
+        searching: true,
+        ordering: true,
+        responsive: true,
+        autoWidth: false,
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50, 100],
+        columnDefs: [
+            { targets: -1, orderable: false, searchable: false, width: "120px" }, // Action col
+            { targets: 0, width: "25%" }, // Position Title
+            { targets: 1, className: "text-wrap", width: "25%" }, // Full Name
+            { targets: 2, width: "20%" }, // Email
+            { targets: 3, width: "15%" }  // Login ID
+        ],
+        dom: '<"row mb-3"<"col-md-6 d-flex align-items-center"f><"col-md-6 text-end"l>>' +
+             't' +
+             '<"row mt-3"<"col-md-6"i><"col-md-6 text-end"p>>',
+        language: {
+            search: "",
+            searchPlaceholder: "Search User Accounts..."
+        }
+    });
+
+    // Style search input
+    $(".dataTables_filter input")
+        .addClass("form-control form-control-lg w-auto")
+        .css("margin-left", "0");
+
+    // Style entries dropdown
+    $(".dataTables_length select")
+        .addClass("form-select form-select-lg")
+        .css("min-width", "80px");
+});
+</script>
+{% endblock %}
+
+
+{% endblock content %}
