@@ -5652,7 +5652,7 @@ def generate_jo_pdf():
         as_attachment=True,
         download_name='job_order_layout.pdf'
     )
-from flask import current_app, make_response
+from flask import current_app, make_response, send_file
 
 @app.route('/generate_travel_order_pdf/<int:permit_id>')
 @login_required
@@ -5741,7 +5741,9 @@ def generate_travel_order_pdf(permit_id):
         pdf.add_travel_order_form(permit)
 
         pdf_output = io.BytesIO()
-        pdf_bytes = pdf.output(dest='S').encode('latin1')
+        pdf_data = pdf.output(dest='S')
+        # ✅ FIXED: handle both string and bytearray
+        pdf_bytes = bytes(pdf_data) if isinstance(pdf_data, (bytes, bytearray)) else pdf_data.encode('latin-1')
         pdf_output.write(pdf_bytes)
         pdf_output.seek(0)
 
