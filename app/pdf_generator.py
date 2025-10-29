@@ -1410,7 +1410,8 @@ class TravelOrderPDF(FPDF):
        
         self.set_font("Arial", "B", 14)
         self.multi_cell(0, 4, "", border= "TLR")
-        self.multi_cell(0, 10, "TRAVEL ORDER", align="C", border="LR")
+        self.set_x(10)  # reset left margin
+        self.multi_cell(190, 10, "TRAVEL ORDER", align="C", border="LR")
         self.multi_cell(0, 4, "", border="LR")
 
 
