@@ -5585,7 +5585,7 @@ def generate_casualjob_pdf():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -5637,7 +5637,7 @@ def generate_jo_pdf():
 
     # Generate PDF in memory
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -5749,7 +5749,7 @@ def generate_travel_order_pdf(permit_id):
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -5791,8 +5791,9 @@ def generate_travel_log_pdf():
         })
 
     
+    
+    pdf_bytes = pdf.output(dest='S')
 
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
     pdf_output = io.BytesIO(pdf_bytes)
     pdf_output.seek(0)
 
@@ -6226,7 +6227,7 @@ def generate_clearance(permit_id):
     )
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -6511,7 +6512,7 @@ def generate_under_review_pdf():
 
     # Output PDF to BytesIO
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -6553,7 +6554,7 @@ def generate_interview_pdf():
 
     # Output PDF to BytesIO
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -6598,7 +6599,7 @@ def generate_hired_pdf():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -6640,7 +6641,7 @@ def generate_rejected_pdf():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -6694,7 +6695,7 @@ def head_casual_employee_pdf():
 
     # Output the PDF to memory
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -6730,7 +6731,7 @@ def head_job_order_employee_pdf():
         pdf.add_employee_row(idx, emp)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -6769,7 +6770,7 @@ def head_permanent_employee_pdf():
 
     # Prepare PDF for download
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -6881,7 +6882,7 @@ def generate_head_leave_summary_pdf():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -6967,7 +6968,7 @@ def generate_travel_summary_pdf():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -7074,7 +7075,7 @@ def generate_clearance_summary_pdf():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -7182,7 +7183,7 @@ def generate_coe_summary_pdf():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8396,7 +8397,7 @@ def generate_credit_summary_pdf():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8435,7 +8436,7 @@ def generate_credit_history_pdf():
 
     # Step 5: Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8515,7 +8516,7 @@ def user_credit_summary_pdf():
 
     # ---- OUTPUT PDF ----
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8571,7 +8572,7 @@ def user_credit_history_pdf():
 
     # ---- OUTPUT PDF ----
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8620,7 +8621,7 @@ def head_credit_history_pdf():
 
     # ✅ Step 5: Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8678,7 +8679,7 @@ def head_credit_summary_pdf():
 
     # ✅ Step 5: Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8723,7 +8724,7 @@ def generate_terminated_casualjob_pdf():
             display_index += 1
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8768,7 +8769,7 @@ def generate_terminated_permanent_pdf():
             display_index += 1
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8810,7 +8811,7 @@ def generate_terminated_joborder_pdf():
             display_index += 1
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8897,7 +8898,7 @@ def generate_ipcr_dept_pdf():
 
     # 📤 Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9005,7 +9006,7 @@ def generate_employee_ipcr_pdf():
 
     # ✅ Return PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9037,7 +9038,7 @@ def generate_open_issue_summary_pdf():
         pdf.add_issue_row(i, issue)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9065,7 +9066,7 @@ def generate_inprogress_issues_pdf():
         pdf.add_issue_row(idx, issue)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9093,7 +9094,7 @@ def generate_resolved_issues_pdf():
         pdf.add_issue_row(idx, issue)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9128,7 +9129,7 @@ def generate_ipcr_user_summary_pdf():
         pdf.add_ipcr_row(ipcr)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9165,7 +9166,7 @@ def generate_head_ipcr_period_summary_pdf():
         pdf.add_period_row(period, ipcrs, total_employees)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9214,7 +9215,7 @@ def generate_headdept_ipcr_employee_pdf():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9260,7 +9261,7 @@ def print_joborder():
             display_index += 1
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9392,7 +9393,7 @@ def print_casualjob():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9443,7 +9444,7 @@ def print_jo():
 
     # Generate PDF in memory
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9555,7 +9556,7 @@ def print_travel_order(permit_id):
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9595,7 +9596,7 @@ def print_travel_log():
             'tracking_id': log.tracking_id,
         })
 
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output = io.BytesIO(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9654,7 +9655,7 @@ def print_leave_application(permit_id):
 
     # Output PDF to bytes
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9710,7 +9711,7 @@ def print_clearance(permit_id):
     )
     
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -9995,7 +9996,7 @@ def print_under_review():
 
     # Output PDF to BytesIO
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -10037,7 +10038,7 @@ def print_interview():
 
     # Output PDF to BytesIO
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -10079,7 +10080,7 @@ def print_hired():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -10123,7 +10124,7 @@ def print_rejected():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -10177,7 +10178,7 @@ def head_print_casual_employee():
 
     # Output the PDF to memory
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -10213,7 +10214,7 @@ def head_print_job_order_employee():
         pdf.add_employee_row(idx, emp)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -10251,7 +10252,7 @@ def head_print_permanent_employee():
 
     # Prepare PDF for download
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -10363,7 +10364,7 @@ def print_head_leave_summary():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -10451,7 +10452,7 @@ def print_travel_summary():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -10559,7 +10560,7 @@ def print_clearance_summary():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -10666,7 +10667,7 @@ def print_coe_summary():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -11878,7 +11879,7 @@ def print_credit_summary():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -11919,7 +11920,7 @@ def print_credit_history():
 
     # Step 5: Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -11998,7 +11999,7 @@ def user_credit_summary_print():
 
     # ---- OUTPUT PDF ----
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12053,7 +12054,7 @@ def user_credit_history_print():
 
     # ---- OUTPUT PDF ----
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12102,7 +12103,7 @@ def head_credit_history_print():
 
     # ✅ Step 5: Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12160,7 +12161,7 @@ def head_credit_summary_print():
 
     # ✅ Step 5: Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12201,7 +12202,7 @@ def print_terminated_casualjob():
             display_index += 1
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12248,7 +12249,7 @@ def print_terminated_permanent():
             display_index += 1
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12290,7 +12291,7 @@ def print_terminated_joborder():
             display_index += 1
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12377,7 +12378,7 @@ def print_ipcr_dept():
 
     # 📤 Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12484,7 +12485,7 @@ def print_employee_ipcr():
 
     # ✅ Return PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12515,7 +12516,7 @@ def print_open_issue_summary():
         pdf.add_issue_row(i, issue)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12542,7 +12543,7 @@ def print_inprogress_issues():
         pdf.add_issue_row(idx, issue)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12569,7 +12570,7 @@ def print_resolved_issues():
         pdf.add_issue_row(idx, issue)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12603,7 +12604,7 @@ def print_ipcr_user_summary():
         pdf.add_ipcr_row(ipcr)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12640,7 +12641,7 @@ def print_head_ipcr_period_summary():
         pdf.add_period_row(period, ipcrs, total_employees)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12693,7 +12694,7 @@ def print_headdept_ipcr_employee():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
