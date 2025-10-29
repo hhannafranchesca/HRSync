@@ -5652,13 +5652,11 @@ def generate_jo_pdf():
         as_attachment=True,
         download_name='job_order_layout.pdf'
     )
-from flask import current_app, make_response, send_file
-
 @app.route('/generate_travel_order_pdf/<int:permit_id>')
 @login_required
 def generate_travel_order_pdf(permit_id):
     try:
-        # Fetch the travel order permit
+        # --- Fetch Permit ---
         permit = PermitRequest.query.filter_by(id=permit_id, permit_type='Travel Order').first()
         if not permit:
             abort(404)
@@ -5667,7 +5665,7 @@ def generate_travel_order_pdf(permit_id):
         if not employee:
             abort(404)
 
-        # Determine the employee's department
+        # --- Determine Department ---
         department_id = None
         if employee.permanent_details:
             department_id = employee.department_id
@@ -5702,6 +5700,7 @@ def generate_travel_order_pdf(permit_id):
                     .first()
                 )
 
+        # --- Set Head Info ---
         if head_user:
             head_approval = (
                 db.session.query(PermitRequestHistory)
@@ -5735,15 +5734,13 @@ def generate_travel_order_pdf(permit_id):
             permit.head_approver_position = "Head of Department"
             permit.head_approver_id = None
 
-        # --- Generate the PDF ---
+        # --- Generate PDF ---
         pdf = TravelOrderPDF()
         pdf.add_page()
         pdf.add_travel_order_form(permit)
 
         pdf_output = io.BytesIO()
-        pdf_data = pdf.output(dest='S')
-        # ✅ FIXED: handle both string and bytearray
-        pdf_bytes = bytes(pdf_data) if isinstance(pdf_data, (bytes, bytearray)) else pdf_data.encode('latin-1')
+        pdf_bytes = pdf.output(dest='S').encode('latin1')
         pdf_output.write(pdf_bytes)
         pdf_output.seek(0)
 
@@ -5753,7 +5750,6 @@ def generate_travel_order_pdf(permit_id):
     except Exception as e:
         current_app.logger.error(f"[ERROR] TravelOrderPDF failed: {e}", exc_info=True)
         return make_response(f"❌ PDF generation failed: {e}", 500)
-
 
 #TRAVEL HISTORY 
 @app.route('/generate_travel_log_pdf')

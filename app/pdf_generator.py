@@ -6,6 +6,7 @@ from calendar import monthrange
 from collections import defaultdict
 import textwrap
 import io
+import textwrap
 import tempfile
 from app.models import Users, UserSignature, Employee, PermanentEmployeeDetails, Position
 
@@ -1381,20 +1382,19 @@ class CertificationPDF(FPDF):
 
 
 #travel
-
-
 class TravelOrderPDF(FPDF):
     def add_travel_order_form(
         self, permit, department=None, position=None, head_approved=False,
         head_approver=None, head_approver_position=None, head_approver_id=None, current_stage=None
     ):
-        self.set_font("Arial", "B", 10)
+        self.set_auto_page_break(auto=True, margin=15)
+        self.set_font("Arial", "", 10)
         line_height = 8
-        cell_width = 92  # slightly smaller to avoid overflow
+        cell_width = 95  # increased width a bit for safety
 
-        # --- Safe extract of employee info ---
+        # --- Extract employee info safely ---
         employee = permit.employee
-        full_name = f"{employee.first_name} {employee.middle_name or ''} {employee.last_name}"
+        full_name = f"{employee.first_name} {employee.middle_name or ''} {employee.last_name}".strip()
 
         position = (
             employee.permanent_details.position.title if employee.permanent_details else
@@ -1402,16 +1402,9 @@ class TravelOrderPDF(FPDF):
             employee.job_order_details.position_title if employee.job_order_details else
             "N/A"
         )
-        if len(position) > 60:
-            position = position[:57] + "..."
 
         destination = (permit.travel_detail.destination if permit.travel_detail and permit.travel_detail.destination else "N/A")
-        if len(destination) > 60:
-            destination = destination[:57] + "..."
-
         purpose = (permit.travel_detail.purpose if permit.travel_detail and permit.travel_detail.purpose else "N/A")
-        if len(purpose) > 400:
-            purpose = purpose[:397] + "..."
 
         date_requested = permit.date_requested.strftime('%B %d, %Y') if permit.date_requested else "N/A"
         departure = permit.travel_detail.date_departure.strftime('%B %d, %Y') if permit.travel_detail and permit.travel_detail.date_departure else "N/A"
@@ -1419,158 +1412,60 @@ class TravelOrderPDF(FPDF):
         permit_id = str(permit.id)
 
         # --- Title ---
-        self.ln(2)
         self.set_font("Arial", "B", 14)
-        self.multi_cell(0, 4, "", border="TLR")
-        self.set_x(10)
-        self.multi_cell(190, 10, "TRAVEL ORDER", align="C", border="LR")
-        self.multi_cell(0, 4, "", border="LR")
+        self.cell(0, 10, "TRAVEL ORDER", align="C", ln=True)
+        self.ln(4)
 
-        # --- Row 1: Header Info ---
+        # --- Header info ---
         self.set_font("Arial", "", 10)
-        x_left = self.get_x()
-        y_top = self.get_y()
-        self.multi_cell(cell_width, line_height, "Municipality of VICTORIA\nProvince of LAGUNA", border=1)
-        h_left = self.get_y() - y_top
+        self.cell(cell_width, line_height, "Municipality of VICTORIA\nProvince of LAGUNA", border=1)
+        self.cell(cell_width, line_height, f"Date: {date_requested}\nTravel Order No.: {permit_id}", border=1, ln=1)
 
-        self.set_xy(x_left + cell_width, y_top)
-        self.multi_cell(cell_width, line_height, f"Date: {date_requested}\nTravel Order No.: {permit_id}", border=1)
-        h_right = self.get_y() - y_top
-        self.set_y(y_top + max(h_left, h_right))
+        # --- Name & Position ---
+        self.multi_cell(cell_width, line_height, f"Name: {full_name}", border=1)
+        self.set_xy(self.l_margin + cell_width, self.get_y() - line_height)
+        self.multi_cell(cell_width, line_height, f"Position: {position}", border=1)
+        self.ln(2)
 
-        # --- Row 2: Name & Position ---
-        y_top = self.get_y()
-        pos_text = textwrap.fill(f"Position: {position}", width=40)
-        self.set_xy(x_left + cell_width, y_top)
-        self.multi_cell(cell_width, line_height, pos_text, border=1)
-        h_right = self.get_y() - y_top
+        # --- Departure & Destination ---
+        self.multi_cell(0, line_height, f"Date/Time of Departure: {departure}", border='LTR')
+        self.multi_cell(0, line_height, f"Destination: {destination}", border='LRB')
 
-        self.set_xy(x_left, y_top)
-        name_text = textwrap.fill(f"Name: {full_name}", width=40)
-        self.multi_cell(cell_width, line_height, name_text, border=1)
-        h_left = self.get_y() - y_top
-        self.set_y(y_top + max(h_left, h_right))
+        # --- Arrival ---
+        self.multi_cell(0, line_height, f"Date/Time of Arrival: {arrival}", border=1)
 
-        # --- Row 3: Departure & Destination ---
-        triple_line_height = line_height * 3
-        y = self.get_y()
-        dest_text = textwrap.fill(destination, width=35)
-        self.set_xy(x_left, y)
-        self.cell(cell_width, line_height, f"Date/Time of Departure: {departure}", border='LTR')
-        self.set_xy(x_left + cell_width, y)
-        self.multi_cell(cell_width, line_height, f"Destination: {dest_text}", border='LTR')
-        self.set_y(y + triple_line_height)
-
-        # --- Row 4: Arrival ---
-        y = self.get_y()
-        self.cell(cell_width, line_height, f"Date/Time of Arrival: {arrival}", border='LR')
-        self.cell(cell_width, line_height, "Report No.", border='LR', ln=1)
-        self.cell(0, triple_line_height - line_height, "", border='LR', ln=1)
-
-        # --- Row 5: Purpose ---
-        y = self.get_y()
+        # --- Purpose ---
         self.cell(0, line_height, "Purpose of Travel / Remarks:", border='LTR', ln=1)
-        wrapped_purpose = textwrap.fill(purpose, width=95)
-        self.multi_cell(0, line_height, wrapped_purpose, border='LBR', align="L")
+        self.multi_cell(0, line_height, purpose, border='LBR', align="L")
 
-        # --- Row 6: Signature & Recommending Approval ---
+        # --- Recommending Approval ---
         y = self.get_y()
-        x_left = self.l_margin
-        x_right = x_left + cell_width
-        block_height = line_height * 4
-
-        # Right box (signature)
-        self.set_xy(x_right, y)
-        self.multi_cell(cell_width, line_height, "Signature of Officer/Employees\nAuthorized to Travel:", border=1, align="C")
-        self.cell(cell_width, line_height * 3, "", border='LRB', ln=1)
-
-        # Left box (recommending approval)
-        self.set_xy(x_left, y)
         self.cell(cell_width, line_height, "Recommending Approval:", border='LTR', ln=0)
+        self.cell(cell_width, line_height, "Signature of Officer/Employees\nAuthorized to Travel:", border='LTR', ln=1)
 
-        def format_name_with_middle_initial(full_name: str) -> str:
-            parts = full_name.split()
-            if len(parts) < 3:
-                return full_name
-            first = parts[0]
-            middle = parts[1:-1]
-            last = parts[-1]
-            middle_initials = " ".join([m[0].upper() + "." for m in middle])
-            return f"{first} {middle_initials} {last}"
-
-        head_name = format_name_with_middle_initial(getattr(permit, 'head_approver', "________________________"))
+        head_name = getattr(permit, 'head_approver', "________________________")
         head_position = getattr(permit, 'head_approver_position', "Head of Department")
+        self.multi_cell(cell_width, 10, f"{head_name}\n{head_position}", border='LBR', align="C")
+        self.set_xy(self.l_margin + cell_width, y + line_height)
+        self.multi_cell(cell_width, 10, "", border='LBR', align="C")
+        self.ln(2)
 
-        self.set_xy(x_left, y + line_height)
-        self.cell(cell_width, block_height - line_height, "", border='LRB', ln=0)
-        self.set_xy(x_left, y + line_height + 5)
-        self.multi_cell(cell_width, 5, f"{head_name}\n{head_position}", align='C')
-
-        # Insert Head signature
-        head_user = None
-        if getattr(permit, 'head_approver_id', None):
-            head_user = Users.query.get(permit.head_approver_id)
-        if head_user:
-            sig_record = UserSignature.query.filter_by(user_id=head_user.id).first()
-            if sig_record and sig_record.signature:
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
-                    tmp_sig.write(sig_record.signature)
-                    tmp_sig.flush()
-                    sig_path = tmp_sig.name
-                self.image(sig_path, x=x_left + 30, y=y + 5, w=30, h=10)
-
-        self.set_y(y + block_height)
-
-        # --- Row 7: Mayor Approval Box ---
-        y_start = self.get_y()
-        box_width = self.w - self.l_margin - self.r_margin
-
-        self.set_font("Arial", "", 10)
-        self.multi_cell(0, 8, "A P P R O V E D", align="C")
-        self.multi_cell(0, 4, "", border=0)
+        # --- Approved by Mayor ---
+        self.set_font("Arial", "B", 11)
+        self.multi_cell(0, 8, "A P P R O V E D", align="C", border=0)
         self.multi_cell(0, 6, "HON. DWIGHT C. KAMPITAN", align="C", border=0)
-
-        mayor_user = (
-            Users.query
-            .join(Employee)
-            .join(PermanentEmployeeDetails)
-            .join(Position)
-            .filter(Position.title == 'MUNICIPAL MAYOR')
-            .first()
-        )
-        if mayor_user:
-            sig_record = UserSignature.query.filter_by(user_id=mayor_user.id).first()
-            if sig_record and sig_record.signature:
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
-                    tmp_sig.write(sig_record.signature)
-                    tmp_sig.flush()
-                    sig_path = tmp_sig.name
-                self.image(sig_path, x=(self.w - 62) / 2, y=self.get_y() - 12, w=62, h=15)
-
         self.multi_cell(0, 6, "Municipal Mayor", align="C", border=0)
-        self.rect(self.l_margin, y_start, box_width, self.get_y() - y_start)
 
-        # --- Row 8: Certificate ---
-        self.multi_cell(0, 6, "", border=0)
-        y_start = self.get_y()
-        self.multi_cell(0, 6, "CERTIFICATE OF APPEARANCE", align="C", border=0)
-        self.multi_cell(0, 6, "", border=0)
-        self.multi_cell(0, 6, "THIS IS TO CERTIFY that the above named personnel appeared in this office for the", align="C")
-        self.multi_cell(0, 6, "purpose stated above on the date/s indicated below.", align="C")
-        y_end = self.get_y()
-        self.rect(self.l_margin, y_start, self.w - self.l_margin - self.r_margin, y_end - y_start)
-
-        # --- Row 9: Dates ---
+        # --- Certificate of Appearance ---
+        self.ln(5)
         self.set_font("Arial", "", 10)
-        self.multi_cell(190, 8, "FROM                                                TO                                                    PLACE\n\n", border=1)
+        self.multi_cell(0, 6, "CERTIFICATE OF APPEARANCE", align="C")
+        self.multi_cell(0, 6, "This is to certify that the above named personnel appeared in this office", align="C")
+        self.multi_cell(0, 6, "for the purpose stated above on the date/s indicated below.", align="C")
 
-        # --- Row 10: Final Signature ---
-        self.multi_cell(190, 7, "\n\n______________________________________\n  SIGNATURE", align="R", border=1)
-
-
-
-
-
+        self.ln(2)
+        self.multi_cell(0, 8, "FROM _______________________ TO _______________________ PLACE _______________________", border=1, align="L")
+        self.multi_cell(0, 8, "\n\n______________________________________\n  SIGNATURE", align="R", border=1)
 
 
 
