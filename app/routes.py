@@ -5465,9 +5465,7 @@ def edit_department(department_id):
 
 
 
-
-
-#PERMITDAW
+# PERMITDAW
 @app.route('/generate_pdf')
 @login_required
 @role_required('hr')
@@ -5489,7 +5487,7 @@ def generate_pdf():
                 Employee.query.join(PermanentEmployeeDetails)
                 .filter(PermanentEmployeeDetails.position_id == pos.id)
                 .filter(Employee.department_id == dept.id)
-                .filter(Employee.employment_status == 'active')   # ✅ Only active
+                .filter(Employee.employment_status == 'active')  # ✅ Only active
                 .all()
             )
 
@@ -5513,7 +5511,7 @@ def generate_pdf():
                         class PermanentDetails:
                             item_number = ""
                             position = pos
-                            salary_grade = pos.salary_grade if hasattr(pos, 'salary_grade') else ""
+                            salary_grade = getattr(pos, 'salary_grade', "")
                             authorized_salary = ""
                             actual_salary = ""
                             step = ""
@@ -5534,11 +5532,9 @@ def generate_pdf():
 
                     pdf.table_row(Vacant())
 
-    # Output to PDF
-    pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
-    pdf_output.write(pdf_bytes)
-    pdf_output.seek(0)
+    # ✅ FIXED PDF OUTPUT
+    pdf_bytes = pdf.output(dest='S')  # returns bytes already
+    pdf_output = io.BytesIO(pdf_bytes)
 
     return send_file(
         pdf_output,
@@ -5546,7 +5542,6 @@ def generate_pdf():
         as_attachment=True,
         download_name='employee_report.pdf'
     )
-
 
 
 #causal 
