@@ -5650,14 +5650,16 @@ def generate_jo_pdf():
 
 # Travel Order PDF Generator
 # Helper function to truncate long text
-def safe_text(text):
-    if not text:
-        return ""
-    return text if len(text) <= 50 else text[:50] + "…"
-
 @app.route('/generate_travel_order_pdf/<int:permit_id>')
 @login_required
 def generate_travel_order_pdf(permit_id):
+
+    # --- Safe text helper ---
+    def safe_text_local(text, max_length=50):
+        if not text:
+            return ""
+        return text if len(text) <= max_length else text[:max_length] + "…"
+
     # Fetch the travel order permit
     permit = PermitRequest.query.filter_by(id=permit_id, permit_type='Travel Order').first()
     if not permit:
@@ -5723,17 +5725,17 @@ def generate_travel_order_pdf(permit_id):
         )
 
         if head_approval:
-            permit.head_approver = safe_text(head_user.name, 40)
+            permit.head_approver = safe_text_local(head_user.name, 40)
 
             # Determine head's position safely
             head_employee = getattr(head_user, 'employee', None)
             if head_employee:
                 if head_employee.permanent_details and head_employee.permanent_details.position:
-                    permit.head_approver_position = safe_text(head_employee.permanent_details.position.title, 30)
+                    permit.head_approver_position = safe_text_local(head_employee.permanent_details.position.title, 30)
                 elif head_employee.casual_details and head_employee.casual_details.position:
-                    permit.head_approver_position = safe_text(head_employee.casual_details.position.title, 30)
+                    permit.head_approver_position = safe_text_local(head_employee.casual_details.position.title, 30)
                 elif head_employee.job_order_details:
-                    permit.head_approver_position = safe_text(head_employee.job_order_details.position_title, 30)
+                    permit.head_approver_position = safe_text_local(head_employee.job_order_details.position_title, 30)
                 else:
                     permit.head_approver_position = "Head of Department"
             else:
@@ -5756,8 +5758,10 @@ def generate_travel_order_pdf(permit_id):
     pdf.add_page()
 
     # Ensure permit fields are safe for PDF
-    permit.safe_employee_name = safe_text(f"{employee.last_name}, {employee.first_name} {employee.middle_name or ''}", 50)
-    permit.safe_department_name = safe_text(employee.department.name if employee.department else "N/A", 50)
+    permit.safe_employee_name = safe_text_local(
+        f"{employee.last_name}, {employee.first_name} {employee.middle_name or ''}", 50
+    )
+    permit.safe_department_name = safe_text_local(employee.department.name if employee.department else "N/A", 50)
     permit.head_approver = permit.head_approver or "________________________"
     permit.head_approver_position = permit.head_approver_position or "Head of Department"
 
@@ -5768,14 +5772,13 @@ def generate_travel_order_pdf(permit_id):
     pdf_output = io.BytesIO(pdf_bytes)
     pdf_output.seek(0)
 
-    filename = f"TravelOrder_{safe_text(employee.last_name,30)}_{safe_text(employee.first_name,20)}.pdf"
+    filename = f"TravelOrder_{safe_text_local(employee.last_name,30)}_{safe_text_local(employee.first_name,20)}.pdf"
     return send_file(
         pdf_output,
         mimetype='application/pdf',
         as_attachment=True,
         download_name=filename
     )
-
 
 #TRAVEL HISTORY 
 @app.route('/generate_travel_log_pdf')

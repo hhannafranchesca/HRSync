@@ -1316,16 +1316,15 @@ class CertificationPDF(FPDF):
         usable_width = page_width - left_margin - right_margin
         indent = 22
 
-        # First line (always) – indented
+       # First line (always) – indented
         first_line = "This certification is issued upon request of the above-named person"
         self.set_x(left_margin + indent)
         self.multi_cell(usable_width - indent, 8, first_line, align='L')
 
-        # Second line (reason or default) – no indentation
-        if permit.coe_detail and permit.coe_detail.reason:
-            second_line = f"for {permit.coe_detail.reason}"
-        else:
-            second_line = "for whatever legal purpose it may serve."
+        # Second line – always default text
+        second_line = "for whatever legal purpose it may serve."
+        self.set_x(left_margin)
+        self.multi_cell(usable_width, 8, second_line, align='L')
 
         # Force a line break before second line
         self.ln(1)  # optional small vertical gap
