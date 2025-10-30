@@ -1380,11 +1380,8 @@ class CertificationPDF(FPDF):
 class TravelOrderPDF(FPDF):
 
     def add_travel_order_form(self, permit):
-        # --- Local safe_text function ---
-        def safe_text(text, max_length=50):
-            if not text:
-                return ""
-            return text if len(text) <= max_length else text[:max_length] + "…"
+        import tempfile
+        from app.models import Users, UserSignature
 
         # Fonts & line heights
         self.set_font("Arial", "B", 10)
@@ -1411,7 +1408,8 @@ class TravelOrderPDF(FPDF):
 
         # --- Title ---
         self.set_font("Arial", "B", 14)
-        self.multi_cell(0, 8, "TRAVEL ORDER", align="C", border=0)
+        self.set_x(self.l_margin)
+        self.multi_cell(page_width, 8, "TRAVEL ORDER", align="C")
         self.ln(2)
 
         # --- Row 1: Municipality & Date/Permit ID ---
@@ -1464,15 +1462,15 @@ class TravelOrderPDF(FPDF):
         y_top = self.get_y()
         self.set_xy(x_left, y_top)
         self.multi_cell(cell_width, line_height, "Recommending Approval:", border=1)
-
         head_name = safe_text(getattr(permit, 'head_approver', "________________________"), 30)
         head_position = safe_text(getattr(permit, 'head_approver_position', "Head of Department"), 30)
         self.set_xy(x_left, y_top + line_height)
         self.multi_cell(cell_width, line_height, f"{head_name}\n{head_position}", border=1, align="C")
 
-        head_user = getattr(permit, 'head_approver_id', None)
-        if head_user:
-            user_obj = Users.query.get(head_user)
+        # Head signature
+        head_user_id = getattr(permit, 'head_approver_id', None)
+        if head_user_id:
+            user_obj = Users.query.get(head_user_id)
             sig_record = UserSignature.query.filter_by(user_id=user_obj.id).first()
             if sig_record and sig_record.signature:
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
@@ -1483,9 +1481,11 @@ class TravelOrderPDF(FPDF):
 
         # --- Row 7: Mayor Approval ---
         self.ln(20)
-        self.multi_cell(0, line_height, "A P P R O V E D", align="C")
-        self.multi_cell(0, line_height, "HON. DWIGHT C. KAMPITAN", align="C")
-        self.multi_cell(0, line_height, "Municipal Mayor", align="C")
+        self.set_x(self.l_margin)
+        mayor_text_width = page_width
+        self.multi_cell(mayor_text_width, line_height, "A P P R O V E D", align="C")
+        self.multi_cell(mayor_text_width, line_height, "HON. DWIGHT C. KAMPITAN", align="C")
+        self.multi_cell(mayor_text_width, line_height, "Municipal Mayor", align="C")
 
         mayor_user = (
             Users.query.join(Employee)
@@ -1505,8 +1505,9 @@ class TravelOrderPDF(FPDF):
 
         # --- Row 8: Certificate block ---
         self.ln(10)
-        self.multi_cell(0, line_height, "CERTIFICATE OF APPEARANCE", align="C", border=1)
-        self.multi_cell(0, line_height, f"THIS IS TO CERTIFY that {full_name} appeared for the stated purpose above.", align="C", border=1)
+        self.set_x(self.l_margin)
+        self.multi_cell(page_width, line_height, "CERTIFICATE OF APPEARANCE", align="C", border=1)
+        self.multi_cell(page_width, line_height, f"THIS IS TO CERTIFY that {full_name} appeared for the stated purpose above.", align="C", border=1)
         self.ln(5)
 
         # --- Row 9: FROM / TO / PLACE Table ---
@@ -1519,6 +1520,7 @@ class TravelOrderPDF(FPDF):
         self.cell(col_width, line_height*2, "________________________", border=1, align="C")
         self.cell(col_width, line_height*2, "________________________", border=1, align="C")
         self.ln(10)
+
 
 
 
