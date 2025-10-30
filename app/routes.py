@@ -5837,7 +5837,7 @@ def user_travel_logs_pdf():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest="S").encode("latin1")
+    pdf_bytes = pdf.output(dest="S")
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -5894,7 +5894,7 @@ def user_travel_logs_print():
 
         # Output PDF
         pdf_output = io.BytesIO()
-        pdf_bytes = pdf.output(dest="S").encode("latin1")
+        pdf_bytes = pdf.output(dest="S")
         pdf_output.write(pdf_bytes)
         pdf_output.seek(0)
 
@@ -5943,7 +5943,7 @@ def head_travel_logs_print():
     # Otherwise, do nothing — header is enough
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest="S").encode("latin1")
+    pdf_bytes = pdf.output(dest="S")
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -5991,7 +5991,7 @@ def head_travel_logs_pdf():
     # Otherwise, do nothing — header is enough
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest="S").encode("latin1")
+    pdf_bytes = pdf.output(dest="S")
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
