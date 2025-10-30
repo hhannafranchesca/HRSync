@@ -6102,12 +6102,15 @@ def generate_leave_application_pdf(permit_id):
     pdf.show_header = False
     pdf.add_page()
 
-    # ✅ Return PDF response
-    pdf_output = pdf.output(dest='S')
-    return Response(
+    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_output = io.BytesIO(pdf_bytes)
+    pdf_output.seek(0)
+
+    return send_file(
         pdf_output,
         mimetype='application/pdf',
-        headers={'Content-Disposition': f'attachment; filename=leave_application_{permit_id}.pdf'}
+        as_attachment=True,
+        download_name=f'leave_application_{permit_id}.pdf'
     )
 
 @app.route('/generate_clearance/<int:permit_id>')
