@@ -5825,8 +5825,6 @@ def user_travel_logs_pdf():
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    # Always add column headers (even if no logs)
-    pdf.add_table_header()  # <-- Make sure your PDF class has this method
 
     if logs:
         for log in logs:
@@ -5882,9 +5880,7 @@ def user_travel_logs_print():
         pdf.add_page()
         pdf.set_auto_page_break(auto=True, margin=15)
 
-        # Always add column headers (even if no logs)
-        pdf.add_table_header()  # <-- Make sure your PDF class has this method
-
+   
         if logs:
             for log in logs:
                 pdf.add_log_row(log)
