@@ -5898,7 +5898,7 @@ def user_travel_logs_print():
         return send_file(
             pdf_output,
             mimetype="application/pdf",
-            as_attachment=True,
+            as_attachment=False,
             download_name=filename
         )
 
@@ -7333,7 +7333,7 @@ def generate_hr_leave_summary_pdf():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin-1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -7443,7 +7443,7 @@ def generate_hr_travel_summary_pdf():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin-1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -7555,7 +7555,7 @@ def generate_hr_clearance_summary_pdf():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -7718,7 +7718,7 @@ def generate_depthead_leave_summary_pdf():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin-1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -7827,7 +7827,7 @@ def generate_depthead_travel_summary_pdf():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin-1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -7939,7 +7939,7 @@ def generate_depthead_clearance_summary_pdf():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8075,7 +8075,7 @@ def generate_mayor_leave_summary_pdf():
         pdf.add_leave_row(data)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8193,7 +8193,7 @@ def generate_mayor_travel_summary_pdf():
         pdf.add_travel_row(idx, data)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8324,7 +8324,7 @@ def generate_mayor_clearance_summary_pdf():
         row_idx += 1
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
