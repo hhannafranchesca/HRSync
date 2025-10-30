@@ -5647,138 +5647,85 @@ def generate_jo_pdf():
         as_attachment=True,
         download_name='job_order_layout.pdf'
     )
+from app.pdf_generator import safe_text
 
 # Travel Order PDF Generator
-# Helper function to truncate long text
+
+# ✅ Flask Route for Travel Order PDF
 @app.route('/generate_travel_order_pdf/<int:permit_id>')
 @login_required
 def generate_travel_order_pdf(permit_id):
-
-    # --- Safe text helper ---
-    def safe_text_local(text, max_length=50):
-        if not text:
-            return ""
-        return text if len(text) <= max_length else text[:max_length] + "…"
-
-    # Fetch the travel order permit
     permit = PermitRequest.query.filter_by(id=permit_id, permit_type='Travel Order').first()
     if not permit:
         abort(404, description="Travel Order permit not found")
 
-    # Fetch the employee
     employee = permit.employee
     if not employee:
         abort(404, description="Employee not found")
 
-    # Determine the employee's department_id
-    department_id = None
-    if employee.permanent_details:
-        department_id = employee.department_id
-    elif employee.casual_details:
-        department_id = getattr(employee.casual_details, 'assigned_department_id', None)
-    elif employee.job_order_details:
-        department_id = getattr(employee.job_order_details, 'assigned_department_id', None)
+    department_id = getattr(employee, 'department_id', None)
 
-    # --- Find the Department Head ---
+    # --- Find Department Head ---
     head_user = None
-
-    # Special case: HR department
     if employee.department and employee.department.name == "Office of the Municipal Human Resource Management Officer":
         head_user = (
             Users.query.join(Employee)
-            .outerjoin(PermanentEmployeeDetails, PermanentEmployeeDetails.employee_id == Employee.id)
-            .outerjoin(CasualEmployeeDetails, CasualEmployeeDetails.employee_id == Employee.id)
-            .outerjoin(JobOrderDetails, JobOrderDetails.employee_id == Employee.id)
-            .outerjoin(Position, 
-                (Position.id == PermanentEmployeeDetails.position_id) |
-                (Position.id == CasualEmployeeDetails.position_id)
-            )
+            .join(PermanentEmployeeDetails, isouter=True)
+            .join(CasualEmployeeDetails, isouter=True)
+            .join(JobOrderDetails, isouter=True)
+            .join(Position, isouter=True)
             .filter(
-                ((Position.title == "MUNICIPAL GOVERNMENT DEPARTMENT HEAD I") |
-                 (JobOrderDetails.position_title == "MUNICIPAL GOVERNMENT DEPARTMENT HEAD I"))
-            )
+                (Position.title == "MUNICIPAL GOVERNMENT DEPARTMENT HEAD I") |
+                (JobOrderDetails.position_title == "MUNICIPAL GOVERNMENT DEPARTMENT HEAD I")
+            ).first()
+        )
+    elif department_id:
+        head_user = (
+            Users.query.join(Employee)
+            .filter(Employee.department_id == department_id, Users.role == "Head")
             .first()
         )
-    else:
-        # Regular department head
-        if department_id:
-            head_user = (
-                Users.query.join(Employee)
-                .filter(
-                    Employee.department_id == department_id,
-                    Users.role == "Head"
-                )
-                .first()
-            )
 
-    # --- Fetch latest head approval ---
+    # --- Head approval lookup ---
     if head_user:
         head_approval = (
             db.session.query(PermitRequestHistory)
-            .filter(
-                PermitRequestHistory.permit_request_id == permit.id,
-                PermitRequestHistory.action_by == head_user.id,
-                PermitRequestHistory.action == "Approved"
-            )
+            .filter_by(permit_request_id=permit.id, action_by=head_user.id, action="Approved")
             .order_by(PermitRequestHistory.timestamp.desc())
             .first()
         )
-
         if head_approval:
-            permit.head_approver = safe_text_local(head_user.name, 40)
-
-            # Determine head's position safely
-            head_employee = getattr(head_user, 'employee', None)
-            if head_employee:
-                if head_employee.permanent_details and head_employee.permanent_details.position:
-                    permit.head_approver_position = safe_text_local(head_employee.permanent_details.position.title, 30)
-                elif head_employee.casual_details and head_employee.casual_details.position:
-                    permit.head_approver_position = safe_text_local(head_employee.casual_details.position.title, 30)
-                elif head_employee.job_order_details:
-                    permit.head_approver_position = safe_text_local(head_employee.job_order_details.position_title, 30)
-                else:
-                    permit.head_approver_position = "Head of Department"
-            else:
-                permit.head_approver_position = "Head of Department"
-
+            permit.head_approver = safe_text(head_user.name, 40)
+            head_emp = getattr(head_user, 'employee', None)
+            if head_emp:
+                pos = (
+                    head_emp.permanent_details.position.title if head_emp.permanent_details and head_emp.permanent_details.position else
+                    head_emp.casual_details.position.title if head_emp.casual_details and head_emp.casual_details.position else
+                    head_emp.job_order_details.position_title if head_emp.job_order_details else
+                    "Head of Department"
+                )
+                permit.head_approver_position = safe_text(pos, 30)
             permit.head_approver_id = head_user.id
         else:
-            # Head exists but not approved yet
             permit.head_approver = "________________________"
             permit.head_approver_position = "Head of Department"
             permit.head_approver_id = None
     else:
-        # No head found
         permit.head_approver = "________________________"
         permit.head_approver_position = "Head of Department"
         permit.head_approver_id = None
 
-    # --- Generate the PDF ---
+    # --- Generate PDF ---
     pdf = TravelOrderPDF()
     pdf.add_page()
+    pdf.add_travel_order_form(permit)
 
-    # Ensure permit fields are safe for PDF
-    permit.safe_employee_name = safe_text_local(
-        f"{employee.last_name}, {employee.first_name} {employee.middle_name or ''}", 50
-    )
-    permit.safe_department_name = safe_text_local(employee.department.name if employee.department else "N/A", 50)
-    permit.head_approver = permit.head_approver or "________________________"
-    permit.head_approver_position = permit.head_approver_position or "Head of Department"
-
-    pdf.add_travel_order_form(permit)  # make sure TravelOrderPDF uses multi_cell() for long text
-
-    # --- Output PDF ---
-    pdf_bytes = pdf.output(dest='S')  # fpdf2 returns bytearray
+    pdf_bytes = pdf.output(dest="S").encode("latin1")
     pdf_output = io.BytesIO(pdf_bytes)
     pdf_output.seek(0)
 
-    filename = f"TravelOrder_{safe_text_local(employee.last_name,30)}_{safe_text_local(employee.first_name,20)}.pdf"
-    return send_file(
-        pdf_output,
-        mimetype='application/pdf',
-        as_attachment=True,
-        download_name=filename
-    )
+    filename = f"TravelOrder_{safe_text(employee.last_name, 30)}_{safe_text(employee.first_name, 20)}.pdf"
+    return send_file(pdf_output, mimetype="application/pdf", as_attachment=True, download_name=filename)
 
 #TRAVEL HISTORY 
 @app.route('/generate_travel_log_pdf')

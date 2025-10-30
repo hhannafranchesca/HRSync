@@ -1378,7 +1378,7 @@ class CertificationPDF(FPDF):
 
 #travel
 
-# ✅ Safe text helper (fixes the TypeError)
+# ✅ Safe text helper (used everywhere)
 def safe_text(text, max_length=None):
     """Safely handle None text and optionally truncate long values."""
     if not text:
@@ -1389,10 +1389,9 @@ def safe_text(text, max_length=None):
     return text
 
 
+# ✅ Travel Order PDF Class
 class TravelOrderPDF(FPDF):
-
     def add_travel_order_form(self, permit):
-        # Fonts & line heights
         self.set_font("Arial", "B", 10)
         line_height = 6
         page_width = self.w - self.l_margin - self.r_margin
@@ -1420,14 +1419,13 @@ class TravelOrderPDF(FPDF):
 
         # --- Title ---
         self.set_font("Arial", "B", 14)
-        self.multi_cell(0, 8, "TRAVEL ORDER", align="C", border=0)
+        self.multi_cell(0, 8, "TRAVEL ORDER", align="C")
         self.ln(2)
 
         # --- Row 1: Municipality & Date ---
         self.set_font("Arial", "", 10)
         x_left = self.get_x()
         y_top = self.get_y()
-        self.set_xy(x_left, y_top)
         self.multi_cell(cell_width, line_height, "Municipality of VICTORIA\nProvince of LAGUNA", border=1)
         h_left = self.get_y() - y_top
 
@@ -1468,7 +1466,7 @@ class TravelOrderPDF(FPDF):
         self.multi_cell(cell_width, line_height * 3, "", border=1)
         self.set_y(y_top + line_height * 4)
 
-        # --- Row 6: Recommending Approval (Head) ---
+        # --- Recommending Approval ---
         y_top = self.get_y()
         self.set_xy(x_left, y_top)
         self.multi_cell(cell_width, line_height, "Recommending Approval:", border=1)
@@ -1487,10 +1485,9 @@ class TravelOrderPDF(FPDF):
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
                     tmp_sig.write(sig_record.signature)
                     tmp_sig.flush()
-                    sig_path = tmp_sig.name
-                self.image(sig_path, x=x_left + 5, y=self.get_y() - 20, w=40, h=15)
+                    self.image(tmp_sig.name, x=x_left + 5, y=self.get_y() - 20, w=40, h=15)
 
-        # --- Row 7: Mayor Approval ---
+        # --- Mayor Approval ---
         self.ln(20)
         self.set_font("Arial", "B", 10)
         self.multi_cell(0, line_height, "A P P R O V E D", align="C")
@@ -1510,10 +1507,9 @@ class TravelOrderPDF(FPDF):
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
                     tmp_sig.write(sig_record.signature)
                     tmp_sig.flush()
-                    sig_path = tmp_sig.name
-                self.image(sig_path, x=(self.w - 40) / 2, y=self.get_y() - 15, w=40, h=15)
+                    self.image(tmp_sig.name, x=(self.w - 40) / 2, y=self.get_y() - 15, w=40, h=15)
 
-        # --- Row 8: Certificate block ---
+        # --- Certificate of Appearance ---
         self.ln(10)
         self.set_font("Arial", "B", 10)
         self.multi_cell(0, line_height, "CERTIFICATE OF APPEARANCE", align="C", border=1)
@@ -1521,16 +1517,17 @@ class TravelOrderPDF(FPDF):
         self.multi_cell(0, line_height, f"This is to certify that {full_name} appeared for the stated purpose above.", align="C", border=1)
         self.ln(5)
 
-        # --- Row 9: FROM / TO / PLACE Table ---
+        # --- FROM / TO / PLACE ---
         col_width = page_width / 3
         self.cell(col_width, line_height, "FROM", border=1, align="C")
         self.cell(col_width, line_height, "TO", border=1, align="C")
         self.cell(col_width, line_height, "PLACE", border=1, align="C")
         self.ln()
-        self.cell(col_width, line_height * 2, "________________________", border=1, align="C")
-        self.cell(col_width, line_height * 2, "________________________", border=1, align="C")
-        self.cell(col_width, line_height * 2, "________________________", border=1, align="C")
-        self.ln(10)
+        for _ in range(2):
+            self.cell(col_width, line_height, "________________________", border=1, align="C")
+            self.cell(col_width, line_height, "________________________", border=1, align="C")
+            self.cell(col_width, line_height, "________________________", border=1, align="C")
+            self.ln()
 
 
 
