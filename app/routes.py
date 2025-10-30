@@ -11196,7 +11196,7 @@ def print_deptHR_leave_summary():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin-1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -11305,7 +11305,7 @@ def print_deptHEAD_travel_summary():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin-1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -11417,7 +11417,7 @@ def print_deptheas_clearance_summary():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -11553,7 +11553,7 @@ def print_mayor_leave_summary():
         pdf.add_leave_row(data)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -11671,7 +11671,7 @@ def print_mayor_travel_summary():
         pdf.add_travel_row(idx, data)
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -11802,7 +11802,7 @@ def print_mayor_clerance_summary():
         row_idx += 1
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
