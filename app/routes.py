@@ -5649,32 +5649,38 @@ def generate_jo_pdf():
     )
 
 # Travel Order PDF Generator
+# Helper function to truncate long text
+def safe_text(text, max_length=50):
+    if not text:
+        return ""
+    return text if len(text) <= max_length else text[:max_length] + "…"
+
 @app.route('/generate_travel_order_pdf/<int:permit_id>')
 @login_required
 def generate_travel_order_pdf(permit_id):
     # Fetch the travel order permit
     permit = PermitRequest.query.filter_by(id=permit_id, permit_type='Travel Order').first()
     if not permit:
-        abort(404)
+        abort(404, description="Travel Order permit not found")
 
-    # Fetch the employee who requested the permit
+    # Fetch the employee
     employee = permit.employee
     if not employee:
-        abort(404)
+        abort(404, description="Employee not found")
 
-    # Determine the employee's department
+    # Determine the employee's department_id
     department_id = None
     if employee.permanent_details:
         department_id = employee.department_id
     elif employee.casual_details:
-        department_id = employee.casual_details.assigned_department_id
+        department_id = getattr(employee.casual_details, 'assigned_department_id', None)
     elif employee.job_order_details:
-        department_id = employee.job_order_details.assigned_department_id
+        department_id = getattr(employee.job_order_details, 'assigned_department_id', None)
 
     # --- Find the Department Head ---
     head_user = None
 
-    # Special case: employee belongs to HR
+    # Special case: HR department
     if employee.department and employee.department.name == "Office of the Municipal Human Resource Management Officer":
         head_user = (
             Users.query.join(Employee)
@@ -5692,7 +5698,7 @@ def generate_travel_order_pdf(permit_id):
             .first()
         )
     else:
-        # Regular case: find head of employee's department
+        # Regular department head
         if department_id:
             head_user = (
                 Users.query.join(Employee)
@@ -5717,27 +5723,30 @@ def generate_travel_order_pdf(permit_id):
         )
 
         if head_approval:
-            permit.head_approver = head_user.name
+            permit.head_approver = safe_text(head_user.name, 40)
 
-            # Determine head's position
-            head_employee = head_user.employee
-            if head_employee.permanent_details:
-                permit.head_approver_position = head_employee.permanent_details.position.title
-            elif head_employee.casual_details:
-                permit.head_approver_position = head_employee.casual_details.position.title
-            elif head_employee.job_order_details:
-                permit.head_approver_position = head_employee.job_order_details.position_title
+            # Determine head's position safely
+            head_employee = getattr(head_user, 'employee', None)
+            if head_employee:
+                if head_employee.permanent_details and head_employee.permanent_details.position:
+                    permit.head_approver_position = safe_text(head_employee.permanent_details.position.title, 30)
+                elif head_employee.casual_details and head_employee.casual_details.position:
+                    permit.head_approver_position = safe_text(head_employee.casual_details.position.title, 30)
+                elif head_employee.job_order_details:
+                    permit.head_approver_position = safe_text(head_employee.job_order_details.position_title, 30)
+                else:
+                    permit.head_approver_position = "Head of Department"
             else:
                 permit.head_approver_position = "Head of Department"
 
             permit.head_approver_id = head_user.id
         else:
-            # Head exists but has not approved yet
+            # Head exists but not approved yet
             permit.head_approver = "________________________"
             permit.head_approver_position = "Head of Department"
             permit.head_approver_id = None
     else:
-        # No head found for this department
+        # No head found
         permit.head_approver = "________________________"
         permit.head_approver_position = "Head of Department"
         permit.head_approver_id = None
@@ -5745,15 +5754,21 @@ def generate_travel_order_pdf(permit_id):
     # --- Generate the PDF ---
     pdf = TravelOrderPDF()
     pdf.add_page()
-    pdf.add_travel_order_form(permit)  # permit already has head info
+
+    # Ensure permit fields are safe for PDF
+    permit.safe_employee_name = safe_text(f"{employee.last_name}, {employee.first_name} {employee.middle_name or ''}", 50)
+    permit.safe_department_name = safe_text(employee.department.name if employee.department else "N/A", 50)
+    permit.head_approver = permit.head_approver or "________________________"
+    permit.head_approver_position = permit.head_approver_position or "Head of Department"
+
+    pdf.add_travel_order_form(permit)  # make sure TravelOrderPDF uses multi_cell() for long text
 
     # --- Output PDF ---
-    pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S')
-    pdf_output.write(pdf_bytes)
+    pdf_bytes = pdf.output(dest='S')  # fpdf2 returns bytearray
+    pdf_output = io.BytesIO(pdf_bytes)
     pdf_output.seek(0)
 
-    filename = f"TravelOrder_{employee.last_name}_{employee.first_name}.pdf"
+    filename = f"TravelOrder_{safe_text(employee.last_name,30)}_{safe_text(employee.first_name,20)}.pdf"
     return send_file(
         pdf_output,
         mimetype='application/pdf',
@@ -6457,7 +6472,7 @@ def generate_coe_pdf(permit_id):
 
     # Output PDF to bytes
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')  # output as string and encode
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
