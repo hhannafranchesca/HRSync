@@ -5902,7 +5902,7 @@ def user_travel_logs_print():
         return send_file(
             pdf_output,
             mimetype="application/pdf",
-            as_attachment=False,
+            as_attachment=True,
             download_name=filename
         )
 
@@ -5913,12 +5913,10 @@ def user_travel_logs_print():
 @login_required
 @role_required('head')
 def head_travel_logs_print():
-    # Get head's department
     head_department_id = current_user.employee.department_id  
     department = Department.query.get(head_department_id)
     department_name = department.name if department else "No Department"
 
-    # Get logs for that department
     logs = (
         db.session.query(TravelLog)
         .join(TravelOrder)
@@ -5934,25 +5932,16 @@ def head_travel_logs_print():
         .all()
     )
 
-    # Build PDF
-    pdf = TravelLogheadPDF(
-        department_name=department_name,
-        orientation="L", unit="mm", format="A4"
-    )
+    pdf = TravelLogheadPDF(department_name=department_name, orientation='L', unit='mm', format='A4')
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    # Add headers (always)
-    pdf.add_table_header()  # <-- Make sure your PDF class has this method
-
+    # Only add log rows if there are any
     if logs:
         for log in logs:
             pdf.add_log_row(log)
-    else:
-        # Add a "No records found" row
-        pdf.add_empty_row("No travel records found for this department.")
+    # Otherwise, do nothing — header is enough
 
-    # Output PDF
     pdf_output = io.BytesIO()
     pdf_bytes = pdf.output(dest="S").encode("latin1")
     pdf_output.write(pdf_bytes)
@@ -5968,7 +5957,6 @@ def head_travel_logs_print():
 
 
 # TRAVEL LOGS HEAD (PDF)
-# HEAD TRAVEL LOGS PDF
 @app.route("/head_travel_logs_pdf")
 @login_required
 @role_required('head')
@@ -5977,7 +5965,6 @@ def head_travel_logs_pdf():
     department = Department.query.get(head_department_id)
     department_name = department.name if department else "No Department"
 
-    # Get logs for that department
     logs = (
         db.session.query(TravelLog)
         .join(TravelOrder)
@@ -5993,25 +5980,16 @@ def head_travel_logs_pdf():
         .all()
     )
 
-    # Build PDF
-    pdf = TravelLogheadPDF(
-        department_name=department_name,
-        orientation="L", unit="mm", format="A4"
-    )
+    pdf = TravelLogheadPDF(department_name=department_name, orientation='L', unit='mm', format='A4')
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    # Add headers (always)
-    pdf.add_table_header()  # <-- Make sure your PDF class has this method
-
+    # Only add log rows if there are any
     if logs:
         for log in logs:
             pdf.add_log_row(log)
-    else:
-        # Add a "No records found" row
-        pdf.add_empty_row("No travel records found for this department.")
+    # Otherwise, do nothing — header is enough
 
-    # Output PDF
     pdf_output = io.BytesIO()
     pdf_bytes = pdf.output(dest="S").encode("latin1")
     pdf_output.write(pdf_bytes)
