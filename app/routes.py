@@ -8701,7 +8701,7 @@ def head_credit_summary_pdf():
 def generate_terminated_casualjob_pdf():
     pdf = HeadTerminatedCasualPDF(department_name="All Departments",)
     pdf.add_page()
-    pdf.draw_table_headers()
+
 
     terminated_employees = Employee.query.filter(
         Employee.status.ilike('Casual'),
@@ -9933,7 +9933,7 @@ def print_ipcr():
 
 
     # ✅ Output PDF
-    pdf_bytes = pdf.output(dest='S').encode('latin-1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output = io.BytesIO(pdf_bytes)
     pdf_output.seek(0)
 
@@ -12179,7 +12179,6 @@ def head_credit_summary_print():
 def print_terminated_casualjob():
     pdf = HeadTerminatedCasualPDF(department_name="All Departments",)
     pdf.add_page()
-    pdf.draw_table_headers()
 
     terminated_employees = Employee.query.filter(
         Employee.status.ilike('Casual'),

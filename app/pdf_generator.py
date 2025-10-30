@@ -654,9 +654,6 @@ class JobOrderPDF(FPDF):
 
 
 
-#IPCR 
-
-
 
 #IPCR 
 
