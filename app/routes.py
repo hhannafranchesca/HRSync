@@ -6448,7 +6448,7 @@ def generate_ipcr():
 
 
     # ✅ Output PDF
-    pdf_bytes = pdf.output(dest='S').encode('latin-1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output = io.BytesIO(pdf_bytes)
     pdf_output.seek(0)
 
