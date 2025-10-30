@@ -1377,20 +1377,31 @@ class CertificationPDF(FPDF):
 
 
 #travel
+
+# ✅ Safe text helper (fixes the TypeError)
+def safe_text(text, max_length=None):
+    """Safely handle None text and optionally truncate long values."""
+    if not text:
+        return "N/A"
+    text = str(text).strip()
+    if max_length and len(text) > max_length:
+        return text[:max_length - 3] + "..."
+    return text
+
+
 class TravelOrderPDF(FPDF):
 
     def add_travel_order_form(self, permit):
-        import tempfile
-        from app.models import Users, UserSignature
-
         # Fonts & line heights
         self.set_font("Arial", "B", 10)
         line_height = 6
         page_width = self.w - self.l_margin - self.r_margin
         cell_width = page_width / 2
 
+        # --- Employee Info ---
         employee = permit.employee
         full_name = safe_text(f"{employee.first_name} {employee.middle_name or ''} {employee.last_name}", 50)
+
         position = (
             employee.permanent_details.position.title if employee.permanent_details else
             employee.casual_details.position.title if employee.casual_details else
@@ -1399,6 +1410,7 @@ class TravelOrderPDF(FPDF):
         )
         position = safe_text(position, 40)
 
+        # --- Travel Details ---
         date_requested = permit.date_requested.strftime('%B %d, %Y') if permit.date_requested else "N/A"
         departure = permit.travel_detail.date_departure.strftime('%B %d, %Y') if permit.travel_detail and permit.travel_detail.date_departure else "N/A"
         arrival = permit.travel_detail.date_arrival.strftime('%B %d, %Y') if permit.travel_detail and getattr(permit.travel_detail, 'date_arrival', None) else "N/A"
@@ -1408,11 +1420,10 @@ class TravelOrderPDF(FPDF):
 
         # --- Title ---
         self.set_font("Arial", "B", 14)
-        self.set_x(self.l_margin)
-        self.multi_cell(page_width, 8, "TRAVEL ORDER", align="C")
+        self.multi_cell(0, 8, "TRAVEL ORDER", align="C", border=0)
         self.ln(2)
 
-        # --- Row 1: Municipality & Date/Permit ID ---
+        # --- Row 1: Municipality & Date ---
         self.set_font("Arial", "", 10)
         x_left = self.get_x()
         y_top = self.get_y()
@@ -1431,16 +1442,15 @@ class TravelOrderPDF(FPDF):
         self.multi_cell(cell_width, line_height, f"Name: {full_name}", border=1)
         self.set_xy(x_left + cell_width, y_top)
         self.multi_cell(cell_width, line_height, f"Position: {position}", border=1)
-        self.set_y(y_top + max(h_left, h_right))
+        self.set_y(y_top + line_height * 2)
 
         # --- Row 3: Departure & Destination ---
-        triple_line_height = line_height * 3
         y_top = self.get_y()
         self.set_xy(x_left, y_top)
         self.multi_cell(cell_width, line_height, f"Date/Time of Departure: {departure}", border=1)
         self.set_xy(x_left + cell_width, y_top)
         self.multi_cell(cell_width, line_height, f"Destination: {destination}", border=1)
-        self.set_y(y_top + triple_line_height)
+        self.set_y(y_top + line_height * 2)
 
         # --- Row 4: Arrival & Report No. ---
         y_top = self.get_y()
@@ -1448,44 +1458,44 @@ class TravelOrderPDF(FPDF):
         self.multi_cell(cell_width, line_height, f"Date/Time of Arrival: {arrival}", border=1)
         self.set_xy(x_left + cell_width, y_top)
         self.multi_cell(cell_width, line_height, "Report No.", border=1)
-        self.set_y(y_top + triple_line_height)
+        self.set_y(y_top + line_height * 2)
 
         # --- Row 5: Purpose & Remarks ---
         y_top = self.get_y()
         self.set_xy(x_left, y_top)
         self.multi_cell(cell_width, line_height, f"Purpose of Travel / Remarks:\n{purpose}", border=1)
         self.set_xy(x_left + cell_width, y_top)
-        self.multi_cell(cell_width, line_height, "", border=1)
-        self.set_y(y_top + max(3*line_height, line_height*len(purpose.split('\n'))))
+        self.multi_cell(cell_width, line_height * 3, "", border=1)
+        self.set_y(y_top + line_height * 4)
 
         # --- Row 6: Recommending Approval (Head) ---
         y_top = self.get_y()
         self.set_xy(x_left, y_top)
         self.multi_cell(cell_width, line_height, "Recommending Approval:", border=1)
+
         head_name = safe_text(getattr(permit, 'head_approver', "________________________"), 30)
         head_position = safe_text(getattr(permit, 'head_approver_position', "Head of Department"), 30)
         self.set_xy(x_left, y_top + line_height)
         self.multi_cell(cell_width, line_height, f"{head_name}\n{head_position}", border=1, align="C")
 
-        # Head signature
-        head_user_id = getattr(permit, 'head_approver_id', None)
-        if head_user_id:
-            user_obj = Users.query.get(head_user_id)
+        # --- Optional Head Signature ---
+        head_user = getattr(permit, 'head_approver_id', None)
+        if head_user:
+            user_obj = Users.query.get(head_user)
             sig_record = UserSignature.query.filter_by(user_id=user_obj.id).first()
             if sig_record and sig_record.signature:
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
                     tmp_sig.write(sig_record.signature)
                     tmp_sig.flush()
                     sig_path = tmp_sig.name
-                self.image(sig_path, x=x_left + 5, y=self.get_y(), w=40, h=15)
+                self.image(sig_path, x=x_left + 5, y=self.get_y() - 20, w=40, h=15)
 
         # --- Row 7: Mayor Approval ---
         self.ln(20)
-        self.set_x(self.l_margin)
-        mayor_text_width = page_width
-        self.multi_cell(mayor_text_width, line_height, "A P P R O V E D", align="C")
-        self.multi_cell(mayor_text_width, line_height, "HON. DWIGHT C. KAMPITAN", align="C")
-        self.multi_cell(mayor_text_width, line_height, "Municipal Mayor", align="C")
+        self.set_font("Arial", "B", 10)
+        self.multi_cell(0, line_height, "A P P R O V E D", align="C")
+        self.multi_cell(0, line_height, "HON. DWIGHT C. KAMPITAN", align="C")
+        self.multi_cell(0, line_height, "Municipal Mayor", align="C")
 
         mayor_user = (
             Users.query.join(Employee)
@@ -1501,13 +1511,14 @@ class TravelOrderPDF(FPDF):
                     tmp_sig.write(sig_record.signature)
                     tmp_sig.flush()
                     sig_path = tmp_sig.name
-                self.image(sig_path, x=(self.w - 40)/2, y=self.get_y() - 10, w=40, h=15)
+                self.image(sig_path, x=(self.w - 40) / 2, y=self.get_y() - 15, w=40, h=15)
 
         # --- Row 8: Certificate block ---
         self.ln(10)
-        self.set_x(self.l_margin)
-        self.multi_cell(page_width, line_height, "CERTIFICATE OF APPEARANCE", align="C", border=1)
-        self.multi_cell(page_width, line_height, f"THIS IS TO CERTIFY that {full_name} appeared for the stated purpose above.", align="C", border=1)
+        self.set_font("Arial", "B", 10)
+        self.multi_cell(0, line_height, "CERTIFICATE OF APPEARANCE", align="C", border=1)
+        self.set_font("Arial", "", 10)
+        self.multi_cell(0, line_height, f"This is to certify that {full_name} appeared for the stated purpose above.", align="C", border=1)
         self.ln(5)
 
         # --- Row 9: FROM / TO / PLACE Table ---
@@ -1516,11 +1527,10 @@ class TravelOrderPDF(FPDF):
         self.cell(col_width, line_height, "TO", border=1, align="C")
         self.cell(col_width, line_height, "PLACE", border=1, align="C")
         self.ln()
-        self.cell(col_width, line_height*2, "________________________", border=1, align="C")
-        self.cell(col_width, line_height*2, "________________________", border=1, align="C")
-        self.cell(col_width, line_height*2, "________________________", border=1, align="C")
+        self.cell(col_width, line_height * 2, "________________________", border=1, align="C")
+        self.cell(col_width, line_height * 2, "________________________", border=1, align="C")
+        self.cell(col_width, line_height * 2, "________________________", border=1, align="C")
         self.ln(10)
-
 
 
 
