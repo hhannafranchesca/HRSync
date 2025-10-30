@@ -5648,18 +5648,13 @@ def generate_jo_pdf():
         download_name='job_order_layout.pdf'
     )
 
-    
-from app.pdf_generator import TravelOrderPDF, safe_text
+
+from app.pdf_generator import safe_text
 
 @app.route('/generate_travel_order_pdf/<int:permit_id>')
 @login_required
 def generate_travel_order_pdf(permit_id):
-    # --- Fetch the travel order permit ---
-    permit = (
-        PermitRequest.query
-        .filter_by(id=permit_id, permit_type='Travel Order')
-        .first()
-    )
+    permit = PermitRequest.query.filter_by(id=permit_id, permit_type='Travel Order').first()
     if not permit:
         abort(404, description="Travel Order permit not found")
 
@@ -5668,18 +5663,19 @@ def generate_travel_order_pdf(permit_id):
         abort(404, description="Employee not found")
 
     department_id = getattr(employee, 'department_id', None)
-    head_user = None
 
     # --- Find Department Head ---
+    head_user = None
     try:
         if employee.department and employee.department.name == "Office of the Municipal Human Resource Management Officer":
+            # HR Department Head lookup
             head_user = (
-                db.session.query(Users)
-                .join(Employee, Users.id == Employee.user_id)
-                .join(Position, isouter=True)
+                Users.query
+                .join(Employee, Employee.id == Users.employee_id)
                 .join(PermanentEmployeeDetails, isouter=True)
                 .join(CasualEmployeeDetails, isouter=True)
                 .join(JobOrderDetails, isouter=True)
+                .join(Position, isouter=True)
                 .filter(
                     (Position.title == "MUNICIPAL GOVERNMENT DEPARTMENT HEAD I") |
                     (JobOrderDetails.position_title == "MUNICIPAL GOVERNMENT DEPARTMENT HEAD I")
@@ -5687,50 +5683,37 @@ def generate_travel_order_pdf(permit_id):
                 .first()
             )
         elif department_id:
+            # Regular department head lookup
             head_user = (
-                db.session.query(Users)
-                .join(Employee, Users.id == Employee.user_id)
+                Users.query
+                .join(Employee, Employee.id == Users.employee_id)
                 .filter(Employee.department_id == department_id, Users.role == "Head")
                 .first()
             )
     except Exception as e:
-        print("❌ Error finding head_user:", e)
-        head_user = None
+        print(f"❌ Error finding head_user: {e}")
 
     # --- Head approval lookup ---
     if head_user:
-        try:
-            head_approval = (
-                db.session.query(PermitRequestHistory)
-                .filter_by(
-                    permit_request_id=permit.id,
-                    action_by=head_user.id,
-                    action="Approved"
-                )
-                .order_by(PermitRequestHistory.timestamp.desc())
-                .first()
-            )
-        except Exception as e:
-            print("❌ Error fetching head approval:", e)
-            head_approval = None
+        head_approval = (
+            db.session.query(PermitRequestHistory)
+            .filter_by(permit_request_id=permit.id, action_by=head_user.id, action="Approved")
+            .order_by(PermitRequestHistory.timestamp.desc())
+            .first()
+        )
 
         if head_approval:
-            permit.head_approver = safe_text(getattr(head_user, 'name', '________________________'), 40)
+            permit.head_approver = safe_text(head_user.name, 40)
             head_emp = getattr(head_user, 'employee', None)
 
             if head_emp:
                 pos = (
-                    head_emp.permanent_details.position.title
-                    if head_emp.permanent_details and head_emp.permanent_details.position else
-                    head_emp.casual_details.position.title
-                    if head_emp.casual_details and head_emp.casual_details.position else
-                    head_emp.job_order_details.position_title
-                    if head_emp.job_order_details else
+                    head_emp.permanent_details.position.title if head_emp.permanent_details and head_emp.permanent_details.position else
+                    head_emp.casual_details.position.title if head_emp.casual_details and head_emp.casual_details.position else
+                    head_emp.job_order_details.position_title if head_emp.job_order_details else
                     "Head of Department"
                 )
                 permit.head_approver_position = safe_text(pos, 30)
-            else:
-                permit.head_approver_position = "Head of Department"
 
             permit.head_approver_id = head_user.id
         else:
@@ -5752,13 +5735,8 @@ def generate_travel_order_pdf(permit_id):
     pdf_output.seek(0)
 
     filename = f"TravelOrder_{safe_text(employee.last_name, 30)}_{safe_text(employee.first_name, 20)}.pdf"
+    return send_file(pdf_output, mimetype="application/pdf", as_attachment=True, download_name=filename)
 
-    return send_file(
-        pdf_output,
-        mimetype="application/pdf",
-        as_attachment=True,
-        download_name=filename
-    )
 
 
 

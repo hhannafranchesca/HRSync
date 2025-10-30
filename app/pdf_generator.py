@@ -1378,15 +1378,12 @@ class CertificationPDF(FPDF):
 
 #travel
 
-# ✅ Safe text helper (used everywhere)
-def safe_text(text, max_length=None):
-    """Safely handle None text and optionally truncate long values."""
+def safe_text(text, max_length=255):
+    """Safely trim and clean text for PDF output"""
     if not text:
-        return "N/A"
-    text = str(text).strip()
-    if max_length and len(text) > max_length:
-        return text[:max_length - 3] + "..."
-    return text
+        return ""
+    text = str(text).replace("\n", " ").strip()
+    return text[:max_length]
 
 
 # ✅ Travel Order PDF Class
