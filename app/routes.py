@@ -5793,13 +5793,14 @@ def generate_travel_log_pdf():
     return send_file(pdf_output, mimetype='application/pdf', as_attachment=True, download_name=filename)
 
 # TravelLog USER
+# TravelLog USER
 @app.route("/user_travel_logs_pdf")
 @login_required
 @role_required('employee')
 def user_travel_logs_pdf():
     employee = current_user.employee
     employee_id = employee.id
-    department_name = employee.department.name if employee.department else None  # assumes Employee → Department relationship
+    department_name = employee.department.name if employee.department else None
 
     # Get travel logs
     logs = (
@@ -5817,19 +5818,24 @@ def user_travel_logs_pdf():
         .all()
     )
 
-    if not logs:
-        flash("No travel records found.", "warning")
-        return redirect(url_for("travel_logs_User"))
-
     # Build PDF
-    pdf = TravelLogUSERPDF(orientation="L", unit="mm", format="A4", department_name=department_name)
+    pdf = TravelLogUSERPDF(
+        orientation="L", unit="mm", format="A4", department_name=department_name
+    )
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    for log in logs:
-        pdf.add_log_row(log)
+    # Always add column headers (even if no logs)
+    pdf.add_table_header()  # <-- Make sure your PDF class has this method
 
-    # Output
+    if logs:
+        for log in logs:
+            pdf.add_log_row(log)
+    else:
+        # Add a "No records found" row
+        pdf.add_empty_row("No travel records found.")
+
+    # Output PDF
     pdf_output = io.BytesIO()
     pdf_bytes = pdf.output(dest="S").encode("latin1")
     pdf_output.write(pdf_bytes)
@@ -5843,6 +5849,7 @@ def user_travel_logs_pdf():
         download_name=filename
     )
 
+
 # print TRAVELLOGS USER
 @app.route("/user_travel_logs_print")
 @login_required
@@ -5850,7 +5857,7 @@ def user_travel_logs_pdf():
 def user_travel_logs_print():
         employee = current_user.employee
         employee_id = employee.id
-        department_name = employee.department.name if employee.department else None  # assumes Employee → Department relationship
+        department_name = employee.department.name if employee.department else None
 
         # Get travel logs
         logs = (
@@ -5868,19 +5875,24 @@ def user_travel_logs_print():
             .all()
         )
 
-        if not logs:
-            flash("No travel records found.", "warning")
-            return redirect(url_for("travel_logs_User"))
-
         # Build PDF
-        pdf = TravelLogUSERPDF(orientation="L", unit="mm", format="A4", department_name=department_name)
+        pdf = TravelLogUSERPDF(
+            orientation="L", unit="mm", format="A4", department_name=department_name
+        )
         pdf.add_page()
         pdf.set_auto_page_break(auto=True, margin=15)
 
-        for log in logs:
-            pdf.add_log_row(log)
+        # Always add column headers (even if no logs)
+        pdf.add_table_header()  # <-- Make sure your PDF class has this method
 
-        # Output
+        if logs:
+            for log in logs:
+                pdf.add_log_row(log)
+        else:
+            # Add a "No records found" row
+            pdf.add_empty_row("No travel records found.")
+
+        # Output PDF
         pdf_output = io.BytesIO()
         pdf_bytes = pdf.output(dest="S").encode("latin1")
         pdf_output.write(pdf_bytes)
@@ -5890,9 +5902,10 @@ def user_travel_logs_print():
         return send_file(
             pdf_output,
             mimetype="application/pdf",
-            as_attachment=True,
+            as_attachment=False,
             download_name=filename
         )
+
 
 
 # PRINT TRAVEL LOGS HEAD (PDF)
@@ -5903,6 +5916,7 @@ def head_travel_logs_print():
     # Get head's department
     head_department_id = current_user.employee.department_id  
     department = Department.query.get(head_department_id)
+    department_name = department.name if department else "No Department"
 
     # Get logs for that department
     logs = (
@@ -5920,44 +5934,48 @@ def head_travel_logs_print():
         .all()
     )
 
-    if not logs:
-        flash("No travel records found for your department.", "warning")
-        return redirect(url_for("travel_logs_head"))
-
-    # 👉 Pass department.name here
+    # Build PDF
     pdf = TravelLogheadPDF(
-        department_name=department.name if department else "No Department",
+        department_name=department_name,
         orientation="L", unit="mm", format="A4"
     )
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    for log in logs:
-        pdf.add_log_row(log)
+    # Add headers (always)
+    pdf.add_table_header()  # <-- Make sure your PDF class has this method
 
-    # Output
+    if logs:
+        for log in logs:
+            pdf.add_log_row(log)
+    else:
+        # Add a "No records found" row
+        pdf.add_empty_row("No travel records found for this department.")
+
+    # Output PDF
     pdf_output = io.BytesIO()
     pdf_bytes = pdf.output(dest="S").encode("latin1")
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
-    filename = f"Travel_Logs_{department.name}_{datetime.now().strftime('%Y%m%d')}.pdf"
+    filename = f"Travel_Logs_{department_name}_{datetime.now().strftime('%Y%m%d')}.pdf"
     return send_file(
         pdf_output,
         mimetype="application/pdf",
-        as_attachment=False,
-        # download_name=filename
+        as_attachment=True,
+        download_name=filename
     )
 
 
 # TRAVEL LOGS HEAD (PDF)
+# HEAD TRAVEL LOGS PDF
 @app.route("/head_travel_logs_pdf")
 @login_required
 @role_required('head')
 def head_travel_logs_pdf():
-    # Get head's department
     head_department_id = current_user.employee.department_id  
     department = Department.query.get(head_department_id)
+    department_name = department.name if department else "No Department"
 
     # Get logs for that department
     logs = (
@@ -5975,28 +5993,31 @@ def head_travel_logs_pdf():
         .all()
     )
 
-    if not logs:
-        flash("No travel records found for your department.", "warning")
-        return redirect(url_for("travel_logs_head"))
-
-    # 👉 Pass department.name here
+    # Build PDF
     pdf = TravelLogheadPDF(
-        department_name=department.name if department else "No Department",
+        department_name=department_name,
         orientation="L", unit="mm", format="A4"
     )
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    for log in logs:
-        pdf.add_log_row(log)
+    # Add headers (always)
+    pdf.add_table_header()  # <-- Make sure your PDF class has this method
 
-    # Output
+    if logs:
+        for log in logs:
+            pdf.add_log_row(log)
+    else:
+        # Add a "No records found" row
+        pdf.add_empty_row("No travel records found for this department.")
+
+    # Output PDF
     pdf_output = io.BytesIO()
     pdf_bytes = pdf.output(dest="S").encode("latin1")
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
-    filename = f"Travel_Logs_{department.name}_{datetime.now().strftime('%Y%m%d')}.pdf"
+    filename = f"Travel_Logs_{department_name}_{datetime.now().strftime('%Y%m%d')}.pdf"
     return send_file(
         pdf_output,
         mimetype="application/pdf",
