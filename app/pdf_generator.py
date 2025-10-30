@@ -6543,44 +6543,30 @@ class HeadCreditHistoryPDF(FPDF):
 
 # TravelLog USER
 class TravelLogUSERPDF(FPDF):
-    def __init__(self, orientation='P', unit='mm', format='A4', department_name=None):
-        super().__init__(orientation, unit, format)
-        self.department_name = department_name  # store department here
+    def __init__(self, department_name=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.department_name = department_name
+        self.col_widths = [50, 60, 50, 90, 30]  # same as head PDF
 
     def header(self):
-        base_path = os.path.join(current_app.root_path, 'static', 'img', 'landing')
-        center_x = 148.5  # center of A4 landscape
-        logo_width = 18
-        gap_from_text = 30
-
-        # Logos
-        self.image(os.path.join(base_path, 'victoria.png'),
-                   x=center_x - gap_from_text - logo_width, y=8, w=logo_width)
-        self.image(os.path.join(base_path, 'victoria1.png'),
-                   x=center_x + gap_from_text, y=8, w=logo_width)
-
-        # Text
-        self.set_font('Arial', 'B', 10)
-        self.cell(0, 5, 'Republic of the Philippines', ln=True, align='C')
-        self.cell(0, 5, 'Province of Laguna', ln=True, align='C')
-        self.cell(0, 5, 'Municipality of VICTORIA', ln=True, align='C')
-        self.ln(2)
-
+        # Basic header
         self.set_font('Arial', 'B', 14)
         self.cell(0, 7, 'TRAVEL RECORD', ln=True, align='C')
-        self.ln(4)
+        self.ln(1)
 
-             # Department name (dynamic)
+        # Optional department/employee info
         if self.department_name:
             self.set_font('Arial', 'B', 12)
             self.cell(0, 6, f"{self.department_name}", ln=True, align='C')
             self.ln(3)
 
-        # Table headers
+        # Add table header
+        self.add_table_header()
+
+    def add_table_header(self):
         self.set_fill_color(197, 224, 180)
         self.set_font('Arial', 'B', 9)
         headers = ['Employee Name', 'Destination', 'Log Date', 'Purpose', 'Tracking ID']
-        self.col_widths = [50, 60, 50, 90, 30]
         for i, header in enumerate(headers):
             self.cell(self.col_widths[i], 6, header, border=1, align='C', fill=True)
         self.ln()
@@ -6590,7 +6576,6 @@ class TravelLogUSERPDF(FPDF):
         col_widths = self.col_widths
         line_height = 4
 
-        # Get employee details from TravelOrder → PermitRequest → Employee
         employee = log.travel_order.permit.employee
         middle_initial = f"{employee.middle_name[0]}." if employee.middle_name else ""
         emp_name = f"{employee.last_name}, {employee.first_name} {middle_initial}".strip()
@@ -6603,7 +6588,6 @@ class TravelLogUSERPDF(FPDF):
             log.tracking_id or "-"
         ]
 
-        # Estimate max lines per cell
         max_lines = 1
         for i in range(len(data)):
             num_lines = self.get_string_width(data[i]) / (col_widths[i] - 2)
@@ -6622,61 +6606,37 @@ class TravelLogUSERPDF(FPDF):
 
         self.set_y(y_start + row_height)
 
+    def add_empty_row(self, text="No records found."):
+        self.set_font('Arial', 'I', 8)
+        self.cell(sum(self.col_widths), 6, text, border=1, align='C')
+        self.ln()
 
 
-# Travel Log PDF for Department Head
-class TravelLogheadPDF(FPDF):
-    def __init__(self, department_name=None, *args, **kwargs):
+class TravelLogUSERPDF(FPDF):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.department_name = department_name  # store department name
-        self.col_widths = [50, 60, 70, 90, 30]
+        self.col_widths = [50, 60, 50, 90, 30]  # same as head PDF
 
     def header(self):
-        base_path = os.path.join(current_app.root_path, 'static', 'img', 'landing')
-
-        center_x = 148.5  # center of A4 landscape
-        logo_width = 18
-        gap_from_text = 30
-
-        # Logos
-        self.image(os.path.join(base_path, 'victoria.png'),
-                   x=center_x - gap_from_text - logo_width, y=8, w=logo_width)
-        self.image(os.path.join(base_path, 'victoria1.png'),
-                   x=center_x + gap_from_text, y=8, w=logo_width)
-
-        # Government headers
-        self.set_font('Arial', 'B', 10)
-        self.cell(0, 5, 'Republic of the Philippines', ln=True, align='C')
-        self.cell(0, 5, 'Province of Laguna', ln=True, align='C')
-        self.cell(0, 5, 'Municipality of VICTORIA', ln=True, align='C')
-        self.ln(2)
-
-        # Main title
+        # Same style as head PDF
         self.set_font('Arial', 'B', 14)
         self.cell(0, 7, 'TRAVEL RECORD', ln=True, align='C')
         self.ln(1)
 
-        # Department name (dynamic)
-        if self.department_name:
-            self.set_font('Arial', 'B', 12)
-            self.cell(0, 6, f"{self.department_name}", ln=True, align='C')
-            self.ln(3)
-
-        # Table headers
+    def add_table_header(self):
         self.set_fill_color(197, 224, 180)
         self.set_font('Arial', 'B', 9)
         headers = ['Employee Name', 'Destination', 'Log Date', 'Purpose', 'Tracking ID']
-        self.col_widths = [50, 60, 50, 90, 30]
         for i, header in enumerate(headers):
             self.cell(self.col_widths[i], 6, header, border=1, align='C', fill=True)
         self.ln()
 
     def add_log_row(self, log):
+        # Same logic as head PDF
         self.set_font('Arial', '', 8)
         col_widths = self.col_widths
         line_height = 4
 
-        # Employee details
         employee = log.travel_order.permit.employee
         middle_initial = f"{employee.middle_name[0]}." if employee.middle_name else ""
         emp_name = f"{employee.last_name}, {employee.first_name} {middle_initial}".strip()
@@ -6689,7 +6649,6 @@ class TravelLogheadPDF(FPDF):
             log.tracking_id or "-"
         ]
 
-        # Estimate row height
         max_lines = 1
         for i in range(len(data)):
             num_lines = self.get_string_width(data[i]) / (col_widths[i] - 2)
@@ -6700,7 +6659,6 @@ class TravelLogheadPDF(FPDF):
         x_start = self.get_x()
         y_start = self.get_y()
 
-        # Draw row
         for i in range(len(data)):
             self.set_xy(x_start, y_start)
             self.multi_cell(col_widths[i], line_height, data[i], border=0)
