@@ -1377,10 +1377,15 @@ class CertificationPDF(FPDF):
 
 
 #travel
-
 class TravelOrderPDF(FPDF):
 
     def add_travel_order_form(self, permit):
+        # --- Local safe_text function ---
+        def safe_text(text, max_length=50):
+            if not text:
+                return ""
+            return text if len(text) <= max_length else text[:max_length] + "…"
+
         # Fonts & line heights
         self.set_font("Arial", "B", 10)
         line_height = 6
@@ -1433,11 +1438,8 @@ class TravelOrderPDF(FPDF):
         # --- Row 3: Departure & Destination ---
         triple_line_height = line_height * 3
         y_top = self.get_y()
-
-        # Departure
         self.set_xy(x_left, y_top)
         self.multi_cell(cell_width, line_height, f"Date/Time of Departure: {departure}", border=1)
-        # Destination
         self.set_xy(x_left + cell_width, y_top)
         self.multi_cell(cell_width, line_height, f"Destination: {destination}", border=1)
         self.set_y(y_top + triple_line_height)
@@ -1452,10 +1454,8 @@ class TravelOrderPDF(FPDF):
 
         # --- Row 5: Purpose & Remarks ---
         y_top = self.get_y()
-        # Left: Purpose
         self.set_xy(x_left, y_top)
         self.multi_cell(cell_width, line_height, f"Purpose of Travel / Remarks:\n{purpose}", border=1)
-        # Right: blank comment box
         self.set_xy(x_left + cell_width, y_top)
         self.multi_cell(cell_width, line_height, "", border=1)
         self.set_y(y_top + max(3*line_height, line_height*len(purpose.split('\n'))))
@@ -1465,13 +1465,11 @@ class TravelOrderPDF(FPDF):
         self.set_xy(x_left, y_top)
         self.multi_cell(cell_width, line_height, "Recommending Approval:", border=1)
 
-        # Head Name & Position
         head_name = safe_text(getattr(permit, 'head_approver', "________________________"), 30)
         head_position = safe_text(getattr(permit, 'head_approver_position', "Head of Department"), 30)
         self.set_xy(x_left, y_top + line_height)
         self.multi_cell(cell_width, line_height, f"{head_name}\n{head_position}", border=1, align="C")
 
-        # Optional head signature
         head_user = getattr(permit, 'head_approver_id', None)
         if head_user:
             user_obj = Users.query.get(head_user)
@@ -1521,9 +1519,6 @@ class TravelOrderPDF(FPDF):
         self.cell(col_width, line_height*2, "________________________", border=1, align="C")
         self.cell(col_width, line_height*2, "________________________", border=1, align="C")
         self.ln(10)
-
-
-
 
 
 
