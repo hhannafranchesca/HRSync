@@ -5650,10 +5650,10 @@ def generate_jo_pdf():
 
 # Travel Order PDF Generator
 # Helper function to truncate long text
-def safe_text(text, max_length=50):
+def safe_text(text):
     if not text:
         return ""
-    return text if len(text) <= max_length else text[:max_length] + "…"
+    return text if len(text) <= 50 else text[:50] + "…"
 
 @app.route('/generate_travel_order_pdf/<int:permit_id>')
 @login_required
