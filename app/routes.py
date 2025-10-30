@@ -6103,7 +6103,7 @@ def generate_leave_application_pdf(permit_id):
     pdf.add_page()
 
     # ✅ Return PDF response
-    pdf_output = pdf.output(dest='S').encode('latin1')
+    pdf_output = pdf.output(dest='S')
     return Response(
         pdf_output,
         mimetype='application/pdf',
