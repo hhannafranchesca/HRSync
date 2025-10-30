@@ -5783,17 +5783,7 @@ def generate_travel_log_pdf():
                 'purpose': log.travel_order.purpose,
                 'tracking_id': log.tracking_id,
             })
-    else:
-        # Optional: maglagay ng placeholder row o i-skip lang
-        pdf.add_log_row({
-            'last_name': '',
-            'first_name': '',
-            'middle_name': '',
-            'destination': '',
-            'log_date': '',
-            'purpose': '',
-            'tracking_id': '',
-        })
+
 
     pdf_bytes = pdf.output(dest='S')
     pdf_output = io.BytesIO(pdf_bytes)
@@ -9591,24 +9581,14 @@ def print_travel_log():
                     'purpose': log.travel_order.purpose,
                     'tracking_id': log.tracking_id,
                 })
-        else:
-            # Optional: maglagay ng placeholder row o i-skip lang
-            pdf.add_log_row({
-                'last_name': '',
-                'first_name': '',
-                'middle_name': '',
-                'destination': '',
-                'log_date': '',
-                'purpose': '',
-                'tracking_id': '',
-            })
-
+      
         pdf_bytes = pdf.output(dest='S')
         pdf_output = io.BytesIO(pdf_bytes)
         pdf_output.seek(0)
 
         filename = f"Travel_Record_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         return send_file(pdf_output, mimetype='application/pdf', as_attachment=False, download_name=filename)
+
 #LEAVEprint
 @app.route('/print_leave_application/<int:permit_id>')
 @login_required
