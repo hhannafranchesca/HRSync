@@ -6022,13 +6022,10 @@ def generate_leave_application_pdf(permit_id):
         department = employee.department.name if employee.department else 'N/A'
         position = employee.permanent_details.position.title if employee.permanent_details.position else 'N/A'
     elif employee.casual_details:
-        department = (employee.casual_details.assigned_department.name
-                      if employee.casual_details.assigned_department else 'N/A')
-        position = (employee.casual_details.position.title
-                    if employee.casual_details.position else 'N/A')
+        department = employee.casual_details.assigned_department.name if employee.casual_details.assigned_department else 'N/A'
+        position = employee.casual_details.position.title if employee.casual_details.position else 'N/A'
     elif employee.job_order_details:
-        department = (employee.job_order_details.assigned_department.name
-                      if employee.job_order_details.assigned_department else 'N/A')
+        department = employee.job_order_details.assigned_department.name if employee.job_order_details.assigned_department else 'N/A'
         position = employee.job_order_details.position_title or 'N/A'
     else:
         department = employee.department.name if employee.department else 'N/A'
@@ -6036,8 +6033,8 @@ def generate_leave_application_pdf(permit_id):
 
     # ✅ Head approval info
     head_approved = False
-    head_approver = None
-    head_approver_position = None
+    head_approver = 'N/A'
+    head_approver_position = 'N/A'
     head_approver_id = None
 
     approval_history = (
@@ -6054,11 +6051,11 @@ def generate_leave_application_pdf(permit_id):
     if approval_history:
         history, user = approval_history
         head_approved = True
-        head_approver = user.name
-        head_approver_id = user.id
+        head_approver = getattr(user, 'name', 'N/A')
+        head_approver_id = getattr(user, 'id', None)
 
         # ✅ Determine approver's position
-        approver_employee = user.employee
+        approver_employee = getattr(user, 'employee', None)
         if approver_employee:
             if approver_employee.permanent_details and approver_employee.permanent_details.position:
                 head_approver_position = approver_employee.permanent_details.position.title
@@ -6066,42 +6063,36 @@ def generate_leave_application_pdf(permit_id):
                 head_approver_position = approver_employee.casual_details.position.title
             elif approver_employee.job_order_details:
                 head_approver_position = approver_employee.job_order_details.position_title
-    
-    # LEAVE PERMITS
-    leave_permits = (
-        PermitRequest.query
-        .filter(
-            PermitRequest.permit_type == 'Leave',
-            PermitRequest.current_stage.in_(['Mayor', 'Completed'])
-        )
-        .order_by(PermitRequest.date_requested.desc())
-        .all()
-    )
 
+    # Safe formatting for dates and salary
+    date_from_str = leave.date_from.strftime("%B %d, %Y") if leave.date_from else 'N/A'
+    salary_str = str(leave.salary) if leave.salary else 'N/A'
+    leave_type_str = leave.leave_type if leave.leave_type else 'N/A'
 
     # ✅ Generate PDF
     pdf = LeaveApplicationPDF()
     pdf.add_page()
     pdf.add_leave_form(
         department=department,
-        last_name=employee.last_name,
-        first_name=employee.first_name,
-        middle_name=employee.middle_name,
-        date_from=leave.date_from.strftime("%B %d, %Y"),
+        last_name=employee.last_name or 'N/A',
+        first_name=employee.first_name or 'N/A',
+        middle_name=employee.middle_name or '',
+        date_from=date_from_str,
         position=position,
-        salary=leave.salary or 'N/A',
-        selected_leave=leave.leave_type,
+        salary=salary_str,
+        selected_leave=leave_type_str,
         head_approved=head_approved,
         head_approver=head_approver,
         head_approver_position=head_approver_position,
-        head_approver_id=head_approver_id,   # ✅ Pass ID for signature
-        current_stage=permit.current_stage 
+        head_approver_id=head_approver_id,
+        current_stage=permit.current_stage or 'N/A'
     )
     pdf.add_instructions_page()
 
     pdf.show_header = False
     pdf.add_page()
 
+    # ✅ PDF Output as bytes
     pdf_bytes = pdf.output(dest='S').encode('latin1')
     pdf_output = io.BytesIO(pdf_bytes)
     pdf_output.seek(0)
