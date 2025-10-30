@@ -6092,8 +6092,8 @@ def generate_leave_application_pdf(permit_id):
     pdf.show_header = False
     pdf.add_page()
 
-    # ✅ PDF Output as bytes
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    # --- PDF Output ---
+    pdf_bytes = pdf.output(dest='S')  # Already bytes in fpdf2
     pdf_output = io.BytesIO(pdf_bytes)
     pdf_output.seek(0)
 
@@ -6103,6 +6103,7 @@ def generate_leave_application_pdf(permit_id):
         as_attachment=True,
         download_name=f'leave_application_{permit_id}.pdf'
     )
+
 
 @app.route('/generate_clearance/<int:permit_id>')
 def generate_clearance(permit_id):
