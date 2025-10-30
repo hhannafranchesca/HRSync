@@ -5766,40 +5766,41 @@ def generate_travel_order_pdf(permit_id):
 @app.route('/generate_travel_log_pdf')
 @login_required
 def generate_travel_log_pdf():
-    # ✅ Filter only APPROVED logs
-    logs = (
-        TravelLog.query
-        .filter(TravelLog.status == 'Approved')
-        .all()
-    )
-
-    if not logs:
-        abort(404)
+    logs = TravelLog.query.filter(TravelLog.status == 'Approved').all()
 
     pdf = TravelLogPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
 
-    for log in logs:
+    # Gumawa ng header kahit walang logs
+    if logs:
+        for log in logs:
+            pdf.add_log_row({
+                'last_name': log.travel_order.permit.employee.last_name,
+                'first_name': log.travel_order.permit.employee.first_name,
+                'middle_name': log.travel_order.permit.employee.middle_name,
+                'destination': log.travel_order.destination,
+                'log_date': log.log_date,
+                'purpose': log.travel_order.purpose,
+                'tracking_id': log.tracking_id,
+            })
+    else:
+        # Optional: maglagay ng placeholder row o i-skip lang
         pdf.add_log_row({
-            'last_name': log.travel_order.permit.employee.last_name,
-            'first_name': log.travel_order.permit.employee.first_name,
-            'middle_name': log.travel_order.permit.employee.middle_name,
-            'destination': log.travel_order.destination,
-            'log_date': log.log_date,
-            'purpose': log.travel_order.purpose,
-            'tracking_id': log.tracking_id,
+            'last_name': '',
+            'first_name': '',
+            'middle_name': '',
+            'destination': '',
+            'log_date': '',
+            'purpose': '',
+            'tracking_id': '',
         })
 
-    
-    
     pdf_bytes = pdf.output(dest='S')
-
     pdf_output = io.BytesIO(pdf_bytes)
     pdf_output.seek(0)
 
     filename = f"Travel_Record_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
     return send_file(pdf_output, mimetype='application/pdf', as_attachment=True, download_name=filename)
-
 
 # TravelLog USER
 @app.route("/user_travel_logs_pdf")
@@ -9572,37 +9573,42 @@ def print_travel_order(permit_id):
 @app.route('/print_travel_log')
 @login_required
 def print_travel_log():
-    # ✅ Filter only APPROVED logs
-    logs = (
-        TravelLog.query
-        .filter(TravelLog.status == 'Approved')
-        .all()
-    )
+        # ✅ Filter only APPROVED logs
+        logs = TravelLog.query.filter(TravelLog.status == 'Approved').all()
 
-    if not logs:
-        abort(404)
+        pdf = TravelLogPDF(orientation='L', unit='mm', format='A4')
+        pdf.add_page()
 
-    pdf = TravelLogPDF(orientation='L', unit='mm', format='A4')
-    pdf.add_page()
+        # Gumawa ng header kahit walang logs
+        if logs:
+            for log in logs:
+                pdf.add_log_row({
+                    'last_name': log.travel_order.permit.employee.last_name,
+                    'first_name': log.travel_order.permit.employee.first_name,
+                    'middle_name': log.travel_order.permit.employee.middle_name,
+                    'destination': log.travel_order.destination,
+                    'log_date': log.log_date,
+                    'purpose': log.travel_order.purpose,
+                    'tracking_id': log.tracking_id,
+                })
+        else:
+            # Optional: maglagay ng placeholder row o i-skip lang
+            pdf.add_log_row({
+                'last_name': '',
+                'first_name': '',
+                'middle_name': '',
+                'destination': '',
+                'log_date': '',
+                'purpose': '',
+                'tracking_id': '',
+            })
 
-    for log in logs:
-        pdf.add_log_row({
-            'last_name': log.travel_order.permit.employee.last_name,
-            'first_name': log.travel_order.permit.employee.first_name,
-            'middle_name': log.travel_order.permit.employee.middle_name,
-            'destination': log.travel_order.destination,
-            'log_date': log.log_date,
-            'purpose': log.travel_order.purpose,
-            'tracking_id': log.tracking_id,
-        })
+        pdf_bytes = pdf.output(dest='S')
+        pdf_output = io.BytesIO(pdf_bytes)
+        pdf_output.seek(0)
 
-    pdf_bytes = pdf.output(dest='S')
-    pdf_output = io.BytesIO(pdf_bytes)
-    pdf_output.seek(0)
-
-    filename = f"Travel_Record_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-    return send_file(pdf_output, mimetype='application/pdf', as_attachment=False,)
-
+        filename = f"Travel_Record_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        return send_file(pdf_output, mimetype='application/pdf', as_attachment=False, download_name=filename)
 #LEAVEprint
 @app.route('/print_leave_application/<int:permit_id>')
 @login_required
@@ -12208,7 +12214,7 @@ def print_terminated_casualjob():
     return send_file(
         pdf_output,
         mimetype='application/pdf',
-        as_attachment=True,
+        as_attachment=False,
         download_name='terminated_casual_employees.pdf'
     )
 
