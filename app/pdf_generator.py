@@ -1518,7 +1518,6 @@ class TravelOrderPDF(FPDF):
         self.set_y(y + block_height)
 
             # === APPROVED Section with Mayor ===
-        self.ln(5)
         y_start = self.get_y()
         self.set_font("Arial", "B", 10)
         self.multi_cell(page_width, 8, "A P P R O V E D", align="C")
@@ -1541,14 +1540,9 @@ class TravelOrderPDF(FPDF):
         )
         y_end = self.get_y()
         self.rect(self.l_margin, y_start - 2, page_width, (y_end - y_start) + 6)
-        self.ln(5)
-
         # === FROM / TO / PLACE (single cell) ===
         self.ln(2)
         self.multi_cell(page_width, 8, "FROM                 TO                 PLACE", border=1, align="L")
-        sig_width = page_width - 40  # give space from right border
-        self.set_x(self.l_margin + 20)
-        self.multi_cell(sig_width, 10, "\n\n______________________________________\nSIGNATURE", align="C", border=1)
 
 
 #leave
