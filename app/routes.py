@@ -5757,7 +5757,7 @@ def generate_travel_order_pdf(permit_id):
     return send_file(
         pdf_output,
         mimetype='application/pdf',
-        as_attachment=True,
+        as_attachment=False,
         download_name=filename
     )
 

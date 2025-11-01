@@ -1540,58 +1540,78 @@ class TravelOrderPDF(FPDF):
         box_width = self.w - self.l_margin - self.r_margin
         total_height = 0
 
-        # Always reset X to left margin before multi_cell(0, …)
+        # "APPROVED" heading
         self.set_x(self.l_margin)
         self.multi_cell(box_width, 8, "A P P R O V E D", align="C")
         total_height += 8
 
+        # Spacer line
         self.set_x(self.l_margin)
         self.multi_cell(box_width, 4, "", align="C")
         total_height += 4
 
+        # Mayor’s Name
         self.set_x(self.l_margin)
         self.multi_cell(box_width, 6, "HON. DWIGHT C. KAMPITAN", align="C")
         total_height += 6
 
-        try:
-            mayor_user = (
-                Users.query
-                .join(Employee)
-                .join(PermanentEmployeeDetails)
-                .join(Position)
-                .filter(Position.title == 'MUNICIPAL MAYOR')
-                .first()
-            )
-            if mayor_user:
-                sig_record = UserSignature.query.filter_by(user_id=mayor_user.id).first()
-                if sig_record and sig_record.signature:
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
-                        tmp_sig.write(sig_record.signature)
-                        tmp_sig.flush()
-                        sig_path = tmp_sig.name
-                    sig_w, sig_h = 62, 26
-                    sig_x = (self.w - sig_w) / 2
-                    sig_y = self.get_y() - 20
-                    self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
-        except Exception:
-            pass
+        # Mayor’s Title
+        self.set_x(self.l_margin)
+        self.multi_cell(box_width, 6, "Municipal Mayor", align="C")
+        total_height += 6
 
-        self.multi_cell(0, 6, "Municipal Mayor", align="C")
+        # Spacer line (bottom padding)
+        self.set_x(self.l_margin)
+        self.multi_cell(box_width, 6, "", align="C")
         total_height += 6
-        self.multi_cell(0, 6, "")
-        total_height += 6
+
+        # Draw border box for this section
         self.rect(self.l_margin, y_start, box_width, total_height)
+
+        # Add space before the next section
+        self.ln(6)
+
 
         # === Certificate of Appearance ===
         y_start = self.get_y()
-        self.multi_cell(0, 6, "")
-        self.multi_cell(0, 6, "CERTIFICATE OF APPEARANCE", align="C")
-        self.multi_cell(0, 6, "")
-        self.multi_cell(0, 6, "        THIS IS TO CERTIFY that the above named personnel appeared in this office for the", align="C")
-        self.multi_cell(0, 6, "purpose of stated above on the date/s indicated below.", align="L")
-        self.multi_cell(0, 6, "")
+
+        # Spacer line (top)
+        self.set_x(self.l_margin)
+        self.multi_cell(box_width, 6, "", align="C")
+
+        # Title
+        self.set_x(self.l_margin)
+        self.multi_cell(box_width, 6, "CERTIFICATE OF APPEARANCE", align="C")
+
+        # Spacer line
+        self.set_x(self.l_margin)
+        self.multi_cell(box_width, 6, "", align="C")
+
+        # First paragraph
+        self.set_x(self.l_margin)
+        self.multi_cell(
+            box_width,
+            6,
+            "        THIS IS TO CERTIFY that the above named personnel appeared in this office for the",
+            align="L"
+        )
+
+        # Second paragraph
+        self.set_x(self.l_margin)
+        self.multi_cell(
+            box_width,
+            6,
+            "purpose of stated above on the date/s indicated below.",
+            align="L"
+        )
+
+        # Spacer line (bottom)
+        self.set_x(self.l_margin)
+        self.multi_cell(box_width, 6, "", align="C")
+
+        # Draw border box for this section
         y_end = self.get_y()
-        self.rect(self.l_margin, y_start, self.w - self.r_margin - self.l_margin, y_end - y_start)
+        self.rect(self.l_margin, y_start, box_width, y_end - y_start)
 
         # === Final Rows ===
         self.multi_cell(190, 8, "FROM                                                TO                                                    PLACE\n\n", border=1)
