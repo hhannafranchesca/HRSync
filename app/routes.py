@@ -5744,7 +5744,6 @@ def generate_travel_order_pdf(permit_id):
 
     # --- Generate the PDF ---
     pdf = TravelOrderPDF()
-    pdf.add_page()
     pdf.add_travel_order_form(permit)  # permit already has head info
 
     # --- Output PDF ---
