@@ -1540,11 +1540,17 @@ class TravelOrderPDF(FPDF):
         box_width = self.w - self.l_margin - self.r_margin
         total_height = 0
 
-        self.multi_cell(0, 8, "A P P R O V E D", align="C")
+        # Always reset X to left margin before multi_cell(0, …)
+        self.set_x(self.l_margin)
+        self.multi_cell(box_width, 8, "A P P R O V E D", align="C")
         total_height += 8
-        self.multi_cell(0, 4, "")
+
+        self.set_x(self.l_margin)
+        self.multi_cell(box_width, 4, "", align="C")
         total_height += 4
-        self.multi_cell(0, 6, "HON. DWIGHT C. KAMPITAN", align="C")
+
+        self.set_x(self.l_margin)
+        self.multi_cell(box_width, 6, "HON. DWIGHT C. KAMPITAN", align="C")
         total_height += 6
 
         try:
