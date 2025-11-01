@@ -1355,10 +1355,6 @@ class CertificationPDF(FPDF):
 
 
 
-from fpdf import FPDF
-import tempfile
-from app.models import Users, UserSignature, Employee, Position, PermanentEmployeeDetails
-
 class TravelOrderPDF(FPDF):
     def add_travel_order_form(
         self,
@@ -1374,12 +1370,30 @@ class TravelOrderPDF(FPDF):
         self.set_auto_page_break(auto=True, margin=15)
         self.set_font("Arial", "B", 10)
         line_height = 8
-        cell_width = 95
+
+        # Helper for two-column rows
+        def two_col_row(left_text, right_text, border=1, align_left='L', align_right='L', height=8):
+            page_width = self.w - self.l_margin - self.r_margin
+            col_width = page_width / 2
+            x_left = self.l_margin
+            y_top = self.get_y()
+
+            # Left cell
+            self.multi_cell(col_width, height, left_text, border=border, align=align_left)
+            h_left = self.get_y() - y_top
+
+            # Right cell (same row)
+            self.set_xy(x_left + col_width, y_top)
+            self.multi_cell(col_width, height, right_text, border=border, align=align_right)
+            h_right = self.get_y() - y_top
+
+            # Set Y to max height (prevent overlapping)
+            self.set_y(y_top + max(h_left, h_right))
 
         # --- Safe Data Extraction ---
         employee = getattr(permit, "employee", None)
         if not employee:
-            return  # No employee = skip
+            return
 
         full_name = f"{employee.first_name or ''} {employee.middle_name or ''} {employee.last_name or ''}".strip()
         position = (
@@ -1406,163 +1420,80 @@ class TravelOrderPDF(FPDF):
         # === Title ===
         self.ln(2)
         self.set_font("Arial", "B", 14)
-
-        # Always reset X before a full-width multicell to avoid FPDF width errors
         self.set_x(self.l_margin)
-        self.multi_cell(self.w - self.l_margin - self.r_margin, 4, "", border="TLR")
-
+        box_width = self.w - self.l_margin - self.r_margin
+        self.multi_cell(box_width, 4, "", border="TLR")
         self.set_x(self.l_margin)
-        self.multi_cell(self.w - self.l_margin - self.r_margin, 10, "TRAVEL ORDER", align="C", border="LR")
-
+        self.multi_cell(box_width, 10, "TRAVEL ORDER", align="C", border="LR")
         self.set_x(self.l_margin)
-        self.multi_cell(self.w - self.l_margin - self.r_margin, 4, "", border="LR")
+        self.multi_cell(box_width, 4, "", border="LR")
 
-
-        # === Row 1: Municipality + Date ===
+        # === Body (Aligned Rows) ===
         self.set_font("Arial", "", 10)
-        x_left = self.get_x()
-        y_top = self.get_y()
-        self.multi_cell(cell_width, line_height, "Municipality of VICTORIA\nProvince of LAGUNA", border=1)
-        h_left = self.get_y() - y_top
-
-        self.set_xy(x_left + cell_width, y_top)
-        self.multi_cell(cell_width, line_height, f"Date: {date_requested}\nTravel Order No.: {permit_id}", border=1)
-        h_right = self.get_y() - y_top
-        self.set_y(y_top + max(h_left, h_right))
-
-        # === Row 2: Name + Position ===
-        y_top = self.get_y()
-        self.set_xy(x_left + cell_width, y_top)
-        self.multi_cell(cell_width, line_height, f"Position: {position}", border=1)
-        h_right = self.get_y() - y_top
-
-        self.set_xy(x_left, y_top)
-        self.cell(cell_width, h_right, "", border=1)
-        self.set_xy(x_left + 2, y_top)
-        self.multi_cell(cell_width - 3, line_height, f"Name: {full_name}", border=0)
-        self.set_y(y_top + h_right)
-
-        # === Row 3: Departure & Destination ===
-        triple_height = line_height * 3
-        y = self.get_y()
-        self.set_xy(x_left, y)
-        self.cell(cell_width, line_height, f"Date/Time of Departure: {departure}", border='LTR')
-        self.cell(cell_width, triple_height - line_height, "", border='LR', ln=0)
-
-        x_right = x_left + cell_width
-        self.set_xy(x_right, y)
-        self.cell(cell_width, line_height, f"Destination: {destination}", border='LTR')
-        self.cell(cell_width, triple_height - line_height, "", border='LR', ln=0)
-        self.line(x_left, y + triple_height, x_right + cell_width, y + triple_height)
-        y += triple_height
-
-        # === Row 4: Arrival & Report No. ===
-        self.set_xy(x_left, y)
-        self.cell(cell_width, line_height, f"Date/Time of Arrival: {arrival}", border='LR')
-        self.cell(cell_width, triple_height - line_height, "", border='LR', ln=0)
-
-        self.set_xy(x_right, y)
-        self.cell(cell_width, line_height, "Report No.", border='LR')
-        self.cell(cell_width, triple_height - line_height, "", border='LR', ln=0)
-        self.line(x_left, y + triple_height, x_right + cell_width, y + triple_height)
-        self.set_y(y + triple_height)
-
-        # === Row 5: Purpose / Remarks ===
-        y = self.get_y()
-        self.cell(cell_width, line_height, "Purpose of Travel / Remarks:", border='LTR')
-        self.cell(cell_width, line_height, "", border='LTR')
-        y_content_top = y + line_height
-
-        self.set_xy(x_left, y_content_top)
-        self.multi_cell(cell_width, line_height, purpose, border='LBR', align="C")
-        purpose_y_end = self.get_y()
-
-        self.set_xy(x_right, y_content_top)
-        height = purpose_y_end - y_content_top
-        self.multi_cell(cell_width, line_height, "\n" * int(height / line_height), border='LBR')
-
-        self.line(x_right, y, x_right, purpose_y_end)
-        y = purpose_y_end
+        two_col_row("Municipality of VICTORIA\nProvince of LAGUNA",
+                    f"Date: {date_requested}\nTravel Order No.: {permit_id}")
+        two_col_row(f"Name: {full_name}", f"Position: {position}")
+        two_col_row(f"Date/Time of Departure: {departure}", f"Destination: {destination}")
+        two_col_row(f"Date/Time of Arrival: {arrival}", "Report No.: __________________")
+        two_col_row(f"Purpose of Travel / Remarks:\n{purpose}", "")
 
         # === Recommending Approval & Signature ===
+        y = self.get_y()
+        page_width = self.w - self.l_margin - self.r_margin
+        col_width = page_width / 2
+        x_left = self.l_margin
+        x_right = x_left + col_width
         block_height = line_height * 4
-        self.set_xy(x_right, y)
-        self.multi_cell(cell_width, line_height, "Signature of Officer/Employee\nAuthorized to Travel:", border=0)
-        for _ in range(3):
-            self.cell(cell_width, line_height, "", ln=1)
-        self.rect(x_right, y, cell_width, block_height)
 
-        # --- Helper: format name ---
-        def format_name_with_middle_initial(full_name: str):
-            parts = full_name.split()
-            if len(parts) < 3:
-                return full_name
-            first = parts[0]
-            middle_initials = " ".join([m[0].upper() + "." for m in parts[1:-1]])
-            last = parts[-1]
-            return f"{first} {middle_initials} {last}"
-
-        # --- Left Side: Recommending Approval ---
+        # Left box - Recommending Approval
+        self.rect(x_left, y, col_width, block_height)
         self.set_xy(x_left, y)
-        self.cell(cell_width, line_height, "Recommending Approval:", border='LTR')
-
-        head_name = format_name_with_middle_initial(
-            getattr(permit, "head_approver", "________________________")
-        )
+        self.cell(col_width, line_height, "Recommending Approval:", align="L", ln=1)
+        head_name = getattr(permit, "head_approver", "________________________")
         head_position = getattr(permit, "head_approver_position", "Head of Department")
+        self.set_xy(x_left, y + block_height / 2 - 5)
+        self.multi_cell(col_width, 5, f"{head_name}\n{head_position}", align='C')
 
-        self.set_xy(x_left, y + line_height)
-        self.cell(cell_width, block_height - line_height, "", border='LRB')
-        self.set_xy(x_left, y + (block_height / 2) - 5)
-        self.multi_cell(cell_width, 5, f"{head_name}\n{head_position}", align='C')
-
-        # --- Add Head Signature ---
-        try:
-            head_user = Users.query.get(getattr(permit, "head_approver_id", None))
-            if head_user:
-                sig_record = UserSignature.query.filter_by(user_id=head_user.id).first()
-                if sig_record and sig_record.signature:
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
-                        tmp_sig.write(sig_record.signature)
-                        tmp_sig.flush()
-                        sig_path = tmp_sig.name
-                    sig_w, sig_h = 60, 20
-                    sig_x = x_left + (cell_width - sig_w) / 2
-                    sig_y = y + 8
-                    self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
-        except Exception:
-            pass  # skip if signature error
-
+        # Right box - Signature of Officer
+        self.rect(x_right, y, col_width, block_height)
+        self.set_xy(x_right, y)
+        self.multi_cell(col_width, line_height, "Signature of Officer/Employee\nAuthorized to Travel:", align='C')
         self.set_y(y + block_height)
 
-            # === Approval Section (Mayor) ===
-        self.ln(6)
-        self.set_xy(self.l_margin, self.get_y())
-        box_width = self.w - self.l_margin - self.r_margin
-
-        self.multi_cell(box_width, 8, "A P P R O V E D", align="C", border="LTR")
+        # === Approval Section (Mayor) ===
+        y_start = self.get_y()
         self.set_x(self.l_margin)
-        self.multi_cell(box_width, 6, "HON. DWIGHT C. KAMPITAN", align="C", border="LR")
-        self.set_x(self.l_margin)
-        self.multi_cell(box_width, 6, "Municipal Mayor", align="C", border="LBR")
+        self.set_font("Arial", "B", 10)
+        self.multi_cell(box_width, 8, "A P P R O V E D", align="C")
+        self.multi_cell(box_width, 4, "", align="C")
+        self.multi_cell(box_width, 6, "HON. DWIGHT C. KAMPITAN", align="C")
+        self.multi_cell(box_width, 6, "Municipal Mayor", align="C")
+        self.multi_cell(box_width, 6, "", align="C")
+        y_end = self.get_y()
+        self.rect(self.l_margin, y_start, box_width, y_end - y_start)
 
         # === Certificate of Appearance ===
-        self.ln(6)
-        self.set_xy(self.l_margin, self.get_y())
+        y_start = self.get_y()
+        self.set_font("Arial", "B", 10)
+        self.multi_cell(box_width, 6, "", align="C")
+        self.multi_cell(box_width, 6, "CERTIFICATE OF APPEARANCE", align="C")
+        self.multi_cell(box_width, 6, "", align="C")
 
-        self.multi_cell(box_width, 6, "CERTIFICATE OF APPEARANCE", align="C", border="LTR")
-        self.set_x(self.l_margin)
-        self.multi_cell(box_width, 6, "THIS IS TO CERTIFY that the above named personnel appeared in this office for the", align="L", border="LR")
-        self.set_x(self.l_margin)
-        self.multi_cell(box_width, 6, "purpose of stated above on the date/s indicated below.", align="L", border="LBR")
+        self.set_font("Arial", "", 10)
+        self.multi_cell(box_width, 6,
+                        "        THIS IS TO CERTIFY that the above named personnel appeared in this office for the",
+                        align="L")
+        self.multi_cell(box_width, 6,
+                        "purpose of stated above on the date/s indicated below.",
+                        align="L")
+        self.multi_cell(box_width, 6, "", align="C")
 
-        # === Final Rows ===
-        self.ln(6)
-        self.set_xy(self.l_margin, self.get_y())
-        self.multi_cell(box_width, 8, "FROM                                         TO                                         PLACE", border=1, align="C")
+        y_end = self.get_y()
+        self.rect(self.l_margin, y_start, box_width, y_end - y_start)
 
-        self.set_x(self.l_margin)
-        self.multi_cell(box_width, 16, "\n______________________________________\nSIGNATURE", border=1, align="R")
+        # === Final Rows (From-To-Place / Signature) ===
+        self.multi_cell(box_width, 8, "FROM                                                TO                                                    PLACE\n\n", border=1)
+        self.multi_cell(box_width, 7, "\n\n______________________________________\n  SIGNATURE                         ", align="R", border=1)
 
 
 
