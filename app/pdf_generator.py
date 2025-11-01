@@ -1216,7 +1216,7 @@ class CertificationPDF(FPDF):
         self.ln(10)
 
     def add_certification_body(self, permit):
-        from datetime import datetime
+
 
         # === Document date (top right) ===
         permit_date_requested = permit.date_requested.strftime("%B %d, %Y") if permit.date_requested else ""
@@ -1355,17 +1355,17 @@ class CertificationPDF(FPDF):
 
 
 
-
 class TravelOrderPDF(FPDF):
 
     def add_travel_order_form(self, permit, department=None, position=None, head_approved=False, head_approver=None, head_approver_position=None, head_approver_id=None, current_stage=None):
         self.set_font("Arial", "B", 10)
         line_height = 8
         cell_width = 95
+        page_width = self.w - self.l_margin - self.r_margin  # ✅ Safe page width
 
         # Extract dynamic data
         employee = permit.employee
-        full_name = f"{employee.first_name} {employee.middle_name or ''} {employee.last_name}"
+        full_name = f"{employee.first_name} {employee.middle_name or ''} {employee.last_name}".strip()
         position = (
             employee.permanent_details.position.title if employee.permanent_details else
             employee.casual_details.position.title if employee.casual_details else
@@ -1374,193 +1374,127 @@ class TravelOrderPDF(FPDF):
         )
         date_requested = permit.date_requested.strftime('%B %d, %Y') if permit.date_requested else "N/A"
         departure = permit.travel_detail.date_departure.strftime('%B %d, %Y') if permit.travel_detail and permit.travel_detail.date_departure else "N/A"
-        arrival =  "N/A"
+        arrival = "N/A"
         destination = permit.travel_detail.destination if permit.travel_detail and permit.travel_detail.destination else "N/A"
         purpose = permit.travel_detail.purpose if permit.travel_detail and permit.travel_detail.purpose else "N/A"
         permit_id = str(permit.id)
 
-        # --- Title Row ---
+        # === TITLE ===
         self.ln(2)
-       
         self.set_font("Arial", "B", 14)
-        self.multi_cell(0, 4, "", border= "TLR")
-        self.multi_cell(0, 10, "TRAVEL ORDER", align="C", border="LR")
-        self.multi_cell(0, 4, "", border="LR")
+        self.multi_cell(page_width, 4, "", border="TLR")
+        self.multi_cell(page_width, 10, "TRAVEL ORDER", align="C", border="LR")  # ✅ Fixed width
+        self.multi_cell(page_width, 4, "", border="LR")
 
-
-        # --- Row 1: Left & Right ---
+        # === Row 1: Municipality / Date ===
         self.set_font("Arial", "", 10)
         x_left = self.get_x()
         y_top = self.get_y()
+
+        # Left cell
         self.set_xy(x_left, y_top)
         self.multi_cell(cell_width, line_height, "Municipality of VICTORIA\nProvince of LAGUNA", border=1)
         h_left = self.get_y() - y_top
 
+        # Right cell
         self.set_xy(x_left + cell_width, y_top)
         self.multi_cell(cell_width, line_height, f"Date: {date_requested}\nTravel Order No.: {permit_id}", border=1)
         h_right = self.get_y() - y_top
+
         self.set_y(y_top + max(h_left, h_right))
 
-            
-        # --- Row 2: Name & Position ---
+        # === Row 2: Name / Position ===
         y_top = self.get_y()
         self.set_xy(x_left + cell_width, y_top)
-        self.set_font("Arial", "", 10)
-        # Right cell: use multi_cell to wrap long positions
         self.multi_cell(cell_width, line_height, f"Position: {position}", border=1)
         h_right = self.get_y() - y_top
 
-        # Left cell: manually draw full-height box and write name inside
         self.set_xy(x_left, y_top)
-        self.cell(cell_width, h_right, "", border=1)  # full-height empty box
-        self.set_xy(x_left, y_top)  # small padding inside
-        self.set_font("Arial", "", 10)
+        self.cell(cell_width, h_right, "", border=1)
+        self.set_xy(x_left + 2, y_top)
         self.multi_cell(cell_width - 3, line_height, f"Name: {full_name}", border=0)
 
-        # Move below both
         self.set_y(y_top + h_right)
 
-
+        # === Row 3: Departure / Destination ===
         triple_line_height = line_height * 3
-      # --- Row 3: Departure & Destination ---
         y = self.get_y()
 
-       # --- Row 3: Departure & Destination ---
-        x_left = self.get_x()
-        y = self.get_y()
-
-        # Departure (left)
+        # Left
         self.set_xy(x_left, y)
         self.cell(cell_width, line_height, f"Date/Time of Departure: {departure}", border='LTR')
         self.set_xy(x_left, y + line_height)
-        self.cell(cell_width, triple_line_height - line_height, "", border='LR')  # No bottom
+        self.cell(cell_width, triple_line_height - line_height, "", border='LR')
 
-        # Destination (right)
+        # Right
         x_right = x_left + cell_width
         self.set_xy(x_right, y)
         self.cell(cell_width, line_height, f"Destination: {destination}", border='LTR')
         self.set_xy(x_right, y + line_height)
-        self.cell(cell_width, triple_line_height - line_height, "", border='LR')  # No bottom
+        self.cell(cell_width, triple_line_height - line_height, "", border='LR')
 
-        # Shared bottom line for Row 3
+        # Shared bottom
         self.line(x_left, y + triple_line_height, x_right + cell_width, y + triple_line_height)
+        y += triple_line_height
 
-        # ⬆️ Now update y before drawing next row
-        y = y + triple_line_height
-
-        # --- Row 4: Arrival & Report No. ---
-        # Arrival (left)
+        # === Row 4: Arrival / Report ===
         self.set_xy(x_left, y)
-        self.cell(cell_width, line_height, f"Date/Time of Arrival: {arrival}", border='LR')  # No top
+        self.cell(cell_width, line_height, f"Date/Time of Arrival: {arrival}", border='LR')
         self.set_xy(x_left, y + line_height)
-        self.cell(cell_width, triple_line_height - line_height, "", border='LR')  # No bottom
+        self.cell(cell_width, triple_line_height - line_height, "", border='LR')
 
-        # Report (right)
         self.set_xy(x_right, y)
-        self.cell(cell_width, line_height, "Report No.", border='LR')  # No top
+        self.cell(cell_width, line_height, "Report No.", border='LR')
         self.set_xy(x_right, y + line_height)
-        self.cell(cell_width, triple_line_height - line_height, "", border='LR')  # No bottom
+        self.cell(cell_width, triple_line_height - line_height, "", border='LR')
 
-        # Shared bottom line for Row 4
         self.line(x_left, y + triple_line_height, x_right + cell_width, y + triple_line_height)
-
-        # Finally, move down after both rows
         self.set_y(y + triple_line_height)
-
         y = self.get_y()
 
-
-        #ROW 5
-  # --- Purpose and Comment Header Row ---
+        # === Row 5: Purpose / Comments ===
         self.set_xy(x_left, y)
-        self.cell(cell_width, line_height, "Purpose of Travel / Remarks:", border='LTR')  # Left header
-        self.cell(cell_width, line_height, "", border='LTR')                    # Right header
+        self.cell(cell_width, line_height, "Purpose of Travel / Remarks:", border='LTR')
+        self.cell(cell_width, line_height, "", border='LTR')
 
-        # Save starting y of content box
         y_content_top = y + line_height
-
-        # --- Purpose and Comment Content Row ---
         self.set_xy(x_left, y_content_top)
-        purpose_y_start = self.get_y()
         self.multi_cell(cell_width, line_height, f"{purpose}", border='LBR', align="C")
         purpose_y_end = self.get_y()
 
-        # Draw blank comment box with same height as purpose box
         self.set_xy(x_right, y_content_top)
         self.multi_cell(cell_width, line_height, "\n" * int((purpose_y_end - y_content_top) / line_height), border='LBR')
 
-        # Draw vertical line in between
-        self.line(x_right, y, x_right, purpose_y_end)  # vertical divider from header down to bottom
-
-        # Update Y to next usable row
+        self.line(x_right, y, x_right, purpose_y_end)
         y = max(self.get_y(), purpose_y_end)
 
+        # === Recommending Approval ===
+        block_height = line_height * 4
 
-
-
-                
-            # Update Y to next usable row
-        y = max(self.get_y(), purpose_y_end)
-
-        # Define block_height before use
-        block_height = line_height * 4  # Or make it match left height
-
-        # --- Right Side: Signature Box ---
-        self.set_xy(x_right, y)
-        self.multi_cell(cell_width, line_height, "Signature of Officer/Employees\nAuthorized to Travel:", border=0)
-
-        # Add 3 blank lines manually (without borders)
-        for _ in range(3):
-            self.cell(cell_width, line_height, "", ln=1)
-
-        # Draw border around the whole right block
-        self.rect(x_right, y, cell_width, block_height)
-
-        # --- Left Side ---
-      # Recommending Approval block
-        def format_name_with_middle_initial(full_name: str) -> str:
-            parts = full_name.split()
-
+        def format_name_with_middle_initial(name: str) -> str:
+            parts = name.split()
             if len(parts) < 3:
-                # Kung wala talagang middle name (e.g. "Juan Cruz")
-                return full_name
-
-            first = parts[0]
-            middle = parts[1:-1]  # lahat ng nasa gitna
-            last = parts[-1]
-
-            # Kunin lang first letter ng bawat middle name at lagyan ng "."
+                return name
+            first, *middle, last = parts
             middle_initials = " ".join([m[0].upper() + "." for m in middle])
-
             return f"{first} {middle_initials} {last}"
 
-
-            # --- PDF Drawing ---
         self.set_xy(x_left, y)
         self.cell(cell_width, line_height, "Recommending Approval:", border='LTR', ln=0)
 
-        # ✅ Format head_name with middle initial
         head_name = format_name_with_middle_initial(getattr(permit, 'head_approver', "________________________"))
         head_position = getattr(permit, 'head_approver_position', "Head of Department")
         name_lines = f"{head_name}\n{head_position}".split('\n')
-
-        line_height_name = 5
-        block_height_name = line_height_name * len(name_lines)
-
-        # Draw the cell border
         self.set_xy(x_left, y + line_height)
         self.cell(cell_width, block_height - line_height, "", border='LRB', ln=0)
-
-        # Overlay the head name + position
-        self.set_xy(x_left, y + line_height + ((block_height - line_height - block_height_name) / 2))
+        self.set_xy(x_left, y + line_height + 4)
         for line in name_lines:
-            self.cell(cell_width, line_height_name, line, border=0, ln=1, align='C')
+            self.cell(cell_width, 5, line, border=0, ln=1, align='C')
 
-        # ✅ Insert Head e-signature if approved
+        # ✅ Signature overlay
         head_user = None
         if getattr(permit, 'head_approver_id', None):
             head_user = Users.query.get(permit.head_approver_id)
-
         if head_user:
             sig_record = UserSignature.query.filter_by(user_id=head_user.id).first()
             if sig_record and sig_record.signature:
@@ -1568,40 +1502,23 @@ class TravelOrderPDF(FPDF):
                     tmp_sig.write(sig_record.signature)
                     tmp_sig.flush()
                     sig_path = tmp_sig.name
+                self.image(sig_path, x=x_left + 30, y=self.get_y() - 20, w=60, h=15)
 
-                # Overlay signature (adjust position & scale as needed)
-                scale = 2
-                sig_w = 30 * scale
-                sig_h = 10 * scale
-                sig_x = x_left + (cell_width - sig_w) / 2
-                sig_y = self.get_y() - 20
-                self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
-
-        # Move cursor below the block
+        # === Right Signature Box ===
+        self.set_xy(x_right, y)
+        self.multi_cell(cell_width, line_height, "Signature of Officer/Employees\nAuthorized to Travel:", border=0)
+        for _ in range(3):
+            self.cell(cell_width, line_height, "", ln=1)
+        self.rect(x_right, y, cell_width, block_height)
         self.set_y(y + block_height)
 
-                        
-            # Mayor cell
-        # Set starting Y position for the box
+        # === APPROVED Section ===
         y_start = self.get_y()
-        box_width = self.w - self.l_margin - self.r_margin
-        total_height = 0
-
-        # A P P R O V E D
         self.set_font("Arial", "", 10)
-        self.multi_cell(0, 8, "A P P R O V E D", align="C", border=0)
-        total_height += 8
+        self.multi_cell(page_width, 8, "A P P R O V E D", align="C", border=0)
+        self.multi_cell(page_width, 4, "", border=0)
+        self.multi_cell(page_width, 6, "HON. DWIGHT C. KAMPITAN", align="C", border=0)
 
-        # Small space
-        self.multi_cell(0, 4, "", border=0)
-        total_height += 4
-
-        # Mayor Name
-        self.set_font("Arial", "", 10)
-        self.multi_cell(0, 6, "HON. DWIGHT C. KAMPITAN", align="C", border=0)
-        total_height += 6
-                
-        # ✅ Insert Mayor's signature
         mayor_user = (
             Users.query
             .join(Employee)
@@ -1612,64 +1529,34 @@ class TravelOrderPDF(FPDF):
         )
 
         if mayor_user:
-             sig_record = UserSignature.query.filter_by(user_id=mayor_user.id).first()
-        if sig_record and sig_record.signature:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
-                tmp_sig.write(sig_record.signature)
-                tmp_sig.flush()
-                sig_path = tmp_sig.name
+            sig_record = UserSignature.query.filter_by(user_id=mayor_user.id).first()
+            if sig_record and sig_record.signature:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
+                    tmp_sig.write(sig_record.signature)
+                    tmp_sig.flush()
+                    sig_path = tmp_sig.name
+                self.image(sig_path, x=(self.w - 62) / 2, y=self.get_y() - 18, w=62, h=20)
 
-            scale = 2.0
-            sig_w = 31 * scale
-            sig_h = 13 * scale
-            sig_x = (self.w - sig_w) / 2 + 2
-            sig_y = self.get_y() - 18
-            self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
+        self.multi_cell(page_width, 6, "Municipal Mayor", align="C", border=0)
+        self.multi_cell(page_width, 6, "", border=0)
+        self.rect(self.l_margin, y_start, page_width, self.get_y() - y_start)
 
-        # Title
-        self.multi_cell(0, 6, "Municipal Mayor", align="C", border=0)
-        total_height += 6
-
-        # ✅ Extra 1-line space below Municipal Mayor (inside box)
-        self.multi_cell(0, 6, "", border=0)
-        total_height += 6
-
-        # Draw full box around the whole section
-        self.rect(self.l_margin, y_start, box_width, total_height)
-
-
-        # ✅ Start position of bordered block
+        # === CERTIFICATE OF APPEARANCE ===
         y_start = self.get_y()
-
-        # Certificate block
-        self.multi_cell(0, 6, "", border=0)
-        self.set_font("Arial", "", 10)
-        self.multi_cell(0, 6, "CERTIFICATE OF APPEARANCE", border=0, align="C")
-        self.multi_cell(0, 6, "", border=0)
-        self.set_font("Arial", "", 10)
-        self.multi_cell(0, 6, "        THIS IS TO CERTIFY that the above named personnel appeared in this office for the", align="C")
-        self.multi_cell(0, 6, "purpose of stated above on the date/s indicated below.", align="L")
-        self.multi_cell(0, 6, "", border=0)
-
-        # ✅ End position of bordered block
+        self.multi_cell(page_width, 6, "", border=0)
+        self.multi_cell(page_width, 6, "CERTIFICATE OF APPEARANCE", align="C", border=0)
+        self.multi_cell(page_width, 6, "", border=0)
+        self.multi_cell(page_width, 6, "        THIS IS TO CERTIFY that the above named personnel appeared in this office for the", align="C")
+        self.multi_cell(page_width, 6, "purpose of stated above on the date/s indicated below.", align="L")
+        self.multi_cell(page_width, 6, "", border=0)
         y_end = self.get_y()
+        self.rect(self.l_margin, y_start, page_width, y_end - y_start)
 
-        # Draw rect border *only* around this section
-        self.rect(self.l_margin, y_start, self.w - self.r_margin - self.l_margin, y_end - y_start)
-
-
-
-
-        #row 8
-        self.set_font("Arial", "", 10) 
-        self.multi_cell(190, 8, "FROM                                                TO                                                    PLACE\n\n", border=1)
-
-
-        #row 9 
+        # === Footer Rows ===
         self.set_font("Arial", "", 10)
+        self.multi_cell(page_width, 8, "FROM                                                TO                                                    PLACE\n\n", border=1)
         text = "\n\n______________________________________\n  SIGNATURE                         "
-        self.multi_cell(190, 7, text, align="R", border=1)
-
+        self.multi_cell(page_width, 7, text, align="R", border=1)
 
 
 
