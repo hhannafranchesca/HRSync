@@ -1405,7 +1405,7 @@ class TravelOrderPDF(FPDF):
         self.ln(2)
         self.set_font("Arial", "B", 14)
         self.multi_cell(0, 4, "", border="TLR")
-        self.multi_cell(0, 10, "TRAVEL ORDER", align="C", border="LR")
+        self.multi_cell(0, 10, "TRAVEL ORDER", align="C",)
         self.multi_cell(0, 4, "", border="LR")
 
         # === Row 1: Municipality & Date ===
