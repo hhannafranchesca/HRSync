@@ -1383,19 +1383,28 @@ class TravelOrderPDF(FPDF):
         # --- Helper for two equal-height columns ---
         def equal_row(left_text, right_text):
             y = self.get_y()
+
+            # Left cell
             self.set_xy(x_left, y)
             self.multi_cell(col_width, line_height, left_text, border="LR")
             h_left = self.get_y() - y
+
+            # Right cell
             self.set_xy(x_right, y)
             self.multi_cell(col_width, line_height, right_text, border="LR")
             h_right = self.get_y() - y
+
             max_h = max(h_left, h_right)
+
+            # Fill missing height
             if h_left < max_h:
                 self.set_xy(x_left, y + h_left)
                 self.multi_cell(col_width, max_h - h_left, "", border="LR")
             if h_right < max_h:
                 self.set_xy(x_right, y + h_right)
                 self.multi_cell(col_width, max_h - h_right, "", border="LR")
+
+            # Shared borders
             self.line(x_left, y, x_left + page_width, y)
             self.line(x_left, y + max_h, x_left + page_width, y + max_h)
             self.set_y(y + max_h)
@@ -1476,13 +1485,11 @@ class TravelOrderPDF(FPDF):
         y_start = self.get_y()
         self.cell(0, 6, "A P P R O V E D", ln=1, align='C')
         self.ln(15)  # Space for signature
-
-        # 🖋️ Add Mayor's Signature (if present)
         if mayor_signature:
-            sig_y = y_start + 6
+            # place signature in the space
             sig_x = self.l_margin + page_width / 2 - 20
+            sig_y = y_start + 5
             self.image(mayor_signature, x=sig_x, y=sig_y, w=40)
-
         self.cell(0, 6, "HON. DWIGHT C. KAMPITAN", ln=1, align='C')
         self.cell(0, 6, "Municipal Mayor", ln=1, align='C')
         y_end = self.get_y()
@@ -1510,7 +1517,7 @@ class TravelOrderPDF(FPDF):
         text = "\n\n______________________________________\n  SIGNATURE                         "
         self.multi_cell(page_width, 7, text, align="R", border=1)
 
-        
+
 #leave
 def clean_text(text):
     if not text:
