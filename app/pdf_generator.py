@@ -1235,26 +1235,33 @@ class CertificationPDF(FPDF):
         employee = permit.employee
         employee_name = f"{employee.first_name} {employee.last_name}"
 
-        # ✅ Define position and department safely
-        position = employee.position.title if employee.position else "N/A"
+        # ✅ Handle position safely
+        if employee.status in ['Permanent', 'P'] and employee.permanent_details and employee.permanent_details.position:
+            position = employee.permanent_details.position.title
+        elif employee.status in ['Casual', 'C'] and employee.casual_details and employee.casual_details.position:
+            position = employee.casual_details.position.title
+        elif employee.status in ['Job Order', 'JO'] and employee.job_order_details and employee.job_order_details.position:
+            position = employee.job_order_details.position.title
+        elif employee.status in ['CT', 'Contractual', 'Contract Teacher'] and employee.job_order_details and employee.job_order_details.position:
+            position = employee.job_order_details.position.title
+        elif employee.status in ['E', 'Elective']:
+            position = "Municipal Elective Official"
+        else:
+            position = "N/A"
+
         department = employee.department.name if employee.department else "N/A"
 
         # === Employment start date ===
         if employee.status in ['Permanent', 'P'] and employee.permanent_details and employee.permanent_details.date_original_appointment:
             employment_start = employee.permanent_details.date_original_appointment.strftime("%B %d, %Y")
-
         elif employee.status in ['Casual', 'C'] and employee.casual_details and employee.casual_details.contract_start:
             employment_start = employee.casual_details.contract_start.strftime("%B %d, %Y")
-
         elif employee.status in ['Job Order', 'JO'] and employee.job_order_details and employee.job_order_details.date_hired:
             employment_start = employee.job_order_details.date_hired.strftime("%B %d, %Y")
-
         elif employee.status in ['CT', 'Contractual', 'Contract Teacher'] and employee.job_order_details and employee.job_order_details.date_hired:
             employment_start = employee.job_order_details.date_hired.strftime("%B %d, %Y")
-
         elif employee.status in ['E', 'Elective']:
             employment_start = "upon assumption of office"
-
         else:
             employment_start = "N/A"
 
@@ -1264,16 +1271,16 @@ class CertificationPDF(FPDF):
         self.cell(0, 10, "To whom it may concern:", ln=1, align='L')
         self.ln(5)
 
-        # === Intro Line (right aligned) ===
+        # === Intro Line ===
         page_width = 210
         right_margin_offset = 22
-        intro_text = "This  is  to  certify  that  based  on  the  records  kept  and  filed  in  this  office,"
+        intro_text = "This is to certify that based on the records kept and filed in this office,"
         text_width = self.get_string_width(intro_text)
         x_position = page_width - right_margin_offset - text_width
         self.set_x(x_position)
         self.cell(text_width, 10, intro_text, ln=1)
 
-        # === Main Body (employee info) ===
+        # === Main Body ===
         left_margin = 20
         right_margin = 15
         usable_width = page_width - left_margin - right_margin
@@ -1290,7 +1297,6 @@ class CertificationPDF(FPDF):
             (f", this municipality from {employment_start} to present.", "")
         ]
 
-        # ✅ Draw the employee description
         for phrase, style in sentence_parts:
             self.set_font("Arial", style, 12)
             for word in phrase.split(" "):
@@ -1303,7 +1309,6 @@ class CertificationPDF(FPDF):
                 self.cell(word_width, line_height, word, border=0)
                 x += word_width
 
-        # ✅ End of main loop
         self.ln(line_height + 2)
 
         # === End Statement ===
@@ -1355,8 +1360,6 @@ class CertificationPDF(FPDF):
                 sig_y = self.get_y() - 27
 
                 self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
-
-
 
 
 
