@@ -1515,7 +1515,7 @@ class TravelOrderPDF(FPDF):
         self.set_font("Arial", "", 10)
         self.multi_cell(col_width, 6, "Signature of Officer/Employee\nAuthorized to Travel:", align='L')
 
-        self.set_y(y + block_height)
+        self.set_y(y + block_height + 3)
 
             # === APPROVED Section ===
         y_start = self.get_y()
@@ -1529,7 +1529,7 @@ class TravelOrderPDF(FPDF):
         self.rect(self.l_margin, y_start - 2, page_width, (y_end - y_start) + 4)
 
         # ✅ Add a line gap to avoid overlap
-        self.ln(10)  # <— add vertical spacing before the next section
+        self.ln(1)  # <— add vertical spacing before the next section
 
         # === CERTIFICATE OF APPEARANCE ===
         y_start = self.get_y()
@@ -1547,7 +1547,7 @@ class TravelOrderPDF(FPDF):
         self.rect(self.l_margin, y_start - 2, page_width, (y_end - y_start) + 6)
 
         # === FROM / TO / PLACE (single cell) ===
-        self.ln(3)
+        self.ln(4)
         self.multi_cell(page_width, 8, "FROM                 TO                 PLACE", border=1, align="L")
 
 
