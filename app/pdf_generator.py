@@ -1381,23 +1381,20 @@ class TravelOrderPDF(FPDF):
         x_left = self.l_margin
         x_right = x_left + col_width
 
-        # Helper function
+        # Helper for two-column rows
         def two_col_row(left_text, right_text):
             y_top = self.get_y()
-            # Left cell
             self.set_xy(x_left, y_top)
             self.multi_cell(col_width, line_height, left_text, border=1)
             h_left = self.get_y() - y_top
 
-            # Right cell
             self.set_xy(x_right, y_top)
             self.multi_cell(col_width, line_height, right_text, border=1)
             h_right = self.get_y() - y_top
 
-            # Align height
             self.set_y(y_top + max(h_left, h_right))
 
-        # Extract safe data
+        # Extract data safely
         employee = getattr(permit, "employee", None)
         if not employee:
             return
@@ -1425,23 +1422,20 @@ class TravelOrderPDF(FPDF):
         purpose = getattr(permit.travel_detail, "purpose", "N/A") or "N/A"
         permit_id = str(getattr(permit, "id", "N/A"))
 
-        # === Title ===
-        self.ln(2)
+        # === Header Title ===
+        self.ln(5)
         self.set_font("Arial", "B", 14)
-        self.set_x(self.l_margin)
-        self.cell(page_width, 4, "", border="TLR")
-        self.ln(4)
-        self.cell(page_width, 10, "TRAVEL ORDER", align="C", border="LR")
-        self.ln(10)
-        self.cell(page_width, 4, "", border="LR")
-        self.ln(4)
+        self.cell(page_width, 10, "TRAVEL ORDER", align="C", border=1, ln=1)
+        self.ln(3)
 
         # === Body ===
         self.set_font("Arial", "", 10)
-        two_col_row("Municipality of VICTORIA\nProvince of LAGUNA",
-                    f"Date: {date_requested}\nTravel Order No.: {permit_id}")
+        two_col_row(
+            "Municipality of VICTORIA\nProvince of LAGUNA",
+            f"Date: {date_requested}\nTravel Order No.: {permit_id}"
+        )
 
-        # Aligned Name/Position row
+        # Name & Position
         y_top = self.get_y()
         self.set_xy(x_right, y_top)
         self.multi_cell(col_width, line_height, f"Position: {position}", border=1)
@@ -1451,11 +1445,12 @@ class TravelOrderPDF(FPDF):
         h_left = self.get_y() - y_top
         self.set_y(y_top + max(h_left, h_right))
 
+        # Travel info
         two_col_row(f"Date/Time of Departure: {departure}", f"Destination: {destination}")
         two_col_row(f"Date/Time of Arrival: {arrival}", "Report No.: __________________")
         two_col_row(f"Purpose of Travel / Remarks:\n{purpose}", "")
 
-        # === Recommending Approval & Signature ===
+        # === Recommending Approval / Signature ===
         y = self.get_y()
         block_height = line_height * 4
         self.rect(x_left, y, col_width, block_height)
@@ -1480,25 +1475,26 @@ class TravelOrderPDF(FPDF):
         y_start = self.get_y()
         self.set_font("Arial", "B", 10)
         self.multi_cell(page_width, 8, "A P P R O V E D", align="C")
-        self.multi_cell(page_width, 4, "", align="C")
+        self.ln(2)
         self.multi_cell(page_width, 6, "HON. DWIGHT C. KAMPITAN", align="C")
         self.multi_cell(page_width, 6, "Municipal Mayor", align="C")
-        self.multi_cell(page_width, 6, "", align="C")
         y_end = self.get_y()
-        self.rect(self.l_margin, y_start, page_width, y_end - y_start)
+        self.rect(self.l_margin, y_start - 2, page_width, y_end - y_start + 10)
 
         # === Certificate of Appearance ===
+        self.ln(4)
         y_start = self.get_y()
-        self.ln(3)
         self.set_font("Arial", "B", 10)
         self.multi_cell(page_width, 6, "CERTIFICATE OF APPEARANCE", align="C")
         self.ln(2)
         self.set_font("Arial", "", 10)
-        self.multi_cell(page_width, 6, "    THIS IS TO CERTIFY that the above named personnel appeared in this office for the", align="L")
-        self.multi_cell(page_width, 6, "purpose stated above on the date/s indicated below.", align="L")
+
+        # Indented text fix (avoids cut on left margin)
+        self.set_x(self.l_margin + 5)
+        self.multi_cell(page_width - 10, 6, "THIS IS TO CERTIFY that the above-named personnel appeared in this office for the purpose stated above on the date/s indicated below.", align="L")
         self.ln(5)
         y_end = self.get_y()
-        self.rect(self.l_margin, y_start, page_width, y_end - y_start)
+        self.rect(self.l_margin, y_start - 2, page_width, y_end - y_start + 4)
 
         # === Final Rows ===
         self.ln(2)
