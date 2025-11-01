@@ -1406,9 +1406,17 @@ class TravelOrderPDF(FPDF):
         # === Title ===
         self.ln(2)
         self.set_font("Arial", "B", 14)
-        self.multi_cell(0, 4, "", border="TLR")
-        self.multi_cell(0, 10, "TRAVEL ORDER", align="C", border="LR")
-        self.multi_cell(0, 4, "", border="LR")
+
+        # Always reset X before a full-width multicell to avoid FPDF width errors
+        self.set_x(self.l_margin)
+        self.multi_cell(self.w - self.l_margin - self.r_margin, 4, "", border="TLR")
+
+        self.set_x(self.l_margin)
+        self.multi_cell(self.w - self.l_margin - self.r_margin, 10, "TRAVEL ORDER", align="C", border="LR")
+
+        self.set_x(self.l_margin)
+        self.multi_cell(self.w - self.l_margin - self.r_margin, 4, "", border="LR")
+
 
         # === Row 1: Municipality + Date ===
         self.set_font("Arial", "", 10)
