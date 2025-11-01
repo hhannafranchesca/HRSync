@@ -1502,7 +1502,7 @@ class TravelOrderPDF(FPDF):
 
         # Left block
         self.set_xy(x_left + 3, y + 3)
-        self.set_font("Arial", "B", 10)
+        self.set_font("Arial", "", 10)
         self.cell(col_width, 6, "Recommending Approval:", ln=1, align='L')
         self.set_font("Arial", "", 10)
         head_name = head_approver or "________________________"
@@ -1512,21 +1512,24 @@ class TravelOrderPDF(FPDF):
 
         # Right block
         self.set_xy(x_right + 3, y + 3)
-        self.set_font("Arial", "B", 10)
+        self.set_font("Arial", "", 10)
         self.multi_cell(col_width, 6, "Signature of Officer/Employee\nAuthorized to Travel:", align='L')
 
-        self.set_y(y + block_height + 8)
+        self.set_y(y + block_height)
 
-        # === APPROVED Section ===
+            # === APPROVED Section ===
         y_start = self.get_y()
         self.set_font("Arial", "B", 10)
-        self.cell(0, 6, "A P P R O V E D", ln=1, align='L')
+        self.cell(0, 6, "A P P R O V E D", ln=1, align='C')
         self.set_font("Arial", "B", 10)
-        self.cell(0, 6, "HON. DWIGHT C. KAMPITAN", ln=1, align='L')
+        self.cell(0, 6, "HON. DWIGHT C. KAMPITAN", ln=1, align='C')
         self.set_font("Arial", "", 10)
-        self.cell(0, 6, "Municipal Mayor", ln=1, align='L')
+        self.cell(0, 6, "Municipal Mayor", ln=1, align='C')
         y_end = self.get_y()
         self.rect(self.l_margin, y_start - 2, page_width, (y_end - y_start) + 4)
+
+        # ✅ Add a line gap to avoid overlap
+        self.ln(10)  # <— add vertical spacing before the next section
 
         # === CERTIFICATE OF APPEARANCE ===
         y_start = self.get_y()
@@ -1542,8 +1545,9 @@ class TravelOrderPDF(FPDF):
         )
         y_end = self.get_y()
         self.rect(self.l_margin, y_start - 2, page_width, (y_end - y_start) + 6)
+
         # === FROM / TO / PLACE (single cell) ===
-        self.ln(2)
+        self.ln(3)
         self.multi_cell(page_width, 8, "FROM                 TO                 PLACE", border=1, align="L")
 
 
