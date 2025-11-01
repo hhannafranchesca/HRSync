@@ -1535,87 +1535,34 @@ class TravelOrderPDF(FPDF):
 
         self.set_y(y + block_height)
 
-        # === Approval Section (Mayor) ===
-        y_start = self.get_y()
-        box_width = self.w - self.l_margin - self.r_margin
-        total_height = 0
-
-        # "APPROVED" heading
-        self.set_x(self.l_margin)
-        self.multi_cell(box_width, 8, "A P P R O V E D", align="C")
-        total_height += 8
-
-        # Spacer line
-        self.set_x(self.l_margin)
-        self.multi_cell(box_width, 4, "", align="C")
-        total_height += 4
-
-        # Mayor’s Name
-        self.set_x(self.l_margin)
-        self.multi_cell(box_width, 6, "HON. DWIGHT C. KAMPITAN", align="C")
-        total_height += 6
-
-        # Mayor’s Title
-        self.set_x(self.l_margin)
-        self.multi_cell(box_width, 6, "Municipal Mayor", align="C")
-        total_height += 6
-
-        # Spacer line (bottom padding)
-        self.set_x(self.l_margin)
-        self.multi_cell(box_width, 6, "", align="C")
-        total_height += 6
-
-        # Draw border box for this section
-        self.rect(self.l_margin, y_start, box_width, total_height)
-
-        # Add space before the next section
+            # === Approval Section (Mayor) ===
         self.ln(6)
+        self.set_xy(self.l_margin, self.get_y())
+        box_width = self.w - self.l_margin - self.r_margin
 
+        self.multi_cell(box_width, 8, "A P P R O V E D", align="C", border="LTR")
+        self.set_x(self.l_margin)
+        self.multi_cell(box_width, 6, "HON. DWIGHT C. KAMPITAN", align="C", border="LR")
+        self.set_x(self.l_margin)
+        self.multi_cell(box_width, 6, "Municipal Mayor", align="C", border="LBR")
 
         # === Certificate of Appearance ===
-        y_start = self.get_y()
+        self.ln(6)
+        self.set_xy(self.l_margin, self.get_y())
 
-        # Spacer line (top)
+        self.multi_cell(box_width, 6, "CERTIFICATE OF APPEARANCE", align="C", border="LTR")
         self.set_x(self.l_margin)
-        self.multi_cell(box_width, 6, "", align="C")
-
-        # Title
+        self.multi_cell(box_width, 6, "THIS IS TO CERTIFY that the above named personnel appeared in this office for the", align="L", border="LR")
         self.set_x(self.l_margin)
-        self.multi_cell(box_width, 6, "CERTIFICATE OF APPEARANCE", align="C")
-
-        # Spacer line
-        self.set_x(self.l_margin)
-        self.multi_cell(box_width, 6, "", align="C")
-
-        # First paragraph
-        self.set_x(self.l_margin)
-        self.multi_cell(
-            box_width,
-            6,
-            "        THIS IS TO CERTIFY that the above named personnel appeared in this office for the",
-            align="L"
-        )
-
-        # Second paragraph
-        self.set_x(self.l_margin)
-        self.multi_cell(
-            box_width,
-            6,
-            "purpose of stated above on the date/s indicated below.",
-            align="L"
-        )
-
-        # Spacer line (bottom)
-        self.set_x(self.l_margin)
-        self.multi_cell(box_width, 6, "", align="C")
-
-        # Draw border box for this section
-        y_end = self.get_y()
-        self.rect(self.l_margin, y_start, box_width, y_end - y_start)
+        self.multi_cell(box_width, 6, "purpose of stated above on the date/s indicated below.", align="L", border="LBR")
 
         # === Final Rows ===
-        self.multi_cell(190, 8, "FROM                                                TO                                                    PLACE\n\n", border=1)
-        self.multi_cell(190, 7, "\n\n______________________________________\n  SIGNATURE                         ", align="R", border=1)
+        self.ln(6)
+        self.set_xy(self.l_margin, self.get_y())
+        self.multi_cell(box_width, 8, "FROM                                         TO                                         PLACE", border=1, align="C")
+
+        self.set_x(self.l_margin)
+        self.multi_cell(box_width, 16, "\n______________________________________\nSIGNATURE", border=1, align="R")
 
 
 
