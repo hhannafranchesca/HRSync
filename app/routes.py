@@ -5651,6 +5651,7 @@ def generate_jo_pdf():
 
 
 # --- ROUTE ---
+# --- ROUTE ---
 @app.route('/generate_travel_order_pdf/<int:permit_id>')
 @login_required
 def generate_travel_order_pdf(permit_id):
@@ -5662,7 +5663,7 @@ def generate_travel_order_pdf(permit_id):
     if not employee:
         abort(404)
 
-    # Determine department_id
+    # Department logic (unchanged)
     department_id = None
     if employee.permanent_details:
         department_id = employee.department_id
@@ -5671,70 +5672,50 @@ def generate_travel_order_pdf(permit_id):
     elif employee.job_order_details:
         department_id = employee.job_order_details.assigned_department_id
 
-    # Find department head
     head_user = None
     if employee.department and employee.department.name == "Office of the Municipal Human Resource Management Officer":
         head_user = (
             Users.query.join(Employee)
-            .outerjoin(PermanentEmployeeDetails, PermanentEmployeeDetails.employee_id == Employee.id)
-            .outerjoin(CasualEmployeeDetails, CasualEmployeeDetails.employee_id == Employee.id)
-            .outerjoin(JobOrderDetails, JobOrderDetails.employee_id == Employee.id)
-            .outerjoin(Position, 
-                (Position.id == PermanentEmployeeDetails.position_id) |
-                (Position.id == CasualEmployeeDetails.position_id)
-            )
-            .filter(
-                ((Position.title == "MUNICIPAL GOVERNMENT DEPARTMENT HEAD I") |
-                 (JobOrderDetails.position_title == "MUNICIPAL GOVERNMENT DEPARTMENT HEAD I"))
-            )
+            .filter(Users.role == "Head")
             .first()
         )
-    else:
-        if department_id:
-            head_user = (
-                Users.query.join(Employee)
-                .filter(
-                    Employee.department_id == department_id,
-                    Users.role == "Head"
-                )
-                .first()
-            )
-
-    # Prepare head info
-    head_approver = "________________________"
-    head_approver_position = "Head of Department"
-    head_approver_id = None
+    elif department_id:
+        head_user = (
+            Users.query.join(Employee)
+            .filter(Employee.department_id == department_id, Users.role == "Head")
+            .first()
+        )
 
     if head_user:
-        head_employee = head_user.employee
-        if head_employee:
-            if head_employee.permanent_details:
-                head_approver_position = head_employee.permanent_details.position.title
-            elif head_employee.casual_details:
-                head_approver_position = head_employee.casual_details.position.title
-            elif head_employee.job_order_details:
-                head_approver_position = head_employee.job_order_details.position_title
-        head_approver = head_user.name
-        head_approver_id = head_user.id
+        permit.head_approver = head_user.name
+        permit.head_approver_position = (
+            head_user.employee.permanent_details.position.title
+            if head_user.employee.permanent_details
+            else head_user.employee.job_order_details.position_title
+            if head_user.employee.job_order_details
+            else "Head of Department"
+        )
+    else:
+        permit.head_approver = "________________________"
+        permit.head_approver_position = "Head of Department"
 
-    # Fetch mayor's signature
-    mayor = Users.query.filter_by(role='Mayor').first()
-    mayor_signature = None
-    if mayor and mayor.employee and mayor.employee.signature:
-        mayor_signature = io.BytesIO(mayor.employee.signature)
+    # ✅ Fetch mayor signature (from DB)
+    mayor_user = Users.query.filter_by(role='Mayor').first()
+    mayor_signature_stream = None
+    if mayor_user and mayor_user.signature:
+        temp_sig = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+        temp_sig.write(mayor_user.signature)
+        temp_sig.flush()
+        mayor_signature_stream = temp_sig.name
 
-    # Generate PDF
     pdf = TravelOrderPDF()
     pdf.add_travel_order_form(
         permit,
-        head_approved=True if head_user else False,
-        head_approver=head_approver,
-        head_approver_position=head_approver_position,
-        head_approver_id=head_approver_id,
-        mayor_signature=mayor_signature
+        head_approver=permit.head_approver,
+        head_approver_position=permit.head_approver_position,
+        mayor_signature=mayor_signature_stream
     )
 
-    # Output
     pdf_output = io.BytesIO()
     pdf_bytes = bytes(pdf.output(dest='S'))
     pdf_output.write(pdf_bytes)
