@@ -1494,37 +1494,39 @@ class TravelOrderPDF(FPDF):
         # Move cursor below both cells
         self.set_y(y + h_left)
 
-        # === Recommending Approval & Signature ===
+      # === Recommending Approval & Signature ===
         block_height = 30
         y = self.get_y()
         self.rect(x_left, y, col_width, block_height)
         self.rect(x_right, y, col_width, block_height)
 
-        # Left block (Recommending Approval)
-        self.set_xy(x_left + 2, y + 2)
+        # Left block
+        self.set_xy(x_left + 3, y + 3)
         self.set_font("Arial", "B", 10)
-        self.cell(col_width, 6, "Recommending Approval:", ln=1)
+        self.cell(col_width, 6, "Recommending Approval:", ln=1, align='L')
         self.set_font("Arial", "", 10)
         head_name = head_approver or "________________________"
         head_position = head_approver_position or "Head of Department"
         self.set_xy(x_left, y + block_height - 15)
         self.multi_cell(col_width, 5, f"{head_name}\n{head_position}", align='C')
 
-        # Right block (Signature)
-        self.set_xy(x_right, y + 2)
+        # Right block
+        self.set_xy(x_right + 3, y + 3)
         self.set_font("Arial", "B", 10)
-        self.multi_cell(col_width, 6, "Signature of Officer/Employee\nAuthorized to Travel:", align='C')
+        self.multi_cell(col_width, 6, "Signature of Officer/Employee\nAuthorized to Travel:", align='L')
 
-        self.set_y(y + block_height)
+        self.set_y(y + block_height + 8)
 
-            # === APPROVED Section with Mayor ===
+        # === APPROVED Section ===
         y_start = self.get_y()
         self.set_font("Arial", "B", 10)
-        self.multi_cell(page_width, 8, "A P P R O V E D", align="C")
-        self.multi_cell(page_width, 6, "HON. DWIGHT C. KAMPITAN", align="C")
-        self.multi_cell(page_width, 6, "Municipal Mayor", align="C")
+        self.cell(0, 6, "A P P R O V E D", ln=1, align='L')
+        self.set_font("Arial", "B", 10)
+        self.cell(0, 6, "HON. DWIGHT C. KAMPITAN", ln=1, align='L')
+        self.set_font("Arial", "", 10)
+        self.cell(0, 6, "Municipal Mayor", ln=1, align='L')
         y_end = self.get_y()
-        self.rect(self.l_margin, y_start - 2, page_width, (y_end - y_start) + 6)
+        self.rect(self.l_margin, y_start - 2, page_width, (y_end - y_start) + 4)
 
         # === CERTIFICATE OF APPEARANCE ===
         y_start = self.get_y()
