@@ -1252,16 +1252,12 @@ class CertificationPDF(FPDF):
         department = employee.department.name if employee.department else "N/A"
 
         # === Employment start date ===
-        if employee.status in ['Permanent', 'P'] and employee.permanent_details and employee.permanent_details.date_original_appointment:
+        if employee.status in ['Permanent', 'P', 'E', 'Elective','CT', 'Contractual', 'Contract Teacher'] and employee.permanent_details and employee.permanent_details.date_original_appointment:
             employment_start = employee.permanent_details.date_original_appointment.strftime("%B %d, %Y")
         elif employee.status in ['Casual', 'C'] and employee.casual_details and employee.casual_details.contract_start:
             employment_start = employee.casual_details.contract_start.strftime("%B %d, %Y")
         elif employee.status in ['Job Order', 'JO'] and employee.job_order_details and employee.job_order_details.date_hired:
             employment_start = employee.job_order_details.date_hired.strftime("%B %d, %Y")
-        elif employee.status in ['CT', 'Contractual', 'Contract Teacher'] and employee.job_order_details and employee.job_order_details.date_hired:
-            employment_start = employee.job_order_details.date_hired.strftime("%B %d, %Y")
-        elif employee.status in ['E', 'Elective']:
-            employment_start = "upon assumption of office"
         else:
             employment_start = "N/A"
 
