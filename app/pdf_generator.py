@@ -1234,20 +1234,26 @@ class CertificationPDF(FPDF):
         employee = permit.employee
         employee_name = f"{employee.first_name} {employee.last_name}"
 
-        if employee.permanent_details:
-            position = employee.permanent_details.position.title
-            department = employee.permanent_details.position.department.name
-        elif employee.casual_details:
-            position = employee.casual_details.position.title
-            department = employee.casual_details.assigned_department.name
-        elif employee.job_order_details:
-            position = employee.job_order_details.position_title
-            department = (
-                employee.job_order_details.assigned_department.name
-                if employee.job_order_details.assigned_department else "N/A"
-            )
+        # === Employment start date ===
+        if employee.status in ['Permanent', 'P'] and employee.permanent_details and employee.permanent_details.date_original_appointment:
+            employment_start = employee.permanent_details.date_original_appointment.strftime("%B %d, %Y")
+
+        elif employee.status in ['Casual', 'C'] and employee.casual_details and employee.casual_details.contract_start:
+            employment_start = employee.casual_details.contract_start.strftime("%B %d, %Y")
+
+        elif employee.status in ['Job Order', 'JO'] and employee.job_order_details and employee.job_order_details.date_hired:
+            employment_start = employee.job_order_details.date_hired.strftime("%B %d, %Y")
+
+        elif employee.status in ['CT', 'Contractual', 'Contract Teacher'] and employee.job_order_details and employee.job_order_details.date_hired:
+            employment_start = employee.job_order_details.date_hired.strftime("%B %d, %Y")
+
+        elif employee.status in ['E', 'Elective']:
+            # Elected officials often don’t have a "date hired" — you can adjust this if you have one
+            employment_start = "upon assumption of office"
+
         else:
-            position = department = "N/A"
+            employment_start = "N/A"
+
 
         # Employment start date
         if employee.status == 'Permanent' and employee.permanent_details.date_original_appointment:
