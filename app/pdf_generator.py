@@ -1369,7 +1369,7 @@ class TravelOrderPDF(FPDF):
         head_approver_id=None,
         current_stage=None
     ):
-        # self.set_auto_page_break(auto=True, margin=15)
+        self.set_auto_page_break(auto=False)  
         self.add_page()
         self.set_font("Arial", "B", 10)
 
