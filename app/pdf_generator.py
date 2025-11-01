@@ -1236,16 +1236,12 @@ class CertificationPDF(FPDF):
         employee_name = f"{employee.first_name} {employee.last_name}"
 
         # ✅ Handle position safely
-        if employee.status in ['Permanent', 'P'] and employee.permanent_details and employee.permanent_details.position:
+        if employee.status in ['Permanent', 'P', 'CT', 'Contractual', 'Contract Teacher', 'E', 'Elective'] and employee.permanent_details and employee.permanent_details.position:
             position = employee.permanent_details.position.title
         elif employee.status in ['Casual', 'C'] and employee.casual_details and employee.casual_details.position:
             position = employee.casual_details.position.title
         elif employee.status in ['Job Order', 'JO'] and employee.job_order_details and employee.job_order_details.position:
             position = employee.job_order_details.position.title
-        elif employee.status in ['CT', 'Contractual', 'Contract Teacher'] and employee.job_order_details and employee.job_order_details.position:
-            position = employee.job_order_details.position.title
-        elif employee.status in ['E', 'Elective']:
-            position = "Municipal Elective Official"
         else:
             position = "N/A"
 
