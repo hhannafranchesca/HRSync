@@ -1358,6 +1358,10 @@ class CertificationPDF(FPDF):
 from fpdf import FPDF
 from app.models import Users, UserSignature, Employee, PermanentEmployeeDetails, Position
 
+from fpdf import FPDF
+from app.models import Users, UserSignature, Employee, PermanentEmployeeDetails, Position
+
+
 class TravelOrderPDF(FPDF):
     def add_travel_order_form(
         self,
@@ -1444,15 +1448,22 @@ class TravelOrderPDF(FPDF):
         equal_row(f"Date/Time of Departure: {departure}", f"Destination: {destination}")
         equal_row(f"Date/Time of Arrival: {arrival}", "Report No.: __________________")
 
-        # === Purpose of Travel / Remarks (equal width both sides) ===
+        # === Purpose of Travel / Remarks (fix right cell alignment & same height) ===
         y = self.get_y()
         self.set_xy(x_left, y)
         self.multi_cell(col_width, line_height, f"Purpose of Travel / Remarks:\n{purpose}", border=1)
         h_left = self.get_y() - y
+
         self.set_xy(x_right, y)
+        # Draw blank cell with same height
         self.multi_cell(col_width, line_height, "", border=1)
         h_right = self.get_y() - y
-        self.set_y(y + max(h_left, h_right))
+
+        max_h = max(h_left, h_right)
+        if h_left != max_h or h_right != max_h:
+            self.set_y(y + max_h)
+        else:
+            self.set_y(max(self.get_y(), y + max_h))
 
         # === Recommending Approval & Signature ===
         block_height = 30
@@ -1507,9 +1518,11 @@ class TravelOrderPDF(FPDF):
         self.ln(2)
         self.multi_cell(page_width, 8, "FROM                 TO                 PLACE", border=1, align="L")
 
-        # === SIGNATURE LINE ===
-        self.multi_cell(page_width, 10, "\n\n______________________________________\nSIGNATURE", align="R", border=1)
-
+        # === SIGNATURE LINE (aligned neatly, not touching edge) ===
+        self.ln(3)
+        sig_width = page_width - 40  # give space from right border
+        self.set_x(self.l_margin + 20)
+        self.multi_cell(sig_width, 10, "\n\n______________________________________\nSIGNATURE", align="C", border=1)
 
 
 #leave
