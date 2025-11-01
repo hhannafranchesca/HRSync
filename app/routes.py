@@ -5649,6 +5649,7 @@ def generate_jo_pdf():
     )
 
 
+import tempfile
 
 # --- ROUTE ---
 # --- ROUTE ---
