@@ -1385,17 +1385,37 @@ class TravelOrderPDF(FPDF):
         x_right = x_left + col_width
 
         # --- Helper for two equal-height columns ---
+              # --- Helper for two equal-height columns (no duplicate boxes) ---
         def equal_row(left_text, right_text):
             y = self.get_y()
+            
+            # Left cell (without top/bottom borders yet)
             self.set_xy(x_left, y)
-            self.multi_cell(col_width, line_height, left_text, border=1)
+            self.multi_cell(col_width, line_height, left_text, border="LR")
             h_left = self.get_y() - y
 
+            # Right cell (same)
             self.set_xy(x_right, y)
-            self.multi_cell(col_width, line_height, right_text, border=1)
+            self.multi_cell(col_width, line_height, right_text, border="LR")
             h_right = self.get_y() - y
 
+            # Compute maximum height
             max_h = max(h_left, h_right)
+
+            # Fill missing space in shorter cell
+            if h_left < max_h:
+                self.set_xy(x_left, y + h_left)
+                self.multi_cell(col_width, max_h - h_left, "", border="LR")
+            if h_right < max_h:
+                self.set_xy(x_right, y + h_right)
+                self.multi_cell(col_width, max_h - h_right, "", border="LR")
+
+            # Draw top and bottom borders across both cells
+            self.line(x_left, y, x_left + page_width, y)               # top line
+            self.line(x_left, y + max_h, x_left + page_width, y + max_h)  # bottom line
+
+            # Move cursor below this row
+            self.set_y(y + max_h)
 
             # Fill the shorter side
             if h_left < max_h:
@@ -1449,21 +1469,30 @@ class TravelOrderPDF(FPDF):
         equal_row(f"Date/Time of Arrival: {arrival}", "Report No.: __________________")
 
         # === Purpose of Travel / Remarks (fix right cell alignment & same height) ===
+       # === Purpose of Travel / Remarks (right cell auto-adjusts to left height) ===
         y = self.get_y()
+
+        # Left: draw the purpose text
         self.set_xy(x_left, y)
-        self.multi_cell(col_width, line_height, f"Purpose of Travel / Remarks:\n{purpose}", border=1)
+        self.multi_cell(col_width, line_height, f"Purpose of Travel / Remarks:\n{purpose}", border="LR")
         h_left = self.get_y() - y
 
+        # Right: match same height exactly, keep borders clean
         self.set_xy(x_right, y)
-        # Draw blank cell with same height
-        self.multi_cell(col_width, line_height, "", border=1)
+        self.multi_cell(col_width, line_height, "", border="LR")
         h_right = self.get_y() - y
 
-        max_h = max(h_left, h_right)
-        if h_left != max_h or h_right != max_h:
-            self.set_y(y + max_h)
-        else:
-            self.set_y(max(self.get_y(), y + max_h))
+        # If right cell is shorter, fill up missing height
+        if h_right < h_left:
+            self.set_xy(x_right, y + h_right)
+            self.multi_cell(col_width, h_left - h_right, "", border="LR")
+
+        # Draw shared top and bottom lines once (to prevent double borders)
+        self.line(x_left, y, x_left + page_width, y)  # top border
+        self.line(x_left, y + h_left, x_left + page_width, y + h_left)  # bottom border
+
+        # Move cursor below both cells
+        self.set_y(y + h_left)
 
         # === Recommending Approval & Signature ===
         block_height = 30
@@ -1488,18 +1517,59 @@ class TravelOrderPDF(FPDF):
 
         self.set_y(y + block_height)
 
-        # === APPROVED Section with Mayor ===
-        self.ln(2)
+            # === APPROVED Section with Mayor ===
         y_start = self.get_y()
+
         self.set_font("Arial", "B", 10)
-        self.multi_cell(page_width, 8, "A P P R O V E D", align="C")
-        self.multi_cell(page_width, 6, "HON. DWIGHT C. KAMPITAN", align="C")
-        self.multi_cell(page_width, 6, "Municipal Mayor", align="C")
+        self.multi_cell(0, 8, "A P P R O V E D", align="C")
+
+        # Get Mayor info
+        mayor_user = (
+            Users.query
+            .join(Employee)
+            .join(PermanentEmployeeDetails)
+            .join(Position)
+            .filter(Position.title.ilike('%MUNICIPAL MAYOR%'))
+            .first()
+        )
+
+        sig_record = None
+        if mayor_user:
+            sig_record = UserSignature.query.filter_by(user_id=mayor_user.id).first()
+
+        # Reserve space before drawing image/text
+        sig_height = 26
+        self.ln(4)
+        sig_y = self.get_y()
+
+        # Draw signature (if found)
+        if sig_record and sig_record.signature:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
+                tmp_sig.write(sig_record.signature)
+                tmp_sig.flush()
+                sig_path = tmp_sig.name
+
+            # Centered image
+            scale = 1.8
+            sig_w = 31 * scale
+            sig_h = 13 * scale
+            sig_x = (self.w - sig_w) / 2
+            self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
+
+        # Move below signature area
+        self.set_y(sig_y + sig_height)
+
+        # Mayor name + title
+        self.set_font("Arial", "B", 10)
+        self.multi_cell(0, 6, "HON. DWIGHT C. KAMPITAN", align="C")
+        self.set_font("Arial", "", 10)
+        self.multi_cell(0, 6, "Municipal Mayor", align="C")
+
+        # Draw box AFTER everything
         y_end = self.get_y()
-        self.rect(self.l_margin, y_start - 2, page_width, y_end - y_start + 4)
+        self.rect(self.l_margin, y_start - 2, self.w - self.l_margin - self.r_margin, y_end - y_start + 4)
 
         # === CERTIFICATE OF APPEARANCE ===
-        self.ln(3)
         y_start = self.get_y()
         self.set_font("Arial", "B", 10)
         self.multi_cell(page_width, 6, "CERTIFICATE OF APPEARANCE", align="C")
@@ -1512,14 +1582,12 @@ class TravelOrderPDF(FPDF):
             align="L"
         )
         y_end = self.get_y()
-        self.rect(self.l_margin, y_start - 2, page_width, y_end - y_start + 4)
+        self.rect(self.l_margin, y_start - 2, page_width, (y_end - y_start) + 6)
+        self.ln(5)
 
         # === FROM / TO / PLACE (single cell) ===
         self.ln(2)
         self.multi_cell(page_width, 8, "FROM                 TO                 PLACE", border=1, align="L")
-
-        # === SIGNATURE LINE (aligned neatly, not touching edge) ===
-        self.ln(3)
         sig_width = page_width - 40  # give space from right border
         self.set_x(self.l_margin + 20)
         self.multi_cell(sig_width, 10, "\n\n______________________________________\nSIGNATURE", align="C", border=1)
