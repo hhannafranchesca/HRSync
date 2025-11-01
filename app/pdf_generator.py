@@ -1358,8 +1358,6 @@ class CertificationPDF(FPDF):
 from fpdf import FPDF
 from app.models import Users, UserSignature, Employee, PermanentEmployeeDetails, Position
 
-
-
 class TravelOrderPDF(FPDF):
     def add_travel_order_form(
         self,
@@ -1375,13 +1373,14 @@ class TravelOrderPDF(FPDF):
         self.set_auto_page_break(auto=True, margin=15)
         self.add_page()
         self.set_font("Arial", "B", 10)
+
         line_height = 7
         page_width = self.w - self.l_margin - self.r_margin
         col_width = page_width / 2
         x_left = self.l_margin
         x_right = x_left + col_width
 
-        # --- Helper for perfectly aligned two-column rows ---
+        # --- Helper for two equal-height columns ---
         def equal_row(left_text, right_text):
             y = self.get_y()
             self.set_xy(x_left, y)
@@ -1392,9 +1391,19 @@ class TravelOrderPDF(FPDF):
             self.multi_cell(col_width, line_height, right_text, border=1)
             h_right = self.get_y() - y
 
-            self.set_y(y + max(h_left, h_right))
+            max_h = max(h_left, h_right)
 
-        # === Data extraction ===
+            # Fill the shorter side
+            if h_left < max_h:
+                self.set_xy(x_left, y + h_left)
+                self.multi_cell(col_width, max_h - h_left, "", border="LR")
+            elif h_right < max_h:
+                self.set_xy(x_right, y + h_right)
+                self.multi_cell(col_width, max_h - h_right, "", border="LR")
+
+            self.set_y(y + max_h)
+
+        # === Extract Data ===
         employee = getattr(permit, "employee", None)
         if not employee:
             return
@@ -1403,12 +1412,12 @@ class TravelOrderPDF(FPDF):
 
         position = (
             getattr(employee.permanent_details.position, "title", None)
-            if getattr(employee, "permanent_details", None) else
-            getattr(employee.casual_details.position, "title", None)
-            if getattr(employee, "casual_details", None) else
-            getattr(employee.job_order_details, "position_title", None)
-            if getattr(employee, "job_order_details", None) else
-            "N/A"
+            if getattr(employee, "permanent_details", None)
+            else getattr(employee.casual_details.position, "title", None)
+            if getattr(employee, "casual_details", None)
+            else getattr(employee.job_order_details, "position_title", None)
+            if getattr(employee, "job_order_details", None)
+            else "N/A"
         )
 
         date_requested = permit.date_requested.strftime('%B %d, %Y') if getattr(permit, "date_requested", None) else "N/A"
@@ -1422,7 +1431,7 @@ class TravelOrderPDF(FPDF):
         purpose = getattr(permit.travel_detail, "purpose", "N/A") or "N/A"
         permit_id = str(getattr(permit, "id", "N/A"))
 
-        # === Title ===
+        # === Header Title ===
         self.set_font("Arial", "B", 14)
         self.cell(page_width, 10, "TRAVEL ORDER", align="C", border=1, ln=1)
 
@@ -1435,20 +1444,23 @@ class TravelOrderPDF(FPDF):
         equal_row(f"Date/Time of Departure: {departure}", f"Destination: {destination}")
         equal_row(f"Date/Time of Arrival: {arrival}", "Report No.: __________________")
 
-        # Purpose of travel — force same height left/right
+        # === Purpose of Travel / Remarks (equal width both sides) ===
         y = self.get_y()
         self.set_xy(x_left, y)
         self.multi_cell(col_width, line_height, f"Purpose of Travel / Remarks:\n{purpose}", border=1)
         h_left = self.get_y() - y
         self.set_xy(x_right, y)
-        self.multi_cell(col_width, h_left / 2, "", border=1)  # ensures equal height
-        self.set_y(y + h_left)
+        self.multi_cell(col_width, line_height, "", border=1)
+        h_right = self.get_y() - y
+        self.set_y(y + max(h_left, h_right))
 
-        # === Recommending Approval / Signature ===
+        # === Recommending Approval & Signature ===
         block_height = 30
         y = self.get_y()
         self.rect(x_left, y, col_width, block_height)
         self.rect(x_right, y, col_width, block_height)
+
+        # Left block (Recommending Approval)
         self.set_xy(x_left + 2, y + 2)
         self.set_font("Arial", "B", 10)
         self.cell(col_width, 6, "Recommending Approval:", ln=1)
@@ -1458,13 +1470,14 @@ class TravelOrderPDF(FPDF):
         self.set_xy(x_left, y + block_height - 15)
         self.multi_cell(col_width, 5, f"{head_name}\n{head_position}", align='C')
 
+        # Right block (Signature)
         self.set_xy(x_right, y + 2)
         self.set_font("Arial", "B", 10)
         self.multi_cell(col_width, 6, "Signature of Officer/Employee\nAuthorized to Travel:", align='C')
 
         self.set_y(y + block_height)
 
-        # === Approval (Mayor) ===
+        # === APPROVED Section with Mayor ===
         self.ln(2)
         y_start = self.get_y()
         self.set_font("Arial", "B", 10)
@@ -1474,7 +1487,7 @@ class TravelOrderPDF(FPDF):
         y_end = self.get_y()
         self.rect(self.l_margin, y_start - 2, page_width, y_end - y_start + 4)
 
-        # === Certificate of Appearance ===
+        # === CERTIFICATE OF APPEARANCE ===
         self.ln(3)
         y_start = self.get_y()
         self.set_font("Arial", "B", 10)
@@ -1490,9 +1503,11 @@ class TravelOrderPDF(FPDF):
         y_end = self.get_y()
         self.rect(self.l_margin, y_start - 2, page_width, y_end - y_start + 4)
 
-        # === Final Rows (FROM / TO / PLACE + SIGNATURE) ===
+        # === FROM / TO / PLACE (single cell) ===
         self.ln(2)
-        equal_row("FROM                 TO                 PLACE", "")
+        self.multi_cell(page_width, 8, "FROM                 TO                 PLACE", border=1, align="L")
+
+        # === SIGNATURE LINE ===
         self.multi_cell(page_width, 10, "\n\n______________________________________\nSIGNATURE", align="R", border=1)
 
 
