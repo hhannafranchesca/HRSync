@@ -1550,10 +1550,10 @@ class TravelOrderPDF(FPDF):
 
         # === FROM / TO / PLACE (single cell) ===
         self.ln(4)
-        self.multi_cell(page_width, 8, "FROM                 TO                 PLACE", border=1, align="L")
+        self.multi_cell(page_width, 8, "FROM                             TO                                 PLACE", border=1, align="L")
         self.set_font("Arial", "", 10)
         text = "\n\n______________________________________\n  SIGNATURE                         "
-        self.multi_cell(190, 7, text, align="L", border=1)
+        self.multi_cell(0, 7, text, align="L", border=1)
 
 #leave
 def clean_text(text):
