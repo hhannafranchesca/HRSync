@@ -1355,11 +1355,6 @@ class CertificationPDF(FPDF):
 
 
 
-from fpdf import FPDF
-from app.models import Users, UserSignature, Employee, PermanentEmployeeDetails, Position
-
-from fpdf import FPDF
-from app.models import Users, UserSignature, Employee, PermanentEmployeeDetails, Position
 
 
 class TravelOrderPDF(FPDF):
@@ -1374,7 +1369,7 @@ class TravelOrderPDF(FPDF):
         head_approver_id=None,
         current_stage=None
     ):
-        self.set_auto_page_break(auto=True, margin=15)
+        # self.set_auto_page_break(auto=True, margin=15)
         self.add_page()
         self.set_font("Arial", "B", 10)
 
@@ -1557,7 +1552,7 @@ class TravelOrderPDF(FPDF):
         text = "\n\n______________________________________\n  SIGNATURE                         "
         self.multi_cell(page_width, 7, text, align="R", border=1)
 
-        
+
 #leave
 def clean_text(text):
     if not text:
