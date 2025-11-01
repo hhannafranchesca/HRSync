@@ -1354,7 +1354,6 @@ class CertificationPDF(FPDF):
                 self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
 
 
-
 class TravelOrderPDF(FPDF):
     def add_travel_order_form(
         self,
@@ -1370,27 +1369,27 @@ class TravelOrderPDF(FPDF):
         self.set_auto_page_break(auto=True, margin=15)
         self.set_font("Arial", "B", 10)
         line_height = 8
+        box_width = self.w - self.l_margin - self.r_margin
 
-        # Helper for two-column rows
-        def two_col_row(left_text, right_text, border=1, align_left='L', align_right='L', height=8):
-            page_width = self.w - self.l_margin - self.r_margin
-            col_width = page_width / 2
-            x_left = self.l_margin
-            y_top = self.get_y()
+        # Helper function for two equal columns
+        def two_col_row(left, right, height=8):
+            col_width = box_width / 2
+            x = self.l_margin
+            y = self.get_y()
 
             # Left cell
-            self.multi_cell(col_width, height, left_text, border=border, align=align_left)
-            h_left = self.get_y() - y_top
+            self.multi_cell(col_width, height, left, border=1)
+            h_left = self.get_y() - y
 
-            # Right cell (same row)
-            self.set_xy(x_left + col_width, y_top)
-            self.multi_cell(col_width, height, right_text, border=border, align=align_right)
-            h_right = self.get_y() - y_top
+            # Right cell
+            self.set_xy(x + col_width, y)
+            self.multi_cell(col_width, height, right, border=1)
+            h_right = self.get_y() - y
 
-            # Set Y to max height (prevent overlapping)
-            self.set_y(y_top + max(h_left, h_right))
+            # Align to max height
+            self.set_y(y + max(h_left, h_right))
 
-        # --- Safe Data Extraction ---
+        # === Safe Data ===
         employee = getattr(permit, "employee", None)
         if not employee:
             return
@@ -1417,85 +1416,75 @@ class TravelOrderPDF(FPDF):
         purpose = getattr(permit.travel_detail, "purpose", "N/A") or "N/A"
         permit_id = str(getattr(permit, "id", "N/A"))
 
-        # === Title ===
-        self.ln(2)
+        # === TITLE ===
+        self.ln(4)
         self.set_font("Arial", "B", 14)
-        self.set_x(self.l_margin)
-        box_width = self.w - self.l_margin - self.r_margin
-        self.multi_cell(box_width, 4, "", border="TLR")
-        self.set_x(self.l_margin)
-        self.multi_cell(box_width, 10, "TRAVEL ORDER", align="C", border="LR")
-        self.set_x(self.l_margin)
-        self.multi_cell(box_width, 4, "", border="LR")
-
-        # === Body (Aligned Rows) ===
+        self.multi_cell(box_width, 10, "TRAVEL ORDER", border=1, align="C")
         self.set_font("Arial", "", 10)
+
+        # === BODY ===
         two_col_row("Municipality of VICTORIA\nProvince of LAGUNA",
                     f"Date: {date_requested}\nTravel Order No.: {permit_id}")
         two_col_row(f"Name: {full_name}", f"Position: {position}")
         two_col_row(f"Date/Time of Departure: {departure}", f"Destination: {destination}")
-        two_col_row(f"Date/Time of Arrival: {arrival}", "Report No.: __________________")
-        two_col_row(f"Purpose of Travel / Remarks:\n{purpose}", "")
+        two_col_row(f"Date/Time of Arrival: {arrival}", "Report No.: ________________")
 
-        # === Recommending Approval & Signature ===
+        # Purpose row (full width)
+        self.multi_cell(box_width, line_height, "Purpose of Travel:", border=1)
+        self.multi_cell(box_width, line_height * 2, purpose, border=1)
+
+        # Recommending + Signature (2 columns)
+        col_width = box_width / 2
         y = self.get_y()
-        page_width = self.w - self.l_margin - self.r_margin
-        col_width = page_width / 2
         x_left = self.l_margin
         x_right = x_left + col_width
         block_height = line_height * 4
 
-        # Left box - Recommending Approval
+        # Left box
         self.rect(x_left, y, col_width, block_height)
         self.set_xy(x_left, y)
-        self.cell(col_width, line_height, "Recommending Approval:", align="L", ln=1)
+        self.multi_cell(col_width, line_height, "Recommending Approval:", border=0)
         head_name = getattr(permit, "head_approver", "________________________")
         head_position = getattr(permit, "head_approver_position", "Head of Department")
-        self.set_xy(x_left, y + block_height / 2 - 5)
+        self.set_xy(x_left, y + 18)
         self.multi_cell(col_width, 5, f"{head_name}\n{head_position}", align='C')
 
-        # Right box - Signature of Officer
+        # Right box
         self.rect(x_right, y, col_width, block_height)
         self.set_xy(x_right, y)
-        self.multi_cell(col_width, line_height, "Signature of Officer/Employee\nAuthorized to Travel:", align='C')
+        self.multi_cell(col_width, line_height, "Signature of Officer/Employee\nAuthorized to Travel:", border=0, align='C')
         self.set_y(y + block_height)
 
-        # === Approval Section (Mayor) ===
-        y_start = self.get_y()
-        self.set_x(self.l_margin)
+        # APPROVED SECTION
         self.set_font("Arial", "B", 10)
+        y_start = self.get_y()
         self.multi_cell(box_width, 8, "A P P R O V E D", align="C")
-        self.multi_cell(box_width, 4, "", align="C")
-        self.multi_cell(box_width, 6, "HON. DWIGHT C. KAMPITAN", align="C")
-        self.multi_cell(box_width, 6, "Municipal Mayor", align="C")
-        self.multi_cell(box_width, 6, "", align="C")
+        self.multi_cell(box_width, 8, "HON. DWIGHT C. KAMPITAN", align="C")
+        self.multi_cell(box_width, 8, "Municipal Mayor", align="C")
         y_end = self.get_y()
         self.rect(self.l_margin, y_start, box_width, y_end - y_start)
 
-        # === Certificate of Appearance ===
+        # CERTIFICATE OF APPEARANCE
+        self.ln(4)
         y_start = self.get_y()
         self.set_font("Arial", "B", 10)
-        self.multi_cell(box_width, 6, "", align="C")
-        self.multi_cell(box_width, 6, "CERTIFICATE OF APPEARANCE", align="C")
-        self.multi_cell(box_width, 6, "", align="C")
-
+        self.multi_cell(box_width, 8, "CERTIFICATE OF APPEARANCE", align="C")
         self.set_font("Arial", "", 10)
         self.multi_cell(box_width, 6,
-                        "        THIS IS TO CERTIFY that the above named personnel appeared in this office for the",
+                        "THIS IS TO CERTIFY that the above named personnel appeared in this office for the",
                         align="L")
         self.multi_cell(box_width, 6,
-                        "purpose of stated above on the date/s indicated below.",
+                        "purpose stated above on the date/s indicated below.",
                         align="L")
-        self.multi_cell(box_width, 6, "", align="C")
-
         y_end = self.get_y()
         self.rect(self.l_margin, y_start, box_width, y_end - y_start)
 
-        # === Final Rows (From-To-Place / Signature) ===
-        self.multi_cell(box_width, 8, "FROM                                                TO                                                    PLACE\n\n", border=1)
-        self.multi_cell(box_width, 7, "\n\n______________________________________\n  SIGNATURE                         ", align="R", border=1)
+        # Final Table (FROM - TO - PLACE)
+        self.multi_cell(box_width, line_height, "FROM                              TO                              PLACE", border=1)
+        self.multi_cell(box_width, line_height * 3, "", border=1)
 
-
+        # Signature line
+        self.multi_cell(box_width, 10, " " * 80 + "_________________________\n" + " " * 100 + "SIGNATURE", border=1, align='R')
 
 
 
