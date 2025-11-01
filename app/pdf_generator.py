@@ -1518,56 +1518,14 @@ class TravelOrderPDF(FPDF):
         self.set_y(y + block_height)
 
             # === APPROVED Section with Mayor ===
+        self.ln(5)
         y_start = self.get_y()
-
         self.set_font("Arial", "B", 10)
-        self.multi_cell(0, 8, "A P P R O V E D", align="C")
-
-        # Get Mayor info
-        mayor_user = (
-            Users.query
-            .join(Employee)
-            .join(PermanentEmployeeDetails)
-            .join(Position)
-            .filter(Position.title.ilike('%MUNICIPAL MAYOR%'))
-            .first()
-        )
-
-        sig_record = None
-        if mayor_user:
-            sig_record = UserSignature.query.filter_by(user_id=mayor_user.id).first()
-
-        # Reserve space before drawing image/text
-        sig_height = 26
-        self.ln(4)
-        sig_y = self.get_y()
-
-        # Draw signature (if found)
-        if sig_record and sig_record.signature:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
-                tmp_sig.write(sig_record.signature)
-                tmp_sig.flush()
-                sig_path = tmp_sig.name
-
-            # Centered image
-            scale = 1.8
-            sig_w = 31 * scale
-            sig_h = 13 * scale
-            sig_x = (self.w - sig_w) / 2
-            self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
-
-        # Move below signature area
-        self.set_y(sig_y + sig_height)
-
-        # Mayor name + title
-        self.set_font("Arial", "B", 10)
-        self.multi_cell(0, 6, "HON. DWIGHT C. KAMPITAN", align="C")
-        self.set_font("Arial", "", 10)
-        self.multi_cell(0, 6, "Municipal Mayor", align="C")
-
-        # Draw box AFTER everything
+        self.multi_cell(page_width, 8, "A P P R O V E D", align="C")
+        self.multi_cell(page_width, 6, "HON. DWIGHT C. KAMPITAN", align="C")
+        self.multi_cell(page_width, 6, "Municipal Mayor", align="C")
         y_end = self.get_y()
-        self.rect(self.l_margin, y_start - 2, self.w - self.l_margin - self.r_margin, y_end - y_start + 4)
+        self.rect(self.l_margin, y_start - 2, page_width, (y_end - y_start) + 6)
 
         # === CERTIFICATE OF APPEARANCE ===
         y_start = self.get_y()
