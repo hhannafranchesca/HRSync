@@ -1191,15 +1191,16 @@ class PerformanceReportPDF(FPDF):
 
 
 #COE 
-
 class CertificationPDF(FPDF):
     def draw_spaced_text(self, x, y, text, spacing, font="Arial", style="B", size=16):
+        """Draws a title with evenly spaced letters"""
         self.set_font(font, style, size)
         self.set_xy(x, y)
         for char in text:
             self.cell(spacing, 10, char, border=0, ln=0, align='C')
 
     def header(self):
+        """Draw the document header with logos and double line"""
         base_path = os.path.join(current_app.root_path, 'static', 'img', 'landing')
 
         self.image(os.path.join(base_path, 'victoria.png'), x=10, y=6, w=32)
@@ -1207,34 +1208,29 @@ class CertificationPDF(FPDF):
         self.image(os.path.join(base_path, 'text.png'), x=50, y=10, w=105)
         self.image(os.path.join(base_path, 'text2.png'), x=48, y=30, w=115)
 
-        self.ln(35)  # space below the header
-
-        # Double line separator
+        self.ln(35)
         self.set_line_width(0.5)
         self.line(0, self.get_y(), 215, self.get_y())           # top line full width
-        self.line(0, self.get_y() + 1.2, 215, self.get_y() + 1.2)  # second line full width
+        self.line(0, self.get_y() + 1.2, 215, self.get_y() + 1.2)  # second line
         self.ln(10)
 
-      
     def add_certification_body(self, permit):
         from datetime import datetime
 
-        # Top-right document date
+        # === Document date (top right) ===
         permit_date_requested = permit.date_requested.strftime("%B %d, %Y")
-
-        # Add date at top right
         self.set_font("Arial", "", 12)
         self.set_xy(160, self.get_y())
         self.cell(40, 10, permit_date_requested, ln=1, align="R")
 
-        # CERTIFICATION title
+        # === Title ===
         text = "CERTIFICATION"
         text_width = len(text) * 6
         x_center = (210 - text_width) / 2
         self.draw_spaced_text(x_center, self.get_y(), text, spacing=6)
         self.ln(10)
 
-        # Basic details
+        # === Employee Details ===
         employee = permit.employee
         employee_name = f"{employee.first_name} {employee.last_name}"
 
@@ -1246,27 +1242,30 @@ class CertificationPDF(FPDF):
             department = employee.casual_details.assigned_department.name
         elif employee.job_order_details:
             position = employee.job_order_details.position_title
-            department = employee.job_order_details.assigned_department.name if employee.job_order_details.assigned_department else "N/A"
+            department = (
+                employee.job_order_details.assigned_department.name
+                if employee.job_order_details.assigned_department else "N/A"
+            )
         else:
             position = department = "N/A"
 
-        # Employment start
-        if permit.employee.status == 'Permanent':
-            employment_start = permit.employee.permanent_details.date_original_appointment.strftime("%B %d, %Y")
-        elif permit.employee.status == 'Casual':
-            employment_start = permit.employee.casual_details.contract_start.strftime("%B %d, %Y")
-        elif permit.employee.status == 'Job Order':
-            employment_start = permit.employee.date_hired.strftime("%B %d, %Y") if permit.employee.date_hired else "N/A"
+        # Employment start date
+        if employee.status == 'Permanent' and employee.permanent_details.date_original_appointment:
+            employment_start = employee.permanent_details.date_original_appointment.strftime("%B %d, %Y")
+        elif employee.status == 'Casual' and employee.casual_details.contract_start:
+            employment_start = employee.casual_details.contract_start.strftime("%B %d, %Y")
+        elif employee.status == 'Job Order' and employee.date_hired:
+            employment_start = employee.date_hired.strftime("%B %d, %Y")
         else:
             employment_start = "N/A"
 
-        # === Body content ===
+        # === Greeting ===
         self.set_font("Arial", "", 12)
         self.set_x(20)
         self.cell(0, 10, "To whom it may concern:", ln=1, align='L')
         self.ln(5)
 
-        # Static intro line (right-aligned but with margin)
+        # === Intro Line (right aligned) ===
         page_width = 210
         right_margin_offset = 22
         intro_text = "This  is  to  certify  that  based  on  the  records  kept  and  filed  in  this  office,"
@@ -1275,7 +1274,7 @@ class CertificationPDF(FPDF):
         self.set_x(x_position)
         self.cell(text_width, 10, intro_text, ln=1)
 
-        # === Word-by-word wrapped body with bold parts ===
+        # === Main Body (employee info) ===
         left_margin = 20
         right_margin = 15
         usable_width = page_width - left_margin - right_margin
@@ -1283,7 +1282,6 @@ class CertificationPDF(FPDF):
         x = left_margin
         y = self.get_y()
 
-        # Sentence parts: (text, font style)
         sentence_parts = [
             (employee_name, "B"),
             ("is", ""), ("presently", ""), ("employed", ""), ("as", ""),
@@ -1293,6 +1291,7 @@ class CertificationPDF(FPDF):
             (f", this municipality from {employment_start} to present.", "")
         ]
 
+        # ✅ Draw the employee description
         for phrase, style in sentence_parts:
             self.set_font("Arial", style, 12)
             for word in phrase.split(" "):
@@ -1305,41 +1304,34 @@ class CertificationPDF(FPDF):
                 self.cell(word_width, line_height, word, border=0)
                 x += word_width
 
-        # Final Y adjustment
-        self.set_y(y + line_height + 2)
+        # ✅ End of main loop
+        self.ln(line_height + 2)
 
-        # === End statement ===
-        # Get reason from COERequest
-                        # === End statement ===
+        # === End Statement (dedented, no repetition) ===
         left_margin = 20
         right_margin = 15
         usable_width = page_width - left_margin - right_margin
         indent = 22
+        line_height = 8
 
-       # First line (always) – indented
-        first_line = "This certification is issued upon request of the above-named person"
+        first_line = "This certification is issued upon request of the above-named person."
         self.set_x(left_margin + indent)
-        self.multi_cell(usable_width - indent, 8, first_line, align='L')
+        self.multi_cell(usable_width - indent, line_height, first_line, align='L')
 
-        # Second line – always default text
+        self.ln(2)
+
         second_line = "for whatever legal purpose it may serve."
         self.set_x(left_margin)
-        self.multi_cell(usable_width, 8, second_line, align='L')
+        self.multi_cell(usable_width, line_height, second_line, align='L')
 
-        # Force a line break before second line
-        self.ln(1)  # optional small vertical gap
-        self.set_x(left_margin)  # align to left margin
-        self.multi_cell(usable_width, 8, second_line, align='L')
-
-                
-        # === Signatory ===
+        # === Signatory Section ===
         self.ln(20)
         self.set_font("Arial", "B", 12)
         self.cell(0, 10, "LLOYD MORGAN O. PERLEZ", ln=1, align="R")
         self.set_font("Arial", "", 12)
         self.cell(320, 4, "MGDHH I (HRMO)", ln=1, align="C")
-        # ✅ Insert Department Head I signature
-        # Query Users linked to Employee who has position title "MUNICIPAL GOVERNMENT DEPARTMENT HEAD I"
+
+        # === Insert Signature Image (if available) ===
         dept_head_user = (
             Users.query
             .join(Employee)
@@ -1358,12 +1350,11 @@ class CertificationPDF(FPDF):
                     tmp_sig.flush()
                     sig_path = tmp_sig.name
 
-                # Adjust size and position
-                scale = 1.8  # scale signature
+                scale = 1.8
                 sig_w = 29 * scale
                 sig_h = 13 * scale
-                sig_x = (self.w - sig_w) / 2 + 69  # center horizontally
-                sig_y = self.get_y() - 27  # sit above the line
+                sig_x = (self.w - sig_w) / 2 + 69
+                sig_y = self.get_y() - 27
 
                 self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
 

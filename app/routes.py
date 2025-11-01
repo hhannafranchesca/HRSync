@@ -6446,23 +6446,19 @@ def generate_ipcr():
 @app.route('/generate_coe_pdf/<int:permit_id>')
 @login_required
 def generate_coe_pdf(permit_id):
-    # Query the permit request by ID and ensure it's a COE permit
     permit = PermitRequest.query.filter_by(id=permit_id, permit_type='Certification of Employment').first()
     if not permit:
         abort(404, description="Permit request not found or not a COE request")
 
-    # Create PDF instance
     pdf = CertificationPDF()
     pdf.add_page()
     pdf.add_certification_body(permit)
 
-    # Output PDF to bytes
     pdf_output = io.BytesIO()
     pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
-    # Return PDF as a file download
     filename = f"COE_{permit.employee.last_name}_{permit.employee.first_name}.pdf"
     return send_file(
         pdf_output,
@@ -6470,7 +6466,6 @@ def generate_coe_pdf(permit_id):
         as_attachment=False,
         download_name=filename
     )
-
 
 
 #JOB HIRING APPLICATION SKDHASDAS
