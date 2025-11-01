@@ -1284,7 +1284,7 @@ class CertificationPDF(FPDF):
             (employee_name, "B"),
             ("is", ""), ("presently", ""), ("employed", ""), ("as", ""),
             (position, "B"),
-            ("in", ""), ("the", ""), ("Office", ""), ("of", ""), ("the", ""),
+            ("in", ""), ("the", ""),
             (department, "B"),
             (f", this municipality from {employment_start} to present.", "")
         ]
