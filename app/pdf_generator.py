@@ -1191,6 +1191,7 @@ class PerformanceReportPDF(FPDF):
 
 
 #COE 
+# === COE PDF CLASS ===
 class CertificationPDF(FPDF):
     def draw_spaced_text(self, x, y, text, spacing, font="Arial", style="B", size=16):
         """Draws a title with evenly spaced letters"""
@@ -1210,7 +1211,7 @@ class CertificationPDF(FPDF):
 
         self.ln(35)
         self.set_line_width(0.5)
-        self.line(0, self.get_y(), 215, self.get_y())           # top line full width
+        self.line(0, self.get_y(), 215, self.get_y())            # top line full width
         self.line(0, self.get_y() + 1.2, 215, self.get_y() + 1.2)  # second line
         self.ln(10)
 
@@ -1218,7 +1219,7 @@ class CertificationPDF(FPDF):
         from datetime import datetime
 
         # === Document date (top right) ===
-        permit_date_requested = permit.date_requested.strftime("%B %d, %Y")
+        permit_date_requested = permit.date_requested.strftime("%B %d, %Y") if permit.date_requested else ""
         self.set_font("Arial", "", 12)
         self.set_xy(160, self.get_y())
         self.cell(40, 10, permit_date_requested, ln=1, align="R")
@@ -1234,6 +1235,10 @@ class CertificationPDF(FPDF):
         employee = permit.employee
         employee_name = f"{employee.first_name} {employee.last_name}"
 
+        # ✅ Define position and department safely
+        position = employee.position.title if employee.position else "N/A"
+        department = employee.department.name if employee.department else "N/A"
+
         # === Employment start date ===
         if employee.status in ['Permanent', 'P'] and employee.permanent_details and employee.permanent_details.date_original_appointment:
             employment_start = employee.permanent_details.date_original_appointment.strftime("%B %d, %Y")
@@ -1248,20 +1253,8 @@ class CertificationPDF(FPDF):
             employment_start = employee.job_order_details.date_hired.strftime("%B %d, %Y")
 
         elif employee.status in ['E', 'Elective']:
-            # Elected officials often don’t have a "date hired" — you can adjust this if you have one
             employment_start = "upon assumption of office"
 
-        else:
-            employment_start = "N/A"
-
-
-        # Employment start date
-        if employee.status == 'Permanent' and employee.permanent_details.date_original_appointment:
-            employment_start = employee.permanent_details.date_original_appointment.strftime("%B %d, %Y")
-        elif employee.status == 'Casual' and employee.casual_details.contract_start:
-            employment_start = employee.casual_details.contract_start.strftime("%B %d, %Y")
-        elif employee.status == 'Job Order' and employee.date_hired:
-            employment_start = employee.date_hired.strftime("%B %d, %Y")
         else:
             employment_start = "N/A"
 
@@ -1313,7 +1306,7 @@ class CertificationPDF(FPDF):
         # ✅ End of main loop
         self.ln(line_height + 2)
 
-        # === End Statement (dedented, no repetition) ===
+        # === End Statement ===
         left_margin = 20
         right_margin = 15
         usable_width = page_width - left_margin - right_margin
@@ -1325,7 +1318,6 @@ class CertificationPDF(FPDF):
         self.multi_cell(usable_width - indent, line_height, first_line, align='L')
 
         self.ln(2)
-
         second_line = "for whatever legal purpose it may serve."
         self.set_x(left_margin)
         self.multi_cell(usable_width, line_height, second_line, align='L')
@@ -1363,9 +1355,6 @@ class CertificationPDF(FPDF):
                 sig_y = self.get_y() - 27
 
                 self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
-
-
-
 
 
 
