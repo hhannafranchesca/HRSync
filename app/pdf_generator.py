@@ -1356,7 +1356,7 @@ class CertificationPDF(FPDF):
 
 
 
-
+# --- PDF CLASS ---
 class TravelOrderPDF(FPDF):
     def add_travel_order_form(
         self,
@@ -1367,9 +1367,10 @@ class TravelOrderPDF(FPDF):
         head_approver=None,
         head_approver_position=None,
         head_approver_id=None,
-        current_stage=None
+        current_stage=None,
+        mayor_signature=None
     ):
-        self.set_auto_page_break(auto=False)  
+        self.set_auto_page_break(auto=False)
         self.add_page()
         self.set_font("Arial", "B", 10)
 
@@ -1380,24 +1381,22 @@ class TravelOrderPDF(FPDF):
         x_right = x_left + col_width
 
         # --- Helper for two equal-height columns ---
-              # --- Helper for two equal-height columns (no duplicate boxes) ---
         def equal_row(left_text, right_text):
             y = self.get_y()
-            
-            # Left cell (without top/bottom borders yet)
+
+            # Left cell
             self.set_xy(x_left, y)
             self.multi_cell(col_width, line_height, left_text, border="LR")
             h_left = self.get_y() - y
 
-            # Right cell (same)
+            # Right cell
             self.set_xy(x_right, y)
             self.multi_cell(col_width, line_height, right_text, border="LR")
             h_right = self.get_y() - y
 
-            # Compute maximum height
             max_h = max(h_left, h_right)
 
-            # Fill missing space in shorter cell
+            # Fill missing height
             if h_left < max_h:
                 self.set_xy(x_left, y + h_left)
                 self.multi_cell(col_width, max_h - h_left, "", border="LR")
@@ -1405,21 +1404,9 @@ class TravelOrderPDF(FPDF):
                 self.set_xy(x_right, y + h_right)
                 self.multi_cell(col_width, max_h - h_right, "", border="LR")
 
-            # Draw top and bottom borders across both cells
-            self.line(x_left, y, x_left + page_width, y)               # top line
-            self.line(x_left, y + max_h, x_left + page_width, y + max_h)  # bottom line
-
-            # Move cursor below this row
-            self.set_y(y + max_h)
-
-            # Fill the shorter side
-            if h_left < max_h:
-                self.set_xy(x_left, y + h_left)
-                self.multi_cell(col_width, max_h - h_left, "", border="LR")
-            elif h_right < max_h:
-                self.set_xy(x_right, y + h_right)
-                self.multi_cell(col_width, max_h - h_right, "", border="LR")
-
+            # Shared borders
+            self.line(x_left, y, x_left + page_width, y)
+            self.line(x_left, y + max_h, x_left + page_width, y + max_h)
             self.set_y(y + max_h)
 
         # === Extract Data ===
@@ -1445,12 +1432,12 @@ class TravelOrderPDF(FPDF):
             if getattr(permit, "travel_detail", None) and permit.travel_detail.date_departure
             else "N/A"
         )
-        arrival = "N/A"
+        arrival = " "
         destination = getattr(permit.travel_detail, "destination", "N/A") or "N/A"
         purpose = getattr(permit.travel_detail, "purpose", "N/A") or "N/A"
         permit_id = str(getattr(permit, "id", "N/A"))
 
-        # === Header Title ===
+        # === Header ===
         self.set_font("Arial", "B", 14)
         self.cell(page_width, 10, "TRAVEL ORDER", align="C", border=1, ln=1)
 
@@ -1461,79 +1448,59 @@ class TravelOrderPDF(FPDF):
 
         equal_row(f"Name: {full_name}", f"Position: {position}")
         equal_row(f"Date/Time of Departure: {departure}", f"Destination: {destination}")
-        equal_row(f"Date/Time of Arrival: {arrival}", "Report No.: __________________")
+        equal_row(f"Date/Time of Arrival: {arrival}", "Report No.:")
 
-        # === Purpose of Travel / Remarks (fix right cell alignment & same height) ===
-       # === Purpose of Travel / Remarks (right cell auto-adjusts to left height) ===
+        # === Purpose ===
         y = self.get_y()
-
-        # Left: draw the purpose text
         self.set_xy(x_left, y)
         self.multi_cell(col_width, line_height, f"Purpose of Travel / Remarks:\n{purpose}", border="LR")
         h_left = self.get_y() - y
-
-        # Right: match same height exactly, keep borders clean
         self.set_xy(x_right, y)
-        self.multi_cell(col_width, line_height, "", border="LR")
-        h_right = self.get_y() - y
-
-        # If right cell is shorter, fill up missing height
-        if h_right < h_left:
-            self.set_xy(x_right, y + h_right)
-            self.multi_cell(col_width, h_left - h_right, "", border="LR")
-
-        # Draw shared top and bottom lines once (to prevent double borders)
-        self.line(x_left, y, x_left + page_width, y)  # top border
-        self.line(x_left, y + h_left, x_left + page_width, y + h_left)  # bottom border
-
-        # Move cursor below both cells
+        self.multi_cell(col_width, h_left, "", border="LR")
+        self.line(x_left, y, x_left + page_width, y)
+        self.line(x_left, y + h_left, x_left + page_width, y + h_left)
         self.set_y(y + h_left)
 
-      # === Recommending Approval & Signature ===
+        # === Recommending Approval ===
         block_height = 30
         y = self.get_y()
         self.rect(x_left, y, col_width, block_height)
         self.rect(x_right, y, col_width, block_height)
 
-        # Left block
+        # Left (Head)
         self.set_xy(x_left + 3, y + 3)
-        self.set_font("Arial", "", 10)
         self.cell(col_width, 6, "Recommending Approval:", ln=1, align='L')
-        self.set_font("Arial", "", 10)
         head_name = head_approver or "________________________"
         head_position = head_approver_position or "Head of Department"
         self.set_xy(x_left, y + block_height - 15)
         self.multi_cell(col_width, 5, f"{head_name}\n{head_position}", align='C')
 
-        # Right block
+        # Right (Employee signature)
         self.set_xy(x_right + 3, y + 3)
-        self.set_font("Arial", "", 10)
         self.multi_cell(col_width, 6, "Signature of Officer/Employee\nAuthorized to Travel:", align='L')
 
         self.set_y(y + block_height + 2)
 
-            # === APPROVED Section ===
+        # === Approved Section ===
         y_start = self.get_y()
-        self.set_font("Arial", "", 10)
         self.cell(0, 6, "A P P R O V E D", ln=1, align='C')
-        self.set_font("Arial", "", 10)
-        self.ln(4)
+        self.ln(15)  # Space for signature
+        if mayor_signature:
+            # place signature in the space
+            sig_x = self.l_margin + page_width / 2 - 20
+            sig_y = y_start + 5
+            self.image(mayor_signature, x=sig_x, y=sig_y, w=40)
         self.cell(0, 6, "HON. DWIGHT C. KAMPITAN", ln=1, align='C')
-        self.set_font("Arial", "", 10)
         self.cell(0, 6, "Municipal Mayor", ln=1, align='C')
         y_end = self.get_y()
         self.rect(self.l_margin, y_start - 2, page_width, (y_end - y_start) + 4)
 
-        # ✅ Add a line gap to avoid overlap
-        self.ln(4)  # <— add vertical spacing before the next section
+        self.ln(4)
 
-        # === CERTIFICATE OF APPEARANCE ===
+        # === Certificate of Appearance ===
         y_start = self.get_y()
-        self.set_font("Arial", "", 10)
         self.multi_cell(page_width, 6, "CERTIFICATE OF APPEARANCE", align="C")
-        self.ln(2) 
-        self.set_font("Arial", "", 10)
-        self.set_x(self.l_margin + 5)
+        self.ln(2)
         self.multi_cell(
             page_width - 10,
             6,
@@ -1543,12 +1510,10 @@ class TravelOrderPDF(FPDF):
         y_end = self.get_y()
         self.rect(self.l_margin, y_start - 2, page_width, (y_end - y_start) + 6)
 
-        # === FROM / TO / PLACE (single cell) ===
+        # FROM / TO / PLACE
         self.ln(4)
         self.multi_cell(page_width, 8, "FROM                             TO                                 PLACE", border=1, align="L")
-      # signature row — make it the same width and same left margin
         self.set_font("Arial", "", 10)
-        self.set_x(self.l_margin)
         text = "\n\n______________________________________\n  SIGNATURE                         "
         self.multi_cell(page_width, 7, text, align="R", border=1)
 

@@ -5649,20 +5649,20 @@ def generate_jo_pdf():
     )
 
 
+
+# --- ROUTE ---
 @app.route('/generate_travel_order_pdf/<int:permit_id>')
 @login_required
 def generate_travel_order_pdf(permit_id):
-    # Fetch the travel order permit
     permit = PermitRequest.query.filter_by(id=permit_id, permit_type='Travel Order').first()
     if not permit:
         abort(404)
 
-    # Fetch the employee who requested the permit
     employee = permit.employee
     if not employee:
         abort(404)
 
-    # Determine the employee's department
+    # Determine department_id
     department_id = None
     if employee.permanent_details:
         department_id = employee.department_id
@@ -5671,10 +5671,8 @@ def generate_travel_order_pdf(permit_id):
     elif employee.job_order_details:
         department_id = employee.job_order_details.assigned_department_id
 
-    # --- Find the Department Head ---
+    # Find department head
     head_user = None
-
-    # Special case: employee belongs to HR
     if employee.department and employee.department.name == "Office of the Municipal Human Resource Management Officer":
         head_user = (
             Users.query.join(Employee)
@@ -5692,7 +5690,6 @@ def generate_travel_order_pdf(permit_id):
             .first()
         )
     else:
-        # Regular case: find head of employee's department
         if department_id:
             head_user = (
                 Users.query.join(Employee)
@@ -5703,50 +5700,41 @@ def generate_travel_order_pdf(permit_id):
                 .first()
             )
 
-    # --- Fetch latest head approval ---
+    # Prepare head info
+    head_approver = "________________________"
+    head_approver_position = "Head of Department"
+    head_approver_id = None
+
     if head_user:
-        head_approval = (
-            db.session.query(PermitRequestHistory)
-            .filter(
-                PermitRequestHistory.permit_request_id == permit.id,
-                PermitRequestHistory.action_by == head_user.id,
-                PermitRequestHistory.action == "Approved"
-            )
-            .order_by(PermitRequestHistory.timestamp.desc())
-            .first()
-        )
-
-        if head_approval:
-            permit.head_approver = head_user.name
-
-            # Determine head's position
-            head_employee = head_user.employee
+        head_employee = head_user.employee
+        if head_employee:
             if head_employee.permanent_details:
-                permit.head_approver_position = head_employee.permanent_details.position.title
+                head_approver_position = head_employee.permanent_details.position.title
             elif head_employee.casual_details:
-                permit.head_approver_position = head_employee.casual_details.position.title
+                head_approver_position = head_employee.casual_details.position.title
             elif head_employee.job_order_details:
-                permit.head_approver_position = head_employee.job_order_details.position_title
-            else:
-                permit.head_approver_position = "Head of Department"
+                head_approver_position = head_employee.job_order_details.position_title
+        head_approver = head_user.name
+        head_approver_id = head_user.id
 
-            permit.head_approver_id = head_user.id
-        else:
-            # Head exists but has not approved yet
-            permit.head_approver = "________________________"
-            permit.head_approver_position = "Head of Department"
-            permit.head_approver_id = None
-    else:
-        # No head found for this department
-        permit.head_approver = "________________________"
-        permit.head_approver_position = "Head of Department"
-        permit.head_approver_id = None
+    # Fetch mayor's signature
+    mayor = Users.query.filter_by(role='Mayor').first()
+    mayor_signature = None
+    if mayor and mayor.employee and mayor.employee.signature:
+        mayor_signature = io.BytesIO(mayor.employee.signature)
 
-    # --- Generate the PDF ---
+    # Generate PDF
     pdf = TravelOrderPDF()
-    pdf.add_travel_order_form(permit)  # permit already has head info
+    pdf.add_travel_order_form(
+        permit,
+        head_approved=True if head_user else False,
+        head_approver=head_approver,
+        head_approver_position=head_approver_position,
+        head_approver_id=head_approver_id,
+        mayor_signature=mayor_signature
+    )
 
-    # --- Output PDF ---
+    # Output
     pdf_output = io.BytesIO()
     pdf_bytes = bytes(pdf.output(dest='S'))
     pdf_output.write(pdf_bytes)
@@ -5759,7 +5747,6 @@ def generate_travel_order_pdf(permit_id):
         as_attachment=False,
         download_name=filename
     )
-
 
 
 #TRAVEL HISTORY 
