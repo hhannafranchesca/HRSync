@@ -1519,9 +1519,10 @@ class TravelOrderPDF(FPDF):
 
             # === APPROVED Section ===
         y_start = self.get_y()
-        self.set_font("Arial", "B", 10)
+        self.set_font("Arial", "", 10)
         self.cell(0, 6, "A P P R O V E D", ln=1, align='C')
-        self.set_font("Arial", "B", 10)
+        self.set_font("Arial", "", 10)
+        self.ln(4)
         self.cell(0, 6, "HON. DWIGHT C. KAMPITAN", ln=1, align='C')
         self.set_font("Arial", "", 10)
         self.cell(0, 6, "Municipal Mayor", ln=1, align='C')
@@ -1533,8 +1534,9 @@ class TravelOrderPDF(FPDF):
 
         # === CERTIFICATE OF APPEARANCE ===
         y_start = self.get_y()
-        self.set_font("Arial", "B", 10)
+        self.set_font("Arial", "", 10)
         self.multi_cell(page_width, 6, "CERTIFICATE OF APPEARANCE", align="C")
+        self.ln(2) 
         self.set_font("Arial", "", 10)
         self.set_x(self.l_margin + 5)
         self.multi_cell(
@@ -1551,7 +1553,7 @@ class TravelOrderPDF(FPDF):
         self.multi_cell(page_width, 8, "FROM                 TO                 PLACE", border=1, align="L")
         self.set_font("Arial", "", 10)
         text = "\n\n______________________________________\n  SIGNATURE                         "
-        self.multi_cell(190, 7, text, align="R", border=1)
+        self.multi_cell(190, 7, text, align="L", border=1)
 
 #leave
 def clean_text(text):
