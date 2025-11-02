@@ -1366,6 +1366,8 @@ class TravelOrderPDF(FPDF):
         head_approved=False,
         head_approver=None,
         head_approver_position=None,
+        head_signature=None,        # ✅ added
+        head_of_office=None,    
         head_approver_id=None,
         current_stage=None
     ):
@@ -1490,6 +1492,7 @@ class TravelOrderPDF(FPDF):
         self.set_y(y + h_left)
 
       # === Recommending Approval & Signature ===
+
         block_height = 30
         y = self.get_y()
         self.rect(x_left, y, col_width, block_height)
@@ -1499,11 +1502,34 @@ class TravelOrderPDF(FPDF):
         self.set_xy(x_left + 3, y + 3)
         self.set_font("Arial", "", 10)
         self.cell(col_width, 6, "Recommending Approval:", ln=1, align='L')
-        self.set_font("Arial", "", 10)
+
         head_name = head_approver or "________________________"
         head_position = head_approver_position or "Head of Department"
         self.set_xy(x_left, y + block_height - 15)
         self.multi_cell(col_width, 5, f"{head_name}\n{head_position}", align='C')
+
+        # ✅ define margin shortcut
+        left_margin = self.l_margin
+
+        # ✅ Signature insertion if provided
+        if head_signature:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
+                tmp_sig.write(head_signature)
+                tmp_sig.flush()
+                sig_path = tmp_sig.name
+
+            sig_w = 60
+            sig_h = 30
+            sig_x = left_margin + 120 + (70 - sig_w) / 2
+            sig_y = y + 8  # or adjust as needed
+            self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
+            os.unlink(sig_path)
+
+        # ✅ Display head name below signature if defined
+        if head_of_office and head_of_office.strip("_").strip():
+            self.set_font("Arial", "B", 10)
+            self.set_xy(left_margin + 120, y + block_height - 8)
+            self.cell(70, line_height, head_of_office, align="C")
 
         # Right block
         self.set_xy(x_right + 3, y + 3)
@@ -1551,7 +1577,7 @@ class TravelOrderPDF(FPDF):
                 sig_w = 31 * scale
                 sig_h = 13 * scale
                 sig_x = (self.w - sig_w) / 2 + 2
-                sig_y = self.get_y() - 22
+                sig_y = self.get_y() - 24
                 self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
 
                 # Clean up temp file
