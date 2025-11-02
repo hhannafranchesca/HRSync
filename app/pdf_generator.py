@@ -1551,7 +1551,7 @@ class TravelOrderPDF(FPDF):
                 sig_w = 31 * scale
                 sig_h = 13 * scale
                 sig_x = (self.w - sig_w) / 2 + 2
-                sig_y = self.get_y() - 18
+                sig_y = self.get_y() - 22
                 self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
 
                 # Clean up temp file

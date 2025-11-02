@@ -1,92 +1,111 @@
 {% extends "base/landingBase.html" %}
 {% block content %}
 
-    <!-- Page Title -->
-    <div class="page-title">
-      <div class="container d-lg-flex justify-content-between align-items-center">
-        <h1 class="mb-2 mb-lg-0">Business Permits</h1>
-        <nav class="breadcrumbs">
-          <ol>
-            <li><a href="{{ url_for('home') }}">Home</a></li>
-            <li class="current">Business Permits</li>
-          </ol>
-        </nav>
-      </div>
-    </div><!-- End Page Title -->
+<!-- Page Title -->
+<div class="page-title">
+  <div class="container d-lg-flex justify-content-between align-items-center">
+    <h1 class="mb-2 mb-lg-0">Business Permits</h1>
+    <nav class="breadcrumbs">
+      <ol>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li class="current">Business Permits</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!-- End Page Title -->
 
-    <!-- Service Details Section -->
-    <section id="service-details" class="service-details section">
+<!-- Service Details Section -->
+<section id="service-details" class="service-details section">
+  <div class="container">
+    <div class="row gy-5">
 
-      <div class="container">
+      <!-- Sidebar Column -->
+      <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
 
-        <div class="row gy-5">
-
-          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
-
-            <div class="service-box">
-                <h4>Business Permit Services</h4>
-                <div class="services-list">
-                  <a href="#"><i class="bi bi-check-circle"></i><span>Business Name Registration (DTI)</span></a>
-                  <a href="#"><i class="bi bi-check-circle"></i><span>Barangay Business Clearance</span></a>
-                  <a href="#"><i class="bi bi-check-circle"></i><span>Locational/Zoning Clearance</span></a>
-                  <a href="#"><i class="bi bi-check-circle"></i><span>Building Permit and Occupancy Certificate</span></a>
-                  <a href="#"><i class="bi bi-check-circle"></i><span>Fire Safety Inspection Certificate</span></a>
-                  <a href="#"><i class="bi bi-check-circle"></i><span>Sanitary Permit</span></a>
-                  <a href="#"><i class="bi bi-check-circle"></i><span>Community Tax Certificate (Cedula)</span></a>
-                  <a href="#"><i class="bi bi-check-circle"></i><span>Mayor’s Permit Application and Renewal</span></a>
-                  <a href="#"><i class="bi bi-check-circle"></i><span>Barangay Micro Business Enterprise (BMBE) Certification</span></a>
-                  <a href="#"><i class="bi bi-check-circle"></i><span>Business One-Stop Shop (BOSS) Assistance</span></a>
-              </div>
-                         
-
-            <!-- <div class="service-box">
-              <h4>Download Catalog</h4>
-              <div class="download-catalog">
-                <a href="#"><i class="bi bi-filetype-pdf"></i><span>Catalog PDF</span></a>
-                <a href="#"><i class="bi bi-file-earmark-word"></i><span>Catalog DOC</span></a>
-              </div>
-            </div>End Services List -->
-
-            <div class="help-box d-flex flex-column justify-content-center align-items-center">
-              <i class="bi bi-headset help-icon"></i>
-              <h4>Have a Question?</h4>
-              <p class="d-flex align-items-center mt-2 mb-0"><i class="bi bi-telephone me-2"></i> <span>+1 5589 55488 55</span></p>
-              <p class="d-flex align-items-center mt-1 mb-0"><i class="bi bi-envelope me-2"></i> <a href="mailto:contact@example.com">contact@example.com</a></p>
-            </div>
-
+        <!-- Business Services List -->
+        <div class="service-box">
+          <h4>Business Permit Services</h4>
+          <div class="services-list">
+            <a href="javascript:void(0);"><i class="bi bi-check-circle"></i><span>Business Name Registration (DTI)</span></a>
+            <a href="javascript:void(0);"><i class="bi bi-check-circle"></i><span>Barangay Business Clearance</span></a>
+            <a href="javascript:void(0);"><i class="bi bi-check-circle"></i><span>Locational/Zoning Clearance</span></a>
+            <a href="javascript:void(0);"><i class="bi bi-check-circle"></i><span>Building Permit and Occupancy Certificate</span></a>
+            <a href="javascript:void(0);"><i class="bi bi-check-circle"></i><span>Fire Safety Inspection Certificate</span></a>
+            <a href="javascript:void(0);"><i class="bi bi-check-circle"></i><span>Sanitary Permit</span></a>
+            <a href="javascript:void(0);"><i class="bi bi-check-circle"></i><span>Community Tax Certificate (Cedula)</span></a>
+            <a href="javascript:void(0);"><i class="bi bi-check-circle"></i><span>Mayor’s Permit Application and Renewal</span></a>
+            <a href="javascript:void(0);"><i class="bi bi-check-circle"></i><span>Barangay Micro Business Enterprise (BMBE) Certification</span></a>
+            <a href="javascript:void(0);"><i class="bi bi-check-circle"></i><span>Business One-Stop Shop (BOSS) Assistance</span></a>
           </div>
-
-          <div class="col-lg-8 ps-lg-5" data-aos="fade-up" data-aos-delay="200">
-            <img src="{{ url_for('static', filename='img/landing/bus.jpg') }}" alt="Business Permit Services - Victoria Laguna" class="img-fluid services-img">
-
-            <h3>Supporting Local Businesses Through Efficient and Accessible Business Permit Services</h3>
-            <p>
-              The Municipality of Victoria, Laguna is committed to supporting local entrepreneurs and promoting sustainable economic growth through its streamlined and efficient Business Permit Services. Whether you're starting a new venture or renewing an existing business, we provide all the necessary assistance to make the process simple and hassle-free.
-            </p>
-            <p>
-              Our Business Permit and Licensing Office (BPLO) works closely with other local government departments to ensure that all business-related requirements—from documentation to inspections—are processed quickly and transparently. We aim to foster a business-friendly environment that encourages investment and economic activity within the community.
-            </p>
-            <ul>
-              <li><i class="bi bi-check-circle"></i> <span>Quick and easy application for new and renewal of business permits.</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Assistance with DTI Business Name Registration and Barangay Clearances.</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Issuance of Sanitary Permits, Fire Safety Certificates, and Community Tax Certificates.</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Business One-Stop Shop (BOSS) setup during peak seasons for faster processing.</span></li>
-            </ul>
-            <p>
-              Whether you're a small-scale vendor, a growing enterprise, or a micro business owner, our services are designed to help you operate legally and smoothly. We also provide guidance for BMBE (Barangay Micro Business Enterprise) certification to promote inclusive growth among grassroots businesses.
-            </p>
-            <p>
-              With the full support of the local government and a dedicated team at the BPLO, we ensure that doing business in Victoria is both rewarding and accessible. Let’s work together to build a thriving, business-friendly community.
-            </p>
-          </div>
-          
-          
-          
-
         </div>
+        <!-- End Service List -->
+
+        <!-- Optional Download Section (commented out for now)
+        <div class="service-box">
+          <h4>Download Catalog</h4>
+          <div class="download-catalog">
+            <a href="#"><i class="bi bi-filetype-pdf"></i><span>Catalog PDF</span></a>
+            <a href="#"><i class="bi bi-file-earmark-word"></i><span>Catalog DOC</span></a>
+          </div>
+        </div>
+        End Download Section -->
+
+        <!-- Help Box -->
+        <div class="help-box d-flex flex-column justify-content-center align-items-center">
+          <i class="bi bi-headset help-icon"></i>
+          <h4>Have a Question?</h4>
+          <p class="d-flex align-items-center mt-2 mb-0">
+            <i class="bi bi-telephone me-2"></i>
+            <span>+1 5589 55488 55</span>
+          </p>
+          <p class="d-flex align-items-center mt-1 mb-0">
+            <i class="bi bi-envelope me-2"></i>
+            <a href="mailto:contact@example.com">contact@example.com</a>
+          </p>
+        </div>
+        <!-- End Help Box -->
 
       </div>
+      <!-- End Sidebar Column -->
 
-    </section><!-- /Service Details Section -->
+      <!-- Main Content Column -->
+      <div class="col-lg-8 ps-lg-5" data-aos="fade-up" data-aos-delay="200">
 
-    {% endblock content %}
+        <img 
+          src="{{ url_for('static', filename='img/landing/bus.jpg') }}" 
+          alt="Business Permit Services - Victoria Laguna" 
+          class="img-fluid services-img mb-4"
+        >
+
+        <h3>Supporting Local Businesses Through Efficient and Accessible Business Permit Services</h3>
+        <p>
+          The Municipality of Victoria, Laguna is committed to supporting local entrepreneurs and promoting sustainable economic growth through its streamlined and efficient Business Permit Services. Whether you're starting a new venture or renewing an existing business, we provide all the necessary assistance to make the process simple and hassle-free.
+        </p>
+        <p>
+          Our Business Permit and Licensing Office (BPLO) works closely with other local government departments to ensure that all business-related requirements—from documentation to inspections—are processed quickly and transparently. We aim to foster a business-friendly environment that encourages investment and economic activity within the community.
+        </p>
+
+        <ul>
+          <li><i class="bi bi-check-circle"></i> <span>Quick and easy application for new and renewal of business permits.</span></li>
+          <li><i class="bi bi-check-circle"></i> <span>Assistance with DTI Business Name Registration and Barangay Clearances.</span></li>
+          <li><i class="bi bi-check-circle"></i> <span>Issuance of Sanitary Permits, Fire Safety Certificates, and Community Tax Certificates.</span></li>
+          <li><i class="bi bi-check-circle"></i> <span>Business One-Stop Shop (BOSS) setup during peak seasons for faster processing.</span></li>
+        </ul>
+
+        <p>
+          Whether you're a small-scale vendor, a growing enterprise, or a micro business owner, our services are designed to help you operate legally and smoothly. We also provide guidance for BMBE (Barangay Micro Business Enterprise) certification to promote inclusive growth among grassroots businesses.
+        </p>
+        <p>
+          With the full support of the local government and a dedicated team at the BPLO, we ensure that doing business in Victoria is both rewarding and accessible. Let’s work together to build a thriving, business-friendly community.
+        </p>
+
+      </div>
+      <!-- End Main Content Column -->
+
+    </div>
+  </div>
+</section>
+<!-- End Service Details Section -->
+
+{% endblock content %}
