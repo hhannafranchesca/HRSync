@@ -19454,7 +19454,7 @@ def approve_leave_mayor():
     history_entry = PermitRequestHistory(
         permit_request_id=permit.id,
         action_by=current_user.id,
-        action='Approved by Mayor',
+        action='Approved',
         remarks=remarks
     )
     db.session.add(history_entry)
