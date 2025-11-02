@@ -1520,7 +1520,7 @@ class TravelOrderPDF(FPDF):
 
             # Set signature size
             sig_w = 22  # ✅ new width
-            sig_h = 22  # adjust height proportionally if needed
+            sig_h = 25  # adjust height proportionally if needed
             sig_x = left_margin + 38  # small padding from left edge of left block
             sig_y = y + 5  # small padding from top of block
 
