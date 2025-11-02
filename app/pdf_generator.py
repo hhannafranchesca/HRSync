@@ -3362,7 +3362,7 @@ class ClearanceFormPDF(FPDF):
 
         # Line 5: Bold Name
         self.set_font('Arial', 'B', 10)
-        self.cell(cell_width, line_height, "DWIGHT C. KAMPITAN", ln=1, align='C')
+        self.cell(cell_width, line_height, "DWIGHT C. KAMPITAN, M.D.", ln=1, align='C')
           # ✅ Insert Mayor's signature
         mayor_user = (
             Users.query
