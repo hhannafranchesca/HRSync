@@ -1516,16 +1516,56 @@ class TravelOrderPDF(FPDF):
         y_start = self.get_y()
         self.set_font("Arial", "", 10)
         self.cell(0, 6, "A P P R O V E D", ln=1, align='C')
+
         self.set_font("Arial", "", 10)
         self.ln(4)
         self.cell(0, 6, "HON. DWIGHT C. KAMPITAN", ln=1, align='C')
         self.set_font("Arial", "", 10)
         self.cell(0, 6, "Municipal Mayor", ln=1, align='C')
+
+        # Draw a bounding rectangle around the "APPROVED" section
         y_end = self.get_y()
+        page_width = self.w - self.l_margin - self.r_margin
         self.rect(self.l_margin, y_start - 2, page_width, (y_end - y_start) + 4)
 
-        # ✅ Add a line gap to avoid overlap
-        self.ln(4)  # <— add vertical spacing before the next section
+        # === Fetch Mayor’s signature dynamically ===
+        mayor_user = (
+            Users.query
+            .join(Employee)
+            .join(PermanentEmployeeDetails)
+            .join(Position)
+            .filter(Position.title == 'MUNICIPAL MAYOR')
+            .first()
+        )
+
+        if mayor_user:
+            sig_record = UserSignature.query.filter_by(user_id=mayor_user.id).first()
+            if sig_record and sig_record.signature:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_sig:
+                    tmp_sig.write(sig_record.signature)
+                    tmp_sig.flush()
+                    sig_path = tmp_sig.name
+
+                # Scale and center signature image
+                scale = 2.0
+                sig_w = 31 * scale
+                sig_h = 13 * scale
+                sig_x = (self.w - sig_w) / 2 + 2
+                sig_y = self.get_y() - 18
+                self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
+
+                # Clean up temp file
+                try:
+                    os.remove(sig_path)
+                except Exception:
+                    pass
+
+                # Add a line gap to avoid overlap after the signature
+                self.ln(4)
+        else:
+            # In case no mayor or signature is found, just add spacing
+            self.ln(4)
+        # <— add vertical spacing before the next section
 
         # === CERTIFICATE OF APPEARANCE ===
         y_start = self.get_y()
