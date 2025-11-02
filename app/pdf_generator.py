@@ -1508,7 +1508,7 @@ class TravelOrderPDF(FPDF):
         self.set_xy(x_left, y + block_height - 15)
         self.multi_cell(col_width, 5, f"{head_name}\n{head_position}", align='C')
 
-        # ✅ define margin shortcut
+            # ✅ define margin shortcut
         left_margin = self.l_margin
 
         # ✅ Signature insertion if provided
@@ -1518,18 +1518,22 @@ class TravelOrderPDF(FPDF):
                 tmp_sig.flush()
                 sig_path = tmp_sig.name
 
-            sig_w = 60
-            sig_h = 30
-            sig_x = left_margin + 120 + (70 - sig_w) / 2
-            sig_y = y + 8  # or adjust as needed
+            # Set signature size
+            sig_w = 20  # ✅ new width
+            sig_h = 20  # adjust height proportionally if needed
+            sig_x = left_margin + 3  # small padding from left edge of left block
+            sig_y = y + 5  # small padding from top of block
+
             self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
             os.unlink(sig_path)
 
-        # ✅ Display head name below signature if defined
+        # ✅ Display head name below signature (centered inside the left block)
         if head_of_office and head_of_office.strip("_").strip():
             self.set_font("Arial", "B", 10)
-            self.set_xy(left_margin + 120, y + block_height - 8)
-            self.cell(70, line_height, head_of_office, align="C")
+            # Center the name inside the left block
+            block_width = (self.w - self.l_margin - self.r_margin) / 2
+            self.set_xy(left_margin, y + block_height - 12)
+            self.cell(block_width, line_height, head_of_office, align="C")
 
         # Right block
         self.set_xy(x_right + 3, y + 3)
