@@ -341,6 +341,7 @@
                 
                {% for msg in inbox %}
                 <div class="email-card p-3 border-bottom {{ 'bg-white' if not msg.is_read else 'bg-body-secondary' }}" 
+                      id="message-{{ msg.id }}"
                       style="cursor:pointer"
                       data-id="{{ msg.id }}"
                       data-sender="{{ msg.sender.name | e }}"
@@ -1088,6 +1089,7 @@ messageTypeBadge = `<span class="badge ${badge.class} ms-2" style="${badge.style
 
 
 // attachments
+// attachments
 let attachmentHtml = attachments.length > 0 ? `
   <div class="mb-4">
     <h6 class="mb-2">Attachments:</h6>
@@ -1095,35 +1097,42 @@ let attachmentHtml = attachments.length > 0 ? `
       ${attachments.map(att => {
         const filename = att.split('_').slice(1).join('_');
         const fileUrl = `/static/uploads/attachments/${att}`;
+
+        // Detect file types
         const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(att);
         const isPDF = /\.pdf$/i.test(att);
         const isDoc = /\.(doc|docx)$/i.test(att);
+        const isExcel = /\.(xls|xlsx)$/i.test(att);
 
         let previewHtml = '';
 
         if (isImage) {
+          // Image preview
           previewHtml = `
             <a href="${fileUrl}" target="_blank">
               <img src="${fileUrl}" alt="${filename}" class="img-thumbnail mb-1" style="max-width: 100%;">
             </a>`;
         } else if (isPDF) {
+          // PDF preview
           previewHtml = `
             <div style="position: relative;">
               <iframe src="${fileUrl}" style="width: 100%; height: 250px;" frameborder="0"></iframe>
               <a href="${fileUrl}" target="_blank" 
                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                        z-index: 10; background: transparent;"></a>
+                       z-index: 10; background: transparent;"></a>
             </div>`;
-        } else if (isDoc) {
+        } else if (isDoc || isExcel) {
+          // Word or Excel preview via Google Docs Viewer
           const googleViewUrl = `https://docs.google.com/gview?url=${location.origin}${fileUrl}&embedded=true`;
           previewHtml = `
             <div style="position: relative;">
               <iframe src="${googleViewUrl}" style="width: 100%; height: 250px;" frameborder="0"></iframe>
               <a href="${googleViewUrl}" target="_blank" 
                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                        z-index: 10; background: transparent;"></a>
+                       z-index: 10; background: transparent;"></a>
             </div>`;
         } else {
+          // Other files → clickable link only
           previewHtml = `
             <a href="${fileUrl}" target="_blank" class="d-flex align-items-center text-decoration-none">
               <i class="bi bi-file-earmark-text me-2 fs-4"></i>
@@ -1132,7 +1141,6 @@ let attachmentHtml = attachments.length > 0 ? `
               </span>
             </a>`;
         }
-
 
         return `
           <div class="col-md-6">
@@ -1146,6 +1154,7 @@ let attachmentHtml = attachments.length > 0 ? `
     </div>
   </div>
 ` : '';
+
 
 // IPCR message
 if (message_type === 'ipcr_submission') {
@@ -1761,4 +1770,32 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const hash = window.location.hash;
+
+  if (hash) {
+    const card = document.querySelector(hash);
+    if (card) {
+      // Scroll to the card
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Highlight briefly
+      card.style.transition = 'background-color 0.5s';
+      card.style.backgroundColor = '#fff3cd';
+      setTimeout(() => { card.style.backgroundColor = ''; }, 3000);
+
+      // ✅ Wait a bit before simulating click to ensure DOM fully loaded
+      setTimeout(() => {
+        if (typeof handleEmailCardClick === 'function') {
+          handleEmailCardClick(card);
+        }
+      }, 300);
+
+      // Remove hash so it doesn’t re-open automatically
+      history.replaceState(null, null, ' ');
+    }
+  }
+});
+</script>
 {% endblock content %}

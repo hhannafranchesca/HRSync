@@ -5463,8 +5463,7 @@ def edit_department(department_id):
     )
 
 
-
-
+# PDF NA WALANG .encode('latin1')
 # PERMITDAW
 @app.route('/generate_pdf')
 @login_required
@@ -13404,12 +13403,30 @@ def update_credit():
 
 
 ATTACHMENT_UPLOAD_FOLDER = 'static/uploads/attachments'
-ATTACHMENT_ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'docx', 'txt', 'zip'}
+ATTACHMENT_ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'docx', 'txt', 'zip', 'xls', 'xlsx', 'doc', 'rar'}
+
 
 app.config['ATTACHMENT_UPLOAD_FOLDER'] = ATTACHMENT_UPLOAD_FOLDER
-
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10 MB max
 def allowed_attachment_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ATTACHMENT_ALLOWED_EXTENSIONS
+
+@app.errorhandler(413)
+def file_too_large(e):
+    flash("❌ File too large (maximum 10 MB allowed).", "danger")
+
+    # Try to return to the same page the user came from
+    referrer = request.referrer
+
+    # Fallbacks if referrer is missing or invalid
+    if referrer:
+        return redirect(referrer)
+    elif current_user.has_role('hr'):
+        return redirect(url_for('HRInbox'))
+    elif current_user.has_role('admin'):
+        return redirect(url_for('admininbox'))
+    else:
+        return redirect(url_for('EmployeeInbox'))
 
 
 def save_attachment(file):
