@@ -1,5 +1,5 @@
 from datetime import date, datetime, time, timedelta, timezone
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo 
 import hashlib
 import os
 import random
@@ -8,13 +8,13 @@ import secrets
 from PIL import Image
 from functools import wraps
 from flask import render_template, url_for, flash,redirect, request, abort,make_response,session,json,send_file,Response
-from app import app, db, bcrypt, mail
+import requests
+from app import app, db, bcrypt, mail, Message
 from app.forms import AddEmployeeForm, ForceResetForm, LoginForm, RegisterForm, UpdateSuperAdminPasswordForm, UpdateSuperAdminProfileForm
 from sqlalchemy.orm import joinedload
 from flask import current_app, send_from_directory
 
 from itsdangerous import URLSafeTimedSerializer
-from flask_mail import Message
 
 
 # from app.models import Users,Admin, Seller, UserAddress,Product,ProductVariation,ProductImage
@@ -4487,18 +4487,19 @@ def update_password():
 
 
 
-# newtravel
 @app.route("/travel", methods=['GET'])
 @login_required
 @role_required('hr')
 def travel_logs():
     search = request.args.get('search', '').strip()
+    page = request.args.get('page', 1, type=int)
+    per_page = 20  # number of logs per page
 
     query = (
         db.session.query(TravelLog)
-        .join(TravelOrder)
-        .join(PermitRequest)
-        .join(Employee)
+        .outerjoin(TravelOrder)
+        .outerjoin(PermitRequest)
+        .outerjoin(Employee)
         .options(
             joinedload(TravelLog.travel_order)
             .joinedload(TravelOrder.permit)
@@ -4506,34 +4507,38 @@ def travel_logs():
         )
     )
 
+    # Only Pending and Approved logs
+    query = query.filter(TravelLog.status.in_(['Pending', 'Approved']))
+
+    # Apply search filter if any
     if search:
-        like = f"%{search.lower()}%"
+        like = f"%{search}%"
         query = query.filter(
             or_(
-                func.lower(Employee.first_name).ilike(like),
-                func.lower(Employee.last_name).ilike(like),
-                func.lower(Employee.middle_name).ilike(like),
-                func.lower(TravelOrder.destination).ilike(like),
-                func.lower(TravelOrder.purpose).ilike(like),
-                func.lower(TravelLog.tracking_id).ilike(like),
-                func.lower(TravelLog.status).ilike(like),
-                func.lower(func.concat(Employee.last_name, ', ', Employee.first_name)).ilike(like),
-                func.lower(func.concat(Employee.first_name, ' ', Employee.last_name)).ilike(like),
+                Employee.first_name.ilike(like),
+                Employee.last_name.ilike(like),
+                Employee.middle_name.ilike(like),
+                TravelOrder.destination.ilike(like),
+                TravelOrder.purpose.ilike(like),
+                TravelLog.tracking_id.ilike(like),
+                TravelLog.status.ilike(like),
+                func.concat(Employee.first_name, ' ', Employee.last_name).ilike(like),
+                func.concat(Employee.last_name, ', ', Employee.first_name).ilike(like),
             )
         )
 
-    logs = query.order_by(
+    # Order: Approved first, then tracking_id descending
+    paginated_logs = query.order_by(
         case((TravelLog.status == 'Approved', 1), else_=0),
         desc(TravelLog.tracking_id)
-    ).all()
+    ).paginate(page=page, per_page=per_page, error_out=False)
 
     return render_template(
         'superAdmin/travellogs.html',
         title="Travel Logs",
-        logs=logs,  # now a list, not a pagination object
+        logs=paginated_logs,
         search=search
     )
-
 
 # TravelLogs
 @app.route('/approve_travel_leave', methods=['POST'])
@@ -5463,7 +5468,8 @@ def edit_department(department_id):
     )
 
 
-# PDF NA WALANG .encode('latin1')
+
+
 # PERMITDAW
 @app.route('/generate_pdf')
 @login_required
@@ -5532,7 +5538,7 @@ def generate_pdf():
                     pdf.table_row(Vacant())
 
     # ✅ FIXED PDF OUTPUT
-    pdf_bytes = pdf.output(dest='S')  # returns bytes already
+    pdf_bytes = pdf.output(dest='S') # returns bytes already
     pdf_output = io.BytesIO(pdf_bytes)
 
     return send_file(
@@ -5756,7 +5762,7 @@ def generate_travel_order_pdf(permit_id):
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = bytes(pdf.output(dest='S'))
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -5768,17 +5774,17 @@ def generate_travel_order_pdf(permit_id):
         download_name=filename
     )
 
-
-#TRAVEL HISTORY 
+# TRAVEL HISTORY PDF
 @app.route('/generate_travel_log_pdf')
 @login_required
 def generate_travel_log_pdf():
+    # Only approved logs
     logs = TravelLog.query.filter(TravelLog.status == 'Approved').all()
 
     pdf = TravelLogPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
 
-    # Gumawa ng header kahit walang logs
+    # Loop through logs
     if logs:
         for log in logs:
             pdf.add_log_row({
@@ -5786,12 +5792,18 @@ def generate_travel_log_pdf():
                 'first_name': log.travel_order.permit.employee.first_name,
                 'middle_name': log.travel_order.permit.employee.middle_name,
                 'destination': log.travel_order.destination,
-                'log_date': log.log_date,
                 'purpose': log.travel_order.purpose,
+                'date_departure': log.travel_order.date_departure,  # Add this
+                'log_date': log.log_date,
                 'tracking_id': log.tracking_id,
+                'status': log.status,  # Add status
             })
+    else:
+        # Optional: show a message in PDF if no logs
+        pdf.set_font('Arial', 'I', 12)
+        pdf.cell(0, 10, 'No travel logs found.', align='C', ln=True)
 
-
+    # Output PDF as bytes
     pdf_bytes = pdf.output(dest='S')
     pdf_output = io.BytesIO(pdf_bytes)
     pdf_output.seek(0)
@@ -5842,7 +5854,7 @@ def user_travel_logs_pdf():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest="S")
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -5897,7 +5909,7 @@ def user_travel_logs_print():
 
         # Output PDF
         pdf_output = io.BytesIO()
-        pdf_bytes = pdf.output(dest="S")
+        pdf_bytes = pdf.output(dest='S')
         pdf_output.write(pdf_bytes)
         pdf_output.seek(0)
 
@@ -5946,7 +5958,7 @@ def head_travel_logs_print():
     # Otherwise, do nothing — header is enough
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest="S")
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -5994,7 +6006,7 @@ def head_travel_logs_pdf():
     # Otherwise, do nothing — header is enough
 
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest="S")
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -8347,9 +8359,9 @@ def generate_credit_summary_pdf():
     # Step 1a: Force "Office of the Municipal Mayor" to appear first
     departments.sort(key=lambda d: (0 if d.name == "Office of the Municipal Mayor" else 1, d.name))
 
-    # Step 2: Loop through departments and pass employees
+    # Step 2: Loop through departments and pass only ACTIVE employees
     for dept in departments:
-        employees = Employee.query.filter_by(department_id=dept.id).all()
+        employees = Employee.query.filter_by(department_id=dept.id, employment_status='active').all()
         if not employees:
             continue
 
@@ -8375,7 +8387,7 @@ def generate_credit_summary_pdf():
             }
             formatted_employees.append(emp_data)
 
-        # Add the department section (with new PDF layout)
+        # Add department section to PDF
         pdf.add_department_section(dept.name, formatted_employees)
 
     # Output PDF
@@ -8387,7 +8399,6 @@ def generate_credit_summary_pdf():
     filename = f"Employee_Credit_Summary_{datetime.now().strftime('%Y%m%d')}.pdf"
     return send_file(pdf_output, mimetype='application/pdf', as_attachment=True, download_name=filename)
 
-
 # CREDIT HISTORY REPORT
 @app.route('/generate_credit_history_pdf')
 @login_required
@@ -8396,10 +8407,13 @@ def generate_credit_history_pdf():
     departments = Department.query.order_by(Department.name).all()
     credit_transactions_by_dept = {}
 
-    # Step 2: Collect transactions grouped by department
+    # Step 2: Collect transactions grouped by department (only ACTIVE employees)
     for dept in departments:
-        employees = Employee.query.filter_by(department_id=dept.id).all()
+        employees = Employee.query.filter_by(department_id=dept.id, employment_status='active').all()
         employee_ids = [e.id for e in employees]
+
+        if not employee_ids:
+            continue  # Skip if no active employees
 
         transactions = CreditTransaction.query.filter(
             CreditTransaction.employee_id.in_(employee_ids)
@@ -8425,8 +8439,6 @@ def generate_credit_history_pdf():
 
     filename = f"Leave_Credit_Transactions_{datetime.now().strftime('%Y%m%d')}.pdf"
     return send_file(pdf_output, mimetype='application/pdf', as_attachment=True, download_name=filename)
-
-
 
 
 # USERCREDIT
@@ -8663,7 +8675,6 @@ def head_credit_summary_pdf():
     # ✅ Step 5: Output PDF
     pdf_output = io.BytesIO()
     pdf_bytes = pdf.output(dest='S')
-    pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
     filename = f"Heada_Credit_Summary_{department.name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.pdf"
@@ -8708,7 +8719,6 @@ def generate_terminated_casualjob_pdf():
 
     pdf_output = io.BytesIO()
     pdf_bytes = pdf.output(dest='S')
-    pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
     return send_file(
@@ -9255,6 +9265,8 @@ def print_joborder():
         download_name='terminated_joborder_employees.pdf'
     )
 
+
+
 # PERMANENTprint
 @app.route('/print_employee_report')
 @login_required
@@ -9555,31 +9567,38 @@ def print_travel_order(permit_id):
 @app.route('/print_travel_log')
 @login_required
 def print_travel_log():
-        # ✅ Filter only APPROVED logs
-        logs = TravelLog.query.filter(TravelLog.status == 'Approved').all()
+          # Only approved logs
+    logs = TravelLog.query.filter(TravelLog.status == 'Approved').all()
 
-        pdf = TravelLogPDF(orientation='L', unit='mm', format='A4')
-        pdf.add_page()
+    pdf = TravelLogPDF(orientation='L', unit='mm', format='A4')
+    pdf.add_page()
 
-        # Gumawa ng header kahit walang logs
-        if logs:
-            for log in logs:
-                pdf.add_log_row({
-                    'last_name': log.travel_order.permit.employee.last_name,
-                    'first_name': log.travel_order.permit.employee.first_name,
-                    'middle_name': log.travel_order.permit.employee.middle_name,
-                    'destination': log.travel_order.destination,
-                    'log_date': log.log_date,
-                    'purpose': log.travel_order.purpose,
-                    'tracking_id': log.tracking_id,
-                })
-      
-        pdf_bytes = pdf.output(dest='S')
-        pdf_output = io.BytesIO(pdf_bytes)
-        pdf_output.seek(0)
+    # Loop through logs
+    if logs:
+        for log in logs:
+            pdf.add_log_row({
+                'last_name': log.travel_order.permit.employee.last_name,
+                'first_name': log.travel_order.permit.employee.first_name,
+                'middle_name': log.travel_order.permit.employee.middle_name,
+                'destination': log.travel_order.destination,
+                'purpose': log.travel_order.purpose,
+                'date_departure': log.travel_order.date_departure,  # Add this
+                'log_date': log.log_date,
+                'tracking_id': log.tracking_id,
+                'status': log.status,  # Add status
+            })
+    else:
+        # Optional: show a message in PDF if no logs
+        pdf.set_font('Arial', 'I', 12)
+        pdf.cell(0, 10, 'No travel logs found.', align='C', ln=True)
 
-        filename = f"Travel_Record_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-        return send_file(pdf_output, mimetype='application/pdf', as_attachment=False, download_name=filename)
+    # Output PDF as bytes
+    pdf_bytes = pdf.output(dest='S')
+    pdf_output = io.BytesIO(pdf_bytes)
+    pdf_output.seek(0)
+
+    filename = f"Travel_Record_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    return send_file(pdf_output, mimetype='application/pdf', as_attachment=False, download_name=filename)
 
 #LEAVEprint
 @app.route('/print_leave_application/<int:permit_id>')
@@ -9939,7 +9958,7 @@ def print_coe(permit_id):
 
     # Output PDF to bytes
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1')  # output as string and encode
+    pdf_bytes = pdf.output(dest='S')  # output as string and encode
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -10808,7 +10827,7 @@ def print_hR_leave_summary():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin-1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -10918,7 +10937,7 @@ def print_head_travel_summary():
 
     # Output PDF
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin-1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 
@@ -11030,7 +11049,7 @@ def print_head_clearance_summary():
 
     # --- Output PDF ---
     pdf_output = io.BytesIO()
-    pdf_bytes = pdf.output(dest='S').encode('latin1', 'replace')
+    pdf_bytes = pdf.output(dest='S')
     pdf_output.write(pdf_bytes)
     pdf_output.seek(0)
 

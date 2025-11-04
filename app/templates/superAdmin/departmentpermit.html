@@ -336,38 +336,39 @@
 
                       <!-- Action -->
                       <td>
-                        {% if permit.current_stage == 'Head' %}
+                          {% if permit.current_stage == 'Head' %}
+                            <div class="d-flex flex-column align-items-center gap-2">
+                              <a href="#"
+                                class="btn btn-success btn-sm approve-btn w-75"
+                                title="Approve"
+                                data-bs-toggle="modal"
+                                data-bs-target="#approveLeaveModal"
+                                data-id="{{ permit.id }}"
+                                data-leave-type="{{ permit.leave_detail.leave_type if permit.leave_detail else '' }}"
+                                data-date-requested="{{ permit.date_requested.strftime('%Y-%m-%d') if permit.date_requested else '' }}"
+                                data-date-from="{{ permit.leave_detail.date_from.strftime('%Y-%m-%d') if permit.leave_detail and permit.leave_detail.date_from else '' }}"
+                                data-date-to="{{ permit.leave_detail.date_to.strftime('%Y-%m-%d') if permit.leave_detail and permit.leave_detail.date_to else '' }}"
+                                data-salary="{{ permit.leave_detail.salary if permit.leave_detail and permit.leave_detail.salary else '' }}"
+                                data-department="{{ permit.employee.department.name if permit.employee and permit.employee.department else '' }}"
+                                data-position="{% if permit.employee.permanent_details %}{{ permit.employee.permanent_details.position.title }}{% elif permit.employee.casual_details %}{{ permit.employee.casual_details.position.title }}{% elif permit.employee.job_order_details %}{{ permit.employee.job_order_details.position_title }}{% else %}N/A{% endif %}"
+                                data-fullname="{{ permit.employee.last_name }} {{ permit.employee.first_name }} {{ permit.employee.middle_name }}">
+                                Approve
+                              </a>
 
-                        <div class="d-flex justify-content-center gap-1">
-                          <a href="#"
-                            class="btn btn-success btn-sm approve-btn"
-                            title="Approve"
-                            data-bs-toggle="modal"
-                            data-bs-target="#approveLeaveModal"
-                            data-id="{{ permit.id }}"
-                            data-leave-type="{{ permit.leave_detail.leave_type if permit.leave_detail else '' }}"
-                            data-date-requested="{{ permit.date_requested.strftime('%Y-%m-%d') if permit.date_requested else '' }}"
-                            data-date-from="{{ permit.leave_detail.date_from.strftime('%Y-%m-%d') if permit.leave_detail and permit.leave_detail.date_from else '' }}"
-                            data-date-to="{{ permit.leave_detail.date_to.strftime('%Y-%m-%d') if permit.leave_detail and permit.leave_detail.date_to else '' }}"
-                            data-salary="{{ permit.leave_detail.salary if permit.leave_detail and permit.leave_detail.salary else '' }}"
-                            data-department="{{ permit.employee.department.name if permit.employee and permit.employee.department else '' }}"
-                            data-position="{% if permit.employee.permanent_details %}{{ permit.employee.permanent_details.position.title }}{% elif permit.employee.casual_details %}{{ permit.employee.casual_details.position.title }}{% elif permit.employee.job_order_details %}{{ permit.employee.job_order_details.position_title }}{% else %}N/A{% endif %}"
-                            data-fullname="{{ permit.employee.last_name }} {{ permit.employee.first_name }} {{ permit.employee.middle_name }}">
-                            Approve
-                          </a>
-                          <a href="#"
-                            class="btn btn-danger btn-sm reject-btn"
-                            title="Reject"
-                            data-bs-toggle="modal"
-                            data-bs-target="#rejectLeaveModal"
-                            data-id="{{ permit.id }}">
-                            Reject
-                          </a>
-                        </div>
-                       {% else %}
-                          <span class="text-muted">No action</span>
-                        {% endif %}
-                      </td>
+                              <a href="#"
+                                class="btn btn-danger btn-sm reject-btn w-75"
+                                title="Reject"
+                                data-bs-toggle="modal"
+                                data-bs-target="#rejectLeaveModal"
+                                data-id="{{ permit.id }}">
+                                Reject
+                              </a>
+                            </div>
+                          {% else %}
+                            <span class="text-muted">No action</span>
+                          {% endif %}
+                        </td>
+
                     </tr>
                     {% endfor %}
 
@@ -543,12 +544,14 @@
                     </td>
 
                     <!-- Action -->
-                    <td>
-                      {% if  permit.current_stage == 'Head' %}
-                        <div class="d-flex justify-content-center gap-1">
+                   <td>
+                      {% if permit.current_stage == 'Head' %}
+                        <div class="d-flex flex-column align-items-center gap-2">
                           <!-- Approve Button -->
-                          <a href="#" class="btn btn-success btn-sm approve-travel-btn"
-                            data-bs-toggle="modal" data-bs-target="#approveTravelModal"
+                          <a href="#"
+                            class="btn btn-success btn-sm approve-travel-btn w-75"
+                            data-bs-toggle="modal"
+                            data-bs-target="#approveTravelModal"
                             data-permit-id="{{ permit.id }}"
                             data-full-name="{{ permit.employee.last_name }} {{ permit.employee.first_name }} {{ permit.employee.middle_name }}"
                             data-position="{% if permit.employee.permanent_details %}{{ permit.employee.permanent_details.position.title }}{% elif permit.employee.casual_details %}{{ permit.employee.casual_details.position.title }}{% elif permit.employee.job_order_details %}{{ permit.employee.job_order_details.position_title }}{% else %}No position assigned{% endif %}"
@@ -556,20 +559,34 @@
                             data-destination="{{ permit.travel_detail.destination if permit.travel_detail else '' }}"
                             data-purpose="{{ permit.travel_detail.purpose if permit.travel_detail else '' }}"
                             data-file-url="{{ url_for('static', filename=permit.travel_detail.attachment) if permit.travel_detail and permit.travel_detail.attachment else '' }}"
-                            title="Approve">Approve</a>
+                            title="Approve">
+                            Approve
+                          </a>
 
                           <!-- Reject Button -->
-                          <a href="#" class="btn btn-danger btn-sm reject-travel-btn"
-                            data-bs-toggle="modal" data-bs-target="#rejectTravelModal"
-                            data-permit-id="{{ permit.id }}" title="Reject">Reject</a>
+                          <a href="#"
+                            class="btn btn-danger btn-sm reject-travel-btn w-75"
+                            data-bs-toggle="modal"
+                            data-bs-target="#rejectTravelModal"
+                            data-permit-id="{{ permit.id }}"
+                            title="Reject">
+                            Reject
+                          </a>
                         </div>
+
                       {% elif permit.status == 'Approved' %}
-                        <a href="{{ url_for('generate_travel_order_pdf', permit_id=permit.id) }}" class="btn btn-primary btn-sm" title="Print" target="_blank">Print</a>
+                        <a href="{{ url_for('generate_travel_order_pdf', permit_id=permit.id) }}"
+                          class="btn btn-primary btn-sm"
+                          title="Print"
+                          target="_blank">
+                          Print
+                        </a>
+
                       {% else %}
                         <span class="text-secondary">No Action</span>
                       {% endif %}
                     </td>
-                  </tr>
+
                   {% endfor %}
                 {% else %}
                   <tr>
@@ -699,35 +716,35 @@
                             </td>
                             <td class="text-center">
                                 {% if permit.current_stage == 'Head' %}
-                              <div class="d-flex justify-content-center gap-1">
-                                <a href="#"
-                                  class="btn btn-success btn-sm approve-clearance-btn"
-                                  data-bs-toggle="modal"
-                                  data-bs-target="#approveClearanceModal"
-                                  data-permit-id="{{ permit.id }}"
-                                  data-full-name="{{ permit.employee.last_name }} {{ permit.employee.first_name }} {{ permit.employee.middle_name }}"
-                                  data-position="{% if permit.employee.permanent_details %}{{ permit.employee.permanent_details.position.title }}{% elif permit.employee.casual_details %}{{ permit.employee.casual_details.position.title }}{% elif permit.employee.job_order_details %}{{ permit.employee.job_order_details.position_title }}{% else %}No position assigned{% endif %}"
-                                  data-purpose="{{ permit.clearance_detail.clearance_purpose if permit.clearance_detail else '' }}"
-                                  data-date-from="{{ permit.clearance_detail.date_from.strftime('%Y-%m-%d') if permit.clearance_detail and permit.clearance_detail.date_from else '' }}"
-                                  data-date-to="{{ permit.clearance_detail.date_to.strftime('%Y-%m-%d') if permit.clearance_detail and permit.clearance_detail.date_to else '' }}"
-                                  title="Approve">
-                                  Approve
-                                </a>
+                                <div class="d-flex flex-column align-items-center gap-1">
+                                  <a href="#"
+                                    class="btn btn-success btn-sm approve-clearance-btn w-75"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#approveClearanceModal"
+                                    data-permit-id="{{ permit.id }}"
+                                    data-full-name="{{ permit.employee.last_name }} {{ permit.employee.first_name }} {{ permit.employee.middle_name }}"
+                                    data-position="{% if permit.employee.permanent_details %}{{ permit.employee.permanent_details.position.title }}{% elif permit.employee.casual_details %}{{ permit.employee.casual_details.position.title }}{% elif permit.employee.job_order_details %}{{ permit.employee.job_order_details.position_title }}{% else %}No position assigned{% endif %}"
+                                    data-purpose="{{ permit.clearance_detail.clearance_purpose if permit.clearance_detail else '' }}"
+                                    data-date-from="{{ permit.clearance_detail.date_from.strftime('%Y-%m-%d') if permit.clearance_detail and permit.clearance_detail.date_from else '' }}"
+                                    data-date-to="{{ permit.clearance_detail.date_to.strftime('%Y-%m-%d') if permit.clearance_detail and permit.clearance_detail.date_to else '' }}"
+                                    title="Approve">
+                                    Approve
+                                  </a>
 
-                                <a href="#"
-                                  class="btn btn-danger btn-sm reject-clearance-btn"
-                                  data-bs-toggle="modal"
-                                  data-bs-target="#rejectClearanceModal"
-                                  data-permit-id="{{ permit.id }}"
-                                  title="Reject">
-                                  Reject
-                                </a>
-                              </div>
-                            {% else %}
-                                      <span class="text-secondary">No Action</span>
-                            {% endif %}
-                            </td>
-                          </tr>
+                                  <a href="#"
+                                    class="btn btn-danger btn-sm reject-clearance-btn w-75"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#rejectClearanceModal"
+                                    data-permit-id="{{ permit.id }}"
+                                    title="Reject">
+                                    Reject
+                                  </a>
+                                </div>
+                                {% else %}
+                                  <span class="text-secondary">No Action</span>
+                                {% endif %}
+                              </td>
+
                         {% endfor %}
                       </tbody>
               </table>

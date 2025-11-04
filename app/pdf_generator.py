@@ -3484,17 +3484,15 @@ def clean_text(text):
 class TravelLogPDF(FPDF):
     def header(self):
         base_path = os.path.join(current_app.root_path, 'static', 'img', 'landing')
-
         center_x = 148.5  # center of A4 landscape page
-
         logo_width = 18
-        gap_from_text = 30  # logos are only 10 units away from center text
+        gap_from_text = 30
 
-        # Left and Right Logos (closer to text)
+        # Logos
         self.image(os.path.join(base_path, 'victoria.png'), x=center_x - gap_from_text - logo_width, y=8, w=logo_width)
         self.image(os.path.join(base_path, 'victoria1.png'), x=center_x + gap_from_text, y=8, w=logo_width)
 
-        #TEXT
+        # Text
         self.set_font('Arial', 'B', 10)
         self.cell(0, 5, 'Republic of the Philippines', ln=True, align='C')
         self.cell(0, 5, 'Province of Laguna', ln=True, align='C')
@@ -3505,31 +3503,32 @@ class TravelLogPDF(FPDF):
         self.cell(0, 7, 'TRAVEL RECORD', ln=True, align='C')
         self.ln(5)
 
-        # Smaller font and narrower columns
-        self.set_fill_color(197, 224, 180) 
+        # Table header
+        self.set_fill_color(197, 224, 180)
         self.set_font('Arial', 'B', 9)
-        headers = ['Employee Name', 'Destination', 'Log Date', 'Purpose', 'Tracking ID']
-        col_widths = [60, 60, 40, 90, 30]
+        headers = ['Employee Name', 'Destination', 'Purpose', 'Date of Departure', 'Log Date', 'Tracking ID', 'Status']
+        col_widths = [50, 40, 60, 40, 40, 25, 25]  # Adjust widths to fit A4
         for i, header in enumerate(headers):
             self.cell(col_widths[i], 6, header, border=1, align='C', fill=True)
         self.ln()
 
     def add_log_row(self, log):
         self.set_font('Arial', '', 8)
-        col_widths = [60, 60, 40, 90, 30]
-        line_height = 4  # Use smaller line height for tighter fit
+        col_widths = [50, 40, 60, 40, 40, 25, 25]
+        line_height = 4
 
         # Prepare data
         data = [
             clean_text(f"{log['last_name']}, {log['first_name']} {log['middle_name'][0] + '.' if log.get('middle_name') else ''}"),
             clean_text(log['destination']),
-            clean_text(log['log_date'].strftime('%B %d, %Y %I:%M %p') if log['log_date'] else '-'),
             clean_text(log['purpose']),
+            clean_text(log['date_departure'].strftime('%B %d, %Y %I:%M %p') if log.get('date_departure') else '-'),
+            clean_text(log['log_date'].strftime('%B %d, %Y %I:%M %p') if log.get('log_date') else '-'),
             clean_text(log['tracking_id']),
+            clean_text(log['status']),
         ]
 
-
-        # Calculate number of lines per cell
+        # Determine max lines for row
         max_lines = 1
         for i in range(len(data)):
             num_lines = self.get_string_width(data[i]) / (col_widths[i] - 2)
@@ -3542,14 +3541,11 @@ class TravelLogPDF(FPDF):
 
         for i in range(len(data)):
             self.set_xy(x_start, y_start)
-            # Save x/y to manually draw each cell box
             self.multi_cell(col_widths[i], line_height, data[i], border=0)
-            # Draw border manually
             self.rect(x_start, y_start, col_widths[i], row_height)
             x_start += col_widths[i]
 
         self.set_y(y_start + row_height)
-
 
 
 
@@ -4712,7 +4708,7 @@ class EmployeeCreditPDF(FPDF):
     def __init__(self, orientation='L', unit='mm', format='A4'):
         super().__init__(orientation, unit, format)
         # Updated columns: Name, Position, Vac Earned/Used/Remaining, Sick Earned/Used/Remaining
-        self.col_widths = [60, 50, 25, 25, 25, 25, 25, 25]  
+        self.col_widths = [50, 80, 25, 25, 25, 25, 25, 25]  
         self.dept_header = None
 
     def header(self):
@@ -4762,7 +4758,7 @@ class EmployeeCreditPDF(FPDF):
         self.ln()
 
         # Second row (indented 30 mm to the right)
-        self.cell(110)  # move 30 mm to the right
+        self.cell(130)  # move 30 mm to the right
         sub_headers = ['Earned', 'Used', 'Remaining'] * 2
         for i, sub in enumerate(sub_headers):
             self.cell(self.col_widths[i+2], 6, sub, border=1, align='C', fill=True)

@@ -66,44 +66,37 @@
                           
                       
                           <tbody>
-                        {% for log in logs.items %}
-                          <tr class="text-center">
-                            <td>{{ log.travel_order.permit.employee.last_name}} {{ log.travel_order.permit.employee.first_name}} {{ log.travel_order.permit.employee.middle_name}}</td>
-                            <td>{{ log.travel_order.destination }}</td>
-                            <td>{{ log.travel_order.purpose }}</td>
-                            <td>{{ log.travel_order.date_departure.strftime('%B %d, %Y %I:%M %p') if log.travel_order.date_departure else '—' }}</td>
+                            {% for log in logs %}
+                            <tr class="text-center">
+                                <td>{{ log.travel_order.permit.employee.last_name }} {{ log.travel_order.permit.employee.first_name }} {{ log.travel_order.permit.employee.middle_name }}</td>
+                                <td>{{ log.travel_order.destination }}</td>
+                                <td>{{ log.travel_order.purpose }}</td>
+                                <td>{{ log.travel_order.date_departure.strftime('%B %d, %Y %I:%M %p') if log.travel_order.date_departure else '—' }}</td>
+                                <td>{{ log.tracking_id }}</td>
+                                <td>{{ log.log_date|ph_time_exact if log.log_date else '—' }}</td>
+                                <td>
+                                    <span class="badge {% if log.status == 'Approved' %}bg-success{% elif log.status == 'Pending' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                        {{ log.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if log.status == 'Pending' %}
+                                    <a href="#" 
+                                        class="btn btn-sm btn-success approve-btn" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#approveModal"
+                                        data-permit-id="{{ log.travel_order.permit.id }}"
+                                        data-employee-name="{{ log.travel_order.permit.employee.last_name }} {{ log.travel_order.permit.employee.first_name }}">
+                                        Approve
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">No Action</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
 
-                            <td>{{ log.tracking_id }}</td>
-                            <!-- <td>{{ log.log_date.strftime('%B %d, %Y %I:%M %p') if log.log_date else '—' }}</td> -->
-                             <td>{{ log.log_date|ph_time_exact if log.log_date else '—' }}</td>
-
-                            <td>
-                              <span class="badge 
-                                {% if log.status == 'Approved' %}bg-success
-                                {% elif log.status == 'Pending' %}bg-warning text-dark
-                                {% else %}bg-secondary{% endif %}">
-                                {{ log.status }}
-                              </span>
-                            </td>
-                            <td>
-                              {% if log.status != 'Approved' %}
-                                <a href="#" 
-                                  class="btn btn-sm btn-success approve-btn" 
-                                  data-bs-toggle="modal" 
-                                  data-bs-target="#approveModal"
-                                  data-permit-id="{{ log.travel_order.permit.id }}"
-                                  data-employee-name="{{ log.travel_order.permit.employee.last_name }} {{ log.travel_order.permit.employee.first_name }}">
-                                  Approve
-                                </a>
-                              {% else %}
-                                <span class="text-muted">No Action</span>
-                              {% endif %}
-                            </td>
-
-                          </tr>
-
-                        {% endfor %}
-                      </tbody>
 
                           
                   </table>
@@ -236,3 +229,5 @@ $(document).ready(function () {
 {% endblock %}
 
 {% endblock content %}
+
+

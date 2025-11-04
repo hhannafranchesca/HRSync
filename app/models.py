@@ -656,6 +656,7 @@ class TravelLog(db.Model):
         db.Enum(
             'Pending', 
             'Approved', 
+            'Rejected',
             name='travel_status_enum'
         ),
         nullable=False
