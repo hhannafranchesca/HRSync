@@ -6123,7 +6123,7 @@ def generate_leave_application_pdf(permit_id):
     pdf.add_page()
 
     # --- PDF Output ---
-    pdf_bytes = pdf.output(dest='S').encode('latin-1')  # Already bytes in fpdf2
+    pdf_bytes = pdf.output(dest='S') # Already bytes in fpdf2
     pdf_output = io.BytesIO(pdf_bytes)
     pdf_output.seek(0)
 
