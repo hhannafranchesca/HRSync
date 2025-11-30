@@ -2065,26 +2065,28 @@ class LeaveApplicationPDF(FPDF):
         # ✅ Pull credit values
       
         if credit_balance:
-            vac_earned = f"{credit_balance.vacation_earned:.2f}" if credit_balance.vacation_earned else "0.00"
-            sick_earned = f"{credit_balance.sick_earned:.2f}" if credit_balance.sick_earned else "0.00"
+            vac_earned = f"{credit_balance.vacation_earned:.2f}"
+            sick_earned = f"{credit_balance.sick_earned:.2f}"
 
-            # Include this leave application
-            vac_used = f"{(credit_balance.vacation_used + (leave.days_vacation or 0)):.2f}"
-            sick_used = f"{(credit_balance.sick_used + (leave.days_sick or 0)):.2f}"
+            vac_used_total = credit_balance.vacation_used + (leave.days_vacation or 0)
+            sick_used_total = credit_balance.sick_used + (leave.days_sick or 0)
 
-            vac_remaining = f"{(credit_balance.vacation_earned - (credit_balance.vacation_used + (leave.days_vacation or 0))):.2f}"
-            sick_remaining = f"{(credit_balance.sick_earned - (credit_balance.sick_used + (leave.days_sick or 0))):.2f}"
+            vac_used = f"{vac_used_total:.2f}"
+            sick_used = f"{sick_used_total:.2f}"
+
+            vac_balance = f"{(credit_balance.vacation_earned - vac_used_total):.2f}"
+            sick_balance = f"{(credit_balance.sick_earned - sick_used_total):.2f}"
         else:
-            vac_earned = vac_used = vac_remaining = "0.00"
-            sick_earned = sick_used = sick_remaining = "0.00"
+            vac_earned = vac_used = vac_balance = "0.00"
+            sick_earned = sick_used = sick_balance = "0.00"
 
-        # Table rows
         rows = [
             ('Total Earned', vac_earned, sick_earned),
             ('Less this application', vac_used, sick_used),
-            ('Balance', vac_remaining, sick_remaining),
-            ('Remaining Leave', vac_remaining, sick_remaining),
+            ('Balance', vac_balance, sick_balance),
+            ('Remaining Leave', vac_balance, sick_balance),
         ]
+
 
         for row_label, vac_val, sick_val in rows:
             self.set_x(x_table_start)
