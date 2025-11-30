@@ -1666,7 +1666,7 @@ class LeaveApplicationPDF(FPDF):
         base_path = os.path.join(current_app.root_path, 'static', 'img', 'landing')
         self.image(os.path.join(base_path, 'victoria2.png'), x=35, y=10, w=22)  # logo
 
-        self.set_font('Arial', 'B', 8)
+        self.set_font('Arial', 'B', 9)
         self.set_y(12)
         self.cell(0, 4, 'Republic of the Philippines', ln=True, align='C')
 
@@ -1683,12 +1683,12 @@ class LeaveApplicationPDF(FPDF):
 
         # Set stamp box near Province of Laguna line
         self.set_xy(stamp_x, y_laguna)
-        self.set_font('Arial', '', 5)
+        self.set_font('Arial', '', 7)
         self.multi_cell(35, 5, "Stamp of Date of Receipt", border=1, align='C')
 
 
         # ✅ Municipality line (no extra spacing)
-        self.set_font('Arial', 'B', 8)
+        self.set_font('Arial', 'B', 9)
         self.set_y(self.get_y())  # or just remove this line
         self.cell(0, 4, 'Municipality of VICTORIA', ln=True, align='C')
 
