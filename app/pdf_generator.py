@@ -1700,7 +1700,9 @@ class LeaveApplicationPDF(FPDF):
     def add_leave_form(self, department, last_name, first_name, middle_name,
                    date_from, position, salary, selected_leave,
                    head_approved, head_approver, head_approver_position,
-                   head_approver_id, current_stage, credit_balance=None):
+                   head_approver_id, current_stage, credit_balance=None,
+                   leave_days_vacation=0, leave_days_sick=0):
+
 
         self.set_font('Arial', '', 7)
 
@@ -2068,14 +2070,15 @@ class LeaveApplicationPDF(FPDF):
             vac_earned = f"{credit_balance.vacation_earned:.2f}"
             sick_earned = f"{credit_balance.sick_earned:.2f}"
 
-            vac_used_total = credit_balance.vacation_used + (leave.days_vacation or 0)
-            sick_used_total = credit_balance.sick_used + (leave.days_sick or 0)
+            vac_used_total = credit_balance.vacation_used + leave_days_vacation
+            sick_used_total = credit_balance.sick_used + leave_days_sick
 
             vac_used = f"{vac_used_total:.2f}"
             sick_used = f"{sick_used_total:.2f}"
 
             vac_balance = f"{(credit_balance.vacation_earned - vac_used_total):.2f}"
             sick_balance = f"{(credit_balance.sick_earned - sick_used_total):.2f}"
+
         else:
             vac_earned = vac_used = vac_balance = ""
             sick_earned = sick_used = sick_balance = ""
@@ -2332,9 +2335,7 @@ class LeaveApplicationPDF(FPDF):
                 sig_y = self.get_y() - 22  # sit above the line
 
                 self.image(sig_path, x=sig_x, y=sig_y, w=sig_w, h=sig_h)
-                
-
-
+            
 #2ND PAGE 
 
     def add_instructions_page(self):

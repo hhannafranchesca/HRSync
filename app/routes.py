@@ -6020,6 +6020,7 @@ def head_travel_logs_pdf():
 
 
 # LEAVE PDF Generator
+# LEAVE PDF Generator
 @app.route('/generate_leave_application_pdf/<int:permit_id>')
 @login_required
 def generate_leave_application_pdf(permit_id):
@@ -6036,7 +6037,7 @@ def generate_leave_application_pdf(permit_id):
     if not employee:
         abort(404)
 
-    # ✅ Department & Position (depende sa employee type)
+    # ✅ Department & Position (depends on employee type)
     if employee.permanent_details:
         department = employee.department.name if employee.department else 'N/A'
         position = employee.permanent_details.position.title if employee.permanent_details.position else 'N/A'
@@ -6073,7 +6074,6 @@ def generate_leave_application_pdf(permit_id):
         head_approver = getattr(user, 'name', 'N/A')
         head_approver_id = getattr(user, 'id', None)
 
-        # ✅ Determine approver's position
         approver_employee = getattr(user, 'employee', None)
         if approver_employee:
             if approver_employee.permanent_details and approver_employee.permanent_details.position:
@@ -6083,36 +6083,47 @@ def generate_leave_application_pdf(permit_id):
             elif approver_employee.job_order_details:
                 head_approver_position = approver_employee.job_order_details.position_title
 
-    # Safe formatting for dates and salary
+    # Safe formatting
     date_from_str = leave.date_from.strftime("%B %d, %Y") if leave.date_from else 'N/A'
     salary_str = str(leave.salary) if leave.salary else 'N/A'
     leave_type_str = leave.leave_type if leave.leave_type else 'N/A'
+
+    # ✅ Use the employee object directly, no need to query again
+    emp = employee
+    credit = emp.credit_balance  # could be None if not created
+
+    leave_days_vacation = leave.paid_days if leave.leave_type.lower() == 'vacation' else 0
+    leave_days_sick = leave.paid_days if leave.leave_type.lower() == 'sick' else 0
 
     # ✅ Generate PDF
     pdf = LeaveApplicationPDF()
     pdf.add_page()
     pdf.add_leave_form(
         department=department,
-        last_name=employee.last_name or 'N/A',
-        first_name=employee.first_name or 'N/A',
-        middle_name=employee.middle_name or '',
-        date_from=date_from_str,
+        last_name=emp.last_name,
+        first_name=emp.first_name,
+        middle_name=emp.middle_name,
+        date_from=leave.date_from.strftime("%B %d, %Y") if leave.date_from else 'N/A',
         position=position,
-        salary=salary_str,
-        selected_leave=leave_type_str,
+        salary=str(leave.salary) if leave.salary else 'N/A',
+        selected_leave=leave.leave_type,
         head_approved=head_approved,
         head_approver=head_approver,
         head_approver_position=head_approver_position,
         head_approver_id=head_approver_id,
-        current_stage=permit.current_stage or 'N/A'
+        current_stage='HR',
+        credit_balance=credit,
+        leave_days_vacation=leave_days_vacation,
+        leave_days_sick=leave_days_sick
     )
+
     pdf.add_instructions_page()
 
     pdf.show_header = False
     pdf.add_page()
 
     # --- PDF Output ---
-    pdf_bytes = pdf.output(dest='S')  # Already bytes in fpdf2
+    pdf_bytes = pdf.output(dest='S').encode('latin-1')  # Already bytes in fpdf2
     pdf_output = io.BytesIO(pdf_bytes)
     pdf_output.seek(0)
 
@@ -6122,6 +6133,8 @@ def generate_leave_application_pdf(permit_id):
         as_attachment=True,
         download_name=f'leave_application_{permit_id}.pdf'
     )
+
+
 
 
 @app.route('/generate_clearance/<int:permit_id>')
