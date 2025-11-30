@@ -2077,8 +2077,8 @@ class LeaveApplicationPDF(FPDF):
             vac_balance = f"{(credit_balance.vacation_earned - vac_used_total):.2f}"
             sick_balance = f"{(credit_balance.sick_earned - sick_used_total):.2f}"
         else:
-            vac_earned = vac_used = vac_balance = "0.00"
-            sick_earned = sick_used = sick_balance = "0.00"
+            vac_earned = vac_used = vac_balance = ""
+            sick_earned = sick_used = sick_balance = ""
 
         rows = [
             ('Total Earned', vac_earned, sick_earned),
