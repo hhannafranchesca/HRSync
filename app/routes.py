@@ -9634,6 +9634,8 @@ def print_leave_application(permit_id):
         department = employee.department.name if employee.department else 'N/A'
         position = 'N/A'
 
+    credit_balance = LeaveCredit.query.filter_by(employee_id=employee.id).first()
+
     pdf = LeaveApplicationPDF()
     pdf.add_page()
     pdf.add_leave_form(
@@ -9643,7 +9645,8 @@ def print_leave_application(permit_id):
         middle_name=employee.middle_name,
         date_from=leave.date_from.strftime("%B %d, %Y"),
         position=position,
-        salary=leave.salary or 'N/A'
+        salary=leave.salary or 'N/A',
+        credit_balance=credit_balance  
     )
     pdf.add_instructions_page()
 
