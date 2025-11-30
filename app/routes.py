@@ -25,7 +25,7 @@ from flask import jsonify, request
 import base64
 from werkzeug.utils import secure_filename
 import uuid
-
+from app.models import LeaveCredit
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import aliased
 from sqlalchemy import and_, or_, text, case, desc, String, literal, func, extract
