@@ -201,7 +201,7 @@ class CasualJobPDF(FPDF):
         # Right side
         self.set_xy(289, 0)
         self.multi_cell(60, 5, "For\nLocal Government Unit", border=1, align='C')
-        
+
         self.ln(1)
         self.set_font('Arial', 'B', 9)
         self.cell(0, 5, 'Republic of the Philippines', ln=True, align='C')
@@ -484,7 +484,7 @@ class CasualJobPDF(FPDF):
         self.cell(55, 4, '', border='B', ln=1)
         self.set_y(-13)
         self.set_font('Arial', 'I', 6)
-        self.cell(0, 10, 'Page %s' % self.page_no(), 0, 0, 'L')
+        self.cell(0, 10, 'Page %s' % self.page_no(), 0, 0, 'C')
 
 
 # job order 
