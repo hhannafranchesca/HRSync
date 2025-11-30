@@ -201,7 +201,8 @@ class CasualJobPDF(FPDF):
         # Right side
         self.set_xy(289, 0)
         self.multi_cell(60, 5, "For\nLocal Government Unit", border=1, align='C')
-
+        
+        self.ln(1)
         self.set_font('Arial', 'B', 9)
         self.cell(0, 5, 'Republic of the Philippines', ln=True, align='C')
         self.cell(0, 5, 'Province of Laguna', ln=True, align='C')
