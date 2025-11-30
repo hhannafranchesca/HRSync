@@ -9643,8 +9643,7 @@ def print_leave_application(permit_id):
         middle_name=employee.middle_name,
         date_from=leave.date_from.strftime("%B %d, %Y"),
         position=position,
-        salary=leave.salary or 'N/A',
-        
+        salary=leave.salary or 'N/A'
     )
     pdf.add_instructions_page()
 
