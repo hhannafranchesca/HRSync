@@ -2063,14 +2063,17 @@ class LeaveApplicationPDF(FPDF):
         self.cell(col_width, cell_height, 'Sick Leave', 1, 1, 'C')
 
         # ✅ Pull credit values
+      
         if credit_balance:
-            vac_earned     = f"{credit_balance.vacation_earned:.2f}" if credit_balance.vacation_earned else "0.00"
-            vac_used       = f"{credit_balance.vacation_used:.2f}" if credit_balance.vacation_used else "0.00"
-            vac_remaining  = f"{credit_balance.vacation_remaining:.2f}" if credit_balance.vacation_remaining else "0.00"
+            vac_earned = f"{credit_balance.vacation_earned:.2f}" if credit_balance.vacation_earned else "0.00"
+            sick_earned = f"{credit_balance.sick_earned:.2f}" if credit_balance.sick_earned else "0.00"
 
-            sick_earned    = f"{credit_balance.sick_earned:.2f}" if credit_balance.sick_earned else "0.00"
-            sick_used      = f"{credit_balance.sick_used:.2f}" if credit_balance.sick_used else "0.00"
-            sick_remaining = f"{credit_balance.sick_remaining:.2f}" if credit_balance.sick_remaining else "0.00"
+            # Include this leave application
+            vac_used = f"{(credit_balance.vacation_used + (leave.days_vacation or 0)):.2f}"
+            sick_used = f"{(credit_balance.sick_used + (leave.days_sick or 0)):.2f}"
+
+            vac_remaining = f"{(credit_balance.vacation_earned - (credit_balance.vacation_used + (leave.days_vacation or 0))):.2f}"
+            sick_remaining = f"{(credit_balance.sick_earned - (credit_balance.sick_used + (leave.days_sick or 0))):.2f}"
         else:
             vac_earned = vac_used = vac_remaining = "0.00"
             sick_earned = sick_used = sick_remaining = "0.00"
