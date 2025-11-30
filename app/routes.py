@@ -9803,14 +9803,16 @@ def print_ipcr():
             continue
 
         for item in section.section_items:
-            ratings = [item.rating_q, item.rating_e, item.rating_t, item.rating_a]
+            ratings = [item.rating_q, item.rating_e, item.rating_t]
             valid_ratings = [r for r in ratings if r is not None]
-            if len(valid_ratings) == 4:
-                avg = sum(valid_ratings) / 4
-                if section.type.lower() == 'core':
-                    core_ratings.append(f"{avg:.2f}")
-                elif section.type.lower() == 'support':
-                    support_ratings.append(f"{avg:.2f}")
+
+            avg = sum(valid_ratings) / len(valid_ratings) if valid_ratings else 0
+            item.rating_a = avg  # <-- assign the computed average
+
+            if section.type.lower() == 'core':
+                core_ratings.append(f"{avg:.2f}")
+            elif section.type.lower() == 'support':
+                support_ratings.append(f"{avg:.2f}")
 
             accountable_name = f"{ipcr.employee.first_name} {ipcr.employee.last_name}"
 
@@ -9823,11 +9825,12 @@ def print_ipcr():
                     'Q': str(item.rating_q) if item.rating_q is not None else "",
                     'E': str(item.rating_e) if item.rating_e is not None else "",
                     'T': str(item.rating_t) if item.rating_t is not None else "",
-                    'A': str(item.rating_a) if item.rating_a is not None else "",
+                    'A': f"{item.rating_a:.2f}" if item.rating_a is not None else "",
                 },
                 'remarks': item.remarks or "",
                 'accountable': accountable_name
             })
+
 
     # ✅ Summary computation
     core_sum = sum([float(r) for r in core_ratings]) if core_ratings else 0
