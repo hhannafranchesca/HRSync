@@ -6106,7 +6106,6 @@ def generate_leave_application_pdf(permit_id):
         head_approver=head_approver,
         head_approver_position=head_approver_position,
         head_approver_id=head_approver_id,
-        current_stage=leave.current_stage,
         credit_balance=employee.credit_balance 
     )
     pdf.add_instructions_page()
