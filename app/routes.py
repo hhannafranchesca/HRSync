@@ -9717,7 +9717,6 @@ def print_clearance(permit_id):
     return send_file(pdf_output, mimetype='application/pdf', as_attachment=False)
 
 #ipcrprint 
-
 @app.route('/print_ipcr')
 @login_required
 def print_ipcr():
@@ -9725,15 +9724,14 @@ def print_ipcr():
     if not employee_id:
         return abort(400, description="Missing employee_id parameter")
 
-    # ✅ Get latest IPCR for this employee (any period)
+    # Get latest IPCR for this employee (any period)
     ipcr = IPCR.query.filter_by(employee_id=employee_id).order_by(IPCR.id.desc()).first()
     if not ipcr:
         return abort(404, description="No IPCR record found for this employee.")
 
-    # ✅ Extract related info
     employee = ipcr.employee
 
-    # Use assigned_department if casual employee
+    # Determine department (for casual employees use assigned_department)
     if hasattr(employee, "casual_details") and employee.casual_details and employee.casual_details.assigned_department:
         department = employee.casual_details.assigned_department
     else:
@@ -9743,17 +9741,16 @@ def print_ipcr():
     start_date = period.start_date if period else None
     end_date = period.end_date if period else None
 
-    # ✅ Identify department head for this employee’s department
+    # Identify department head
     dept_employees = Employee.query.filter(Employee.department_id == department.id).all()
     head_employee = next((emp for emp in dept_employees if emp.is_department_head), None)
-
     if head_employee:
         middle_initial = f"{head_employee.middle_name[0]}." if head_employee.middle_name else ""
         head_name = f"{head_employee.first_name} {middle_initial} {head_employee.last_name}"
     else:
         head_name = "(Head of Department)"
 
-    # ✅ Fetch the head of “Office of the Municipal Mayor”
+    # Fetch Mayor
     mayor_department = Department.query.filter(
         Department.name.ilike('%Office of the Municipal Mayor%')
     ).first()
@@ -9765,14 +9762,13 @@ def print_ipcr():
             Employee.is_department_head == True
         ).first()
 
-    # Format mayor name (all caps, with "HON." prefix and MD at the end)
     if mayor_head:
         middle_initial = f"{mayor_head.middle_name[0]}." if mayor_head.middle_name else ""
         mayor_name = f"HON. {mayor_head.first_name.upper()} {middle_initial.upper()} {mayor_head.last_name.upper()}, MD"
     else:
         mayor_name = "HON. MAYOR, MD (NOT SET)"
 
-    # ✅ Initialize PDF
+    # Initialize PDF
     pdf = PerformanceReportPDF(
         orientation='L',
         unit='mm',
@@ -9780,89 +9776,92 @@ def print_ipcr():
         start_date=start_date,
         end_date=end_date,
         head_name=head_name,
-        mayor_name=mayor_name,  # ✅ pass mayor to header logic
+        mayor_name=mayor_name,
         employee=employee
     )
 
     pdf.date_submitted = ipcr.date_submitted
     pdf.department_name = department.name if department else "Unknown Department"
-
     pdf.add_page()
     pdf.table_header()
     pdf.show_header = False
 
+    # Helper to add ratings
+    def add_rating(item, rating_list):
+        ratings = [item.rating_q, item.rating_e, item.rating_t]
+        valid_ratings = [r for r in ratings if r is not None]
+        avg = sum(valid_ratings) / len(valid_ratings) if valid_ratings else 0
+        item.rating_a = avg
+        rating_list.append(avg)
+
     core_ratings, support_ratings = [], []
 
-    # ✅ Render IPCR Sections
+    # Render IPCR Sections
     for section in ipcr.sections:
-        if section.type.lower() == 'core':
+        section_type = (section.type or "").strip().lower()
+
+        if section_type.startswith('core'):
             pdf.core_function_row(section.type)
-        elif section.type.lower() == 'support':
+            for item in section.section_items:
+                add_rating(item, core_ratings)
+                accountable_name = f"{employee.first_name} {employee.last_name}"
+                pdf.table_row({
+                    'mfo': item.mfo or "",
+                    'success_indicators': item.success_indicator or "",
+                    'budget': str(item.allotted_budget) if item.allotted_budget else "",
+                    'actual': str(item.accomplishment) if item.accomplishment else "",
+                    'rating': {
+                        'Q': str(item.rating_q) if item.rating_q is not None else "-",
+                        'E': str(item.rating_e) if item.rating_e is not None else "-",
+                        'T': str(item.rating_t) if item.rating_t is not None else "-",
+                        'A': f"{item.rating_a:.2f}" if item.rating_a is not None else "-",
+                    },
+                    'remarks': item.remarks or "",
+                    'accountable': accountable_name
+                })
+        elif section_type.startswith('support'):
             pdf.support_function_row(section.type)
+            for item in section.section_items:
+                add_rating(item, support_ratings)
+                accountable_name = f"{employee.first_name} {employee.last_name}"
+                pdf.table_row({
+                    'mfo': item.mfo or "",
+                    'success_indicators': item.success_indicator or "",
+                    'budget': str(item.allotted_budget) if item.allotted_budget else "",
+                    'actual': str(item.accomplishment) if item.accomplishment else "",
+                    'rating': {
+                        'Q': str(item.rating_q) if item.rating_q is not None else "-",
+                        'E': str(item.rating_e) if item.rating_e is not None else "-",
+                        'T': str(item.rating_t) if item.rating_t is not None else "-",
+                        'A': f"{item.rating_a:.2f}" if item.rating_a is not None else "-",
+                    },
+                    'remarks': item.remarks or "",
+                    'accountable': accountable_name
+                })
         else:
             continue
 
-        for item in section.section_items:
-            ratings = [item.rating_q, item.rating_e, item.rating_t]
-            valid_ratings = [r for r in ratings if r is not None]
-
-            avg = sum(valid_ratings) / len(valid_ratings) if valid_ratings else 0
-            item.rating_a = avg  # <-- assign the computed average
-
-            if section.type.lower() == 'core':
-                core_ratings.append(f"{avg:.2f}")
-            elif section.type.lower() == 'support':
-                support_ratings.append(f"{avg:.2f}")
-
-            accountable_name = f"{ipcr.employee.first_name} {ipcr.employee.last_name}"
-
-            pdf.table_row({
-                'mfo': item.mfo or "",
-                'success_indicators': item.success_indicator or "",
-                'budget': str(item.allotted_budget) if item.allotted_budget else "",
-                'actual': str(item.accomplishment) if item.accomplishment else "",
-                'rating': {
-                    'Q': str(item.rating_q) if item.rating_q is not None else "-",
-                    'E': str(item.rating_e) if item.rating_e is not None else "-",
-                    'T': str(item.rating_t) if item.rating_t is not None else "-",
-                    'A': f"{item.rating_a:.2f}" if item.rating_a is not None else "-",
-                },
-                'remarks': item.remarks or "",
-                'accountable': accountable_name
-            })
-
-
-    # ✅ Summary computation
-    core_sum = sum([float(r) for r in core_ratings]) if core_ratings else 0
-    support_sum = sum([float(r) for r in support_ratings]) if support_ratings else 0
-    core_count, support_count = len(core_ratings), len(support_ratings)
+    # Summary computation
+    core_sum = sum(core_ratings)
+    support_sum = sum(support_ratings)
+    core_count = len(core_ratings)
+    support_count = len(support_ratings)
     core_avg = core_sum / core_count if core_count else 0
     support_avg = support_sum / support_count if support_count else 0
     total_weighted = (core_avg * 0.9) + (support_avg * 0.1)
 
-    
-    # --- Prepare rows for summary table ---
+    # Prepare summary rows
     rows = [
-        # Header row → blue
         {"category": "Category", "mfo": "MFO", "rating": "Rating"},
-        # Strategic Priority → white
         {"category": "Strategic Priority", "mfo": "", "rating": ""},
-        # Core Function → white, MFO = core count, Rating = average
         {"category": "Core Function", "mfo": str(core_count), "rating": f"{core_avg:.2f}"},
-        # Support Function → white, MFO = support count, Rating = average
         {"category": "Support Function", "mfo": str(support_count), "rating": f"{support_avg:.2f}"},
-        # Total Overall Rating → blue, MFO = "-", Rating = total weighted
         {"category": "Total Overall Rating", "mfo": "", "rating": f"{total_weighted:.2f}"},
-        # Final Average Rating → blue, MFO = "-", Rating = final average
         {"category": "Final Average Rating", "mfo": "", "rating": f"{ipcr.final_average_rating:.2f}" if ipcr.final_average_rating else "-"},
-        # Adjectival Rating → blue
         {"category": "Adjectival Rating", "mfo": "", "rating": ipcr.adjective_rating or "-"},
     ]
 
-    # Rows 0, 4, 5, 6 should have blue Cells 2-4
     blue_rows = [0, 4, 5, 6]
-
-    # Add the rows to the PDF
     pdf.new_table_rows_custom_color(rows, blue_rows=blue_rows)
 # 🧾 Define the positions per line
     positions = [
