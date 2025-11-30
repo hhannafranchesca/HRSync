@@ -1655,7 +1655,7 @@ class LeaveApplicationPDF(FPDF):
         if not self.show_header:
             return  # Skip header on second page
 
-        self.set_font('Arial', 'B', 5)
+        self.set_font('Arial', 'B', 7)
         self.set_y(1)
         self.set_x(10)
         self.cell(100, 3.8, 'Civil Service Form No.6', ln=True, align='L')
