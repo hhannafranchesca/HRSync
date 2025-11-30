@@ -9822,10 +9822,10 @@ def print_ipcr():
                 'budget': str(item.allotted_budget) if item.allotted_budget else "",
                 'actual': str(item.accomplishment) if item.accomplishment else "",
                 'rating': {
-                    'Q': str(item.rating_q) if item.rating_q is not None else "",
-                    'E': str(item.rating_e) if item.rating_e is not None else "",
-                    'T': str(item.rating_t) if item.rating_t is not None else "",
-                    'A': f"{item.rating_a:.2f}" if item.rating_a is not None else "",
+                    'Q': str(item.rating_q) if item.rating_q is not None else "-",
+                    'E': str(item.rating_e) if item.rating_e is not None else "-",
+                    'T': str(item.rating_t) if item.rating_t is not None else "-",
+                    'A': f"{item.rating_a:.2f}" if item.rating_a is not None else "-",
                 },
                 'remarks': item.remarks or "",
                 'accountable': accountable_name
