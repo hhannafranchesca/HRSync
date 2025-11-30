@@ -6087,8 +6087,6 @@ def generate_leave_application_pdf(permit_id):
     date_from_str = leave.date_from.strftime("%B %d, %Y") if leave.date_from else 'N/A'
     salary_str = str(leave.salary) if leave.salary else 'N/A'
     leave_type_str = leave.leave_type if leave.leave_type else 'N/A'
-    credit_balance = EmployeeCredit.query.filter_by(employee_id=employee.id).first()
-
 
     # ✅ Generate PDF
     pdf = LeaveApplicationPDF()
@@ -6106,8 +6104,7 @@ def generate_leave_application_pdf(permit_id):
         head_approver=head_approver,
         head_approver_position=head_approver_position,
         head_approver_id=head_approver_id,
-        current_stage=permit.current_stage or 'N/A',
-        credit_balance=credit_balance
+        current_stage=permit.current_stage or 'N/A'
     )
     pdf.add_instructions_page()
 
@@ -9637,12 +9634,6 @@ def print_leave_application(permit_id):
         department = employee.department.name if employee.department else 'N/A'
         position = 'N/A'
 
-    credit_balance = EmployeeCredit.query.filter_by(employee_id=employee.id).first()
-    if not credit_balance:
-        credit_balance = EmployeeCredit(employee_id=employee.id)
-        db.session.add(credit_balance)
-        db.session.commit()
-
     pdf = LeaveApplicationPDF()
     pdf.add_page()
     pdf.add_leave_form(
@@ -9653,7 +9644,7 @@ def print_leave_application(permit_id):
         date_from=leave.date_from.strftime("%B %d, %Y"),
         position=position,
         salary=leave.salary or 'N/A',
-        credit_balance=credit_balance  # <-- Pass it here
+        
     )
     pdf.add_instructions_page()
 
