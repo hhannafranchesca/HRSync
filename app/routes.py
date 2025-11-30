@@ -19415,7 +19415,7 @@ def approve_leave_head():
 
 @app.route('/approve_leave/mayor', methods=['POST'])
 @login_required
-@role_required('head') 
+@role_required('head')
 def approve_leave_mayor():
     permit_id = request.form.get('permit_id')
     remarks = request.form.get('remarks')
@@ -19442,7 +19442,7 @@ def approve_leave_mayor():
     deduct_credits = leave_type in ['vacation leave', 'sick leave', 'force leave']
 
     try:
-        leave_days = float(leave.working_days)  # 1 day = 1.0 credit
+        leave_days = float(leave.working_days)  # allow partial days
     except ValueError:
         flash("Invalid number of leave days recorded.", "danger")
         return redirect(request.referrer or url_for('Userspermit'))
@@ -19452,21 +19452,17 @@ def approve_leave_mayor():
 
     if deduct_credits:
         if leave_type in ['vacation leave', 'force leave']:
-            available = int(credit.vacation_remaining)
-            requested = int(leave_days)
+            available = credit.vacation_remaining
             reserved_for_force_leave = 5
 
             if leave_type == 'vacation leave':
-                # ✅ Keep 5 days in reserve
                 usable_vacation = max(0, available - reserved_for_force_leave)
             else:
-                # ✅ Force leave can use everything, even the reserved 5 days
                 usable_vacation = available
 
-            deducted = min(usable_vacation, requested)
-            unpaid = requested - deducted
+            deducted = min(usable_vacation, leave_days)
+            unpaid = leave_days - deducted
 
-            # Update vacation leave balance
             if deducted > 0:
                 credit.update_vacation(used=deducted)
 
@@ -19474,36 +19470,37 @@ def approve_leave_mayor():
                 employee_id=employee.id,
                 leave_type="Vacation",
                 action="Used",
-                amount=-deducted,
-                notes=f'{leave.leave_type} approved by Mayor (Deducted {deducted}, Unpaid {unpaid}) — {"Reserved 5 days for Force Leave" if leave_type=="vacation leave" else "All credits usable for Force Leave"}',
+                amount=deducted,  # ✅ always positive
+                notes=f'{leave.leave_type} approved by Mayor (Deducted {deducted}, Unpaid {unpaid})',
                 timestamp=datetime.utcnow()
             ))
 
-        elif leave_type == 'sick leave':  # ✅ aligned properly now
+        elif leave_type == 'sick leave':
             available = credit.sick_remaining
-            available_whole_days = int(available)  # ✅ only whole days count
-            deducted = min(available_whole_days, int(leave_days))
+            deducted = min(available, leave_days)
             unpaid = leave_days - deducted
 
-            credit.update_sick(used=deducted)
+            if deducted > 0:
+                credit.update_sick(used=deducted)
 
             db.session.add(CreditTransaction(
                 employee_id=employee.id,
                 leave_type="Sick",
                 action="Used",
-                amount=deducted,
+                amount=deducted,  # ✅ positive
                 notes=f'Sick leave approved by Mayor (Deducted {deducted}, Unpaid {unpaid})',
                 timestamp=datetime.utcnow()
             ))
 
-    leave.paid_days = int(deducted)
-    
-    # ✅ Finalize workflow
+    # Keep float for paid_days
+    leave.paid_days = deducted
+
+    # Finalize workflow
     permit.status = 'Completed'
     permit.current_stage = 'Completed'
     permit.mayor_remarks = remarks
 
-    # ✅ Log history
+    # Log history
     history_entry = PermitRequestHistory(
         permit_request_id=permit.id,
         action_by=current_user.id,
@@ -19512,13 +19509,9 @@ def approve_leave_mayor():
     )
     db.session.add(history_entry)
 
-    # ✅ Notify employee
-    subject = f"Your {leave.leave_type} leave has been finally approved by the Mayor"
+    # Notify employee
     remarks_section = f"<p><strong>Mayor Remarks:</strong> {remarks}</p>" if remarks else ""
-
-    unpaid_section = ""
-    if unpaid > 0:
-        unpaid_section = f"<p>⚠ Note: {unpaid} day(s) are considered <strong>Unpaid Leave</strong> due to insufficient credits.</p>"
+    unpaid_section = f"<p>⚠ Note: {unpaid} day(s) are considered <strong>Unpaid Leave</strong> due to insufficient credits.</p>" if unpaid > 0 else ""
 
     body = f"""🎉 <strong>Final Leave Approval Notification</strong><br><br>
     <p>Dear <strong>{employee.user.name}</strong>,</p>
@@ -19538,7 +19531,7 @@ def approve_leave_mayor():
     db.session.add(UserMessage(
         sender_id=current_user.id,
         recipient_id=employee.user.id,
-        subject=subject,
+        subject=f"Your {leave.leave_type} leave has been finally approved by the Mayor",
         body=body,
         message_type='system'
     ))
@@ -19551,7 +19544,6 @@ def approve_leave_mayor():
         flash(f'Failed to approve leave: {str(e)}', 'danger')
 
     return redirect(request.referrer or url_for('Userspermit'))
-
 
 
 
